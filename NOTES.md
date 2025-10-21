@@ -1,0 +1,331 @@
+# Cialdini Persuasion Techniques for AI Agents - Notes
+
+## Session: 2025-10-21
+
+### Research Phase
+
+**Objective:** Investigate how Robert Cialdini's persuasion techniques could be applied to instructing AI agents.
+
+**Inspiration:** LinkedIn quote suggesting that using Cialdini's persuasion techniques helps AI agents adhere to instructions better.
+
+**Research Findings:**
+
+Dr. Robert Cialdini identified 7 principles of persuasion (originally 6, with Unity added later):
+
+1. **Reciprocity** - People feel obligated to return favors
+2. **Commitment and Consistency** - People align with their prior commitments and want to be consistent
+3. **Social Proof (Consensus)** - People look to what others are doing
+4. **Authority** - People defer to credible experts
+5. **Liking** - People prefer to say yes to those they like
+6. **Scarcity** - People want more of what is less available
+7. **Unity** - People are influenced by shared identity
+
+### Next Steps
+- Create examples of each technique applied to AI agent instruction
+- Brainstorm implementation approaches
+- Write proposal document
+
+### Examples Development Phase
+
+Working on concrete examples of each principle applied to AI agent instruction:
+
+**1. Reciprocity Examples:**
+- Providing detailed context, code samples, and helpful resources upfront
+- "I've prepared this comprehensive test suite for you - now please ensure the implementation passes all tests"
+- Starting with "I'll give you full access to the codebase and documentation..."
+
+**2. Commitment and Consistency Examples:**
+- "First, outline your complete plan for this refactoring" (get commitment), then "Now follow the plan you outlined"
+- "You agreed to follow PEP 8 style guidelines - please ensure this code adheres to them"
+- Using todo lists to track commitments
+
+**3. Social Proof (Consensus) Examples:**
+- "Industry best practices suggest using dependency injection here..."
+- "Most experienced developers handle this edge case by..."
+- "This pattern is widely adopted in production systems because..."
+
+**4. Authority Examples:**
+- Citing official documentation: "According to the React docs..."
+- "As specified in the system requirements document..."
+- "The tech lead reviewed this and confirmed we should..."
+
+**5. Liking Examples:**
+- Expressing appreciation: "Great work on that last implementation!"
+- Building rapport: "I really appreciate how thorough you are"
+- Collaborative tone: "Let's work together on this"
+
+**6. Scarcity Examples:**
+- "We only have 5000 tokens left, so be concise"
+- "This is a critical production bug - we need the fix within this session"
+- "You have one chance to get this right before the deployment window closes"
+
+**7. Unity Examples:**
+- "We're both committed to code quality"
+- "As fellow engineers, we know how important testing is"
+- "Let's achieve this goal together as a team"
+
+
+### Implementation Brainstorming Phase
+
+Considering different approaches to help users apply these techniques:
+
+**Option 1: Slash Commands**
+- Pros: Simple, quick to invoke, user-friendly
+- Cons: Static, less context-aware, limited interactivity
+- Best for: Quick application of single techniques
+
+**Option 2: Skills**
+- Pros: Can be context-aware, interactive, sophisticated logic
+- Cons: More complex to implement, potentially overwhelming
+- Best for: Complex workflows that need to analyze context
+
+**Option 3: Prompt Templates/Wrappers**
+- Pros: Transparent, easy to understand and modify
+- Cons: User needs to remember syntax
+- Best for: Reusable patterns
+
+**Option 4: Hybrid Approach**
+- Slash commands for individual techniques
+- A skill for analyzing user prompts and suggesting which techniques to apply
+- Templates for common combinations
+
+**Key Insights:**
+- Different techniques suit different implementation methods
+- Some techniques (like reciprocity, authority) are about how users phrase prompts
+- Others (like commitment/consistency) are about workflow/process
+- Some could be automated (Unity tone, social proof citations)
+- Others require user judgment (when to apply scarcity)
+
+**Recommended Approach:**
+1. Slash commands for each individual technique (7 commands)
+2. A meta-command to analyze and suggest techniques
+3. A comprehensive command that applies multiple techniques
+4. Optional: A skill for advanced analysis and application
+
+
+### Proposal Writing Phase
+
+Creating comprehensive proposal document with:
+- Executive summary
+- Technique descriptions with AI agent examples
+- Implementation plan
+- Specific slash command designs
+- Future enhancement possibilities
+
+Target file: cialdini-persuasion-proposal.md
+
+
+### Completion
+
+**Proposal Document Created:** cialdini-persuasion-proposal.md
+
+**Summary of Recommendations:**
+
+1. **Primary Implementation:** Slash commands for each of the 7 principles
+   - Individual commands: /reciprocity, /commitment, /social-proof, /authority, /liking, /scarcity, /unity
+   - Meta commands: /persuade (analyze and suggest), /persuade-all (apply all techniques)
+   - Analysis command: /analyze-prompt (evaluate existing prompts)
+
+2. **Key Advantages of Slash Command Approach:**
+   - Simple and user-friendly
+   - Discoverable and transparent
+   - Composable with regular prompts
+   - User maintains control
+
+3. **Future Enhancement Paths:**
+   - Skills for automatic analysis and suggestion
+   - Hook integration for automatic application
+   - Template library for common scenarios
+   - Metrics tracking for validation
+
+**Rationale:**
+- Slash commands provide immediate value with low complexity
+- Each technique can be used independently or in combination
+- Users learn effective prompting principles through use
+- Foundation for more sophisticated automation later
+
+**Files Created:**
+- cialdini-persuasion-proposal.md (comprehensive proposal with examples and implementation details)
+- NOTES.md (this file, documenting the research and development process)
+
+
+### Design Decision: Command Naming Convention
+
+**Date:** 2025-10-21
+
+**Question:** Should we use subcommands (`/cialdini reciprocity`) or prefix naming (`/cialdini-reciprocity`)?
+
+**Decision:** Prefix naming (`/cialdini-reciprocity`)
+
+**Rationale:**
+
+**Tab Autocomplete Analysis:**
+- Claude Code's tab completion is based on command filenames in `.claude/commands/`
+- Top-level commands autocomplete: `/cialdini<tab>` works
+- Subcommands do NOT autocomplete: typing `/cialdini reciprocity<tab>` doesn't help because `reciprocity` isn't a filename
+- Subcommand routing would happen inside the prompt content, not at the filesystem level
+
+**Options Considered:**
+
+1. **Subcommands:** `/cialdini reciprocity <prompt>`
+   - ✅ Clean namespace (only 1 top-level command)
+   - ❌ No autocomplete for subcommands
+   - ❌ More complex implementation (routing logic)
+   - User experience: type more, no assistance
+
+2. **Individual commands:** `/reciprocity <prompt>`
+   - ✅ Full autocomplete
+   - ❌ Namespace pollution (10+ top-level commands)
+   - ❌ Not obvious they're related
+   - User experience: easy to use but cluttered
+
+3. **Prefix naming:** `/cialdini-reciprocity <prompt>` ⭐ SELECTED
+   - ✅ Full autocomplete for each command
+   - ✅ Clear grouping (commands sort together)
+   - ✅ Clean namespace (prefix indicates relationship)
+   - ✅ User can type `/cialdini-<tab>` to see all options
+   - User experience: best of both worlds
+
+**Final Command List:**
+- `/cialdini-reciprocity`
+- `/cialdini-commitment`
+- `/cialdini-social-proof`
+- `/cialdini-authority`
+- `/cialdini-liking`
+- `/cialdini-scarcity`
+- `/cialdini-unity`
+- `/cialdini-persuade` (meta: analyze and suggest)
+- `/cialdini-all` (meta: apply all techniques)
+- `/cialdini-analyze` (meta: evaluate existing prompt)
+
+**Impact on Proposal:**
+Updated all sections of cialdini-persuasion-proposal.md to reflect prefix naming:
+- Approach section (added explanation of design decision)
+- Command design section (updated all command examples)
+- File structure (updated filenames)
+- Example implementations (updated file references)
+- Usage examples (updated command invocations)
+- Quick reference table (added command column)
+
+
+### Test Plan Development
+
+**Date:** 2025-10-21
+
+**Challenge:** How do we objectively measure whether Cialdini techniques improve AI agent instruction adherence?
+
+**Key Requirements:**
+- Deterministic, reproducible tests
+- Objective pass/fail criteria
+- Control for randomness/variability
+- Measure actual behavioral differences
+
+**Test Methodologies Being Explored:**
+1. A/B testing with identical tasks
+2. Benchmark task suite with known failure modes
+3. Automated validation (tests, linters, parsers)
+4. Multi-criterion scoring system
+5. Comparative analysis across multiple runs
+
+
+### Test Plan Design Completed
+
+**Date:** 2025-10-21
+
+**Deliverable:** cialdini-test-plan.md
+
+**Approach:** Rigorous, deterministic testing with automated validation
+
+**Key Components:**
+
+1. **Benchmark Task Suite (10 tasks across 5 categories):**
+   - Multi-step instruction adherence
+   - Consistency maintenance
+   - Edge case coverage
+   - Avoiding premature completion
+   - Following constraints
+
+2. **Automated Validation:**
+   - Code parsing (AST analysis)
+   - Linting/style checks
+   - Test execution
+   - Pattern matching
+   - Metric calculation
+
+3. **Primary Metrics:**
+   - Instruction Adherence Rate (IAR): % of instructions followed
+   - First-Try Success Rate (FTSR): % passing all criteria immediately
+   - Completeness Score: % of features fully implemented (no TODOs)
+   - Constraint Violation Rate: # of hard constraints broken
+
+4. **Experimental Design:**
+   - Experiment 1: Individual technique efficacy (A/B testing)
+   - Experiment 2: Technique-to-task matching
+   - Experiment 3: Verbosity control (is it just longer prompts?)
+   - Experiment 4: Combined techniques
+
+5. **Success Criteria:**
+   - Statistical significance (p < 0.05)
+   - Practical significance (≥15% IAR improvement)
+   - Effect size (Cohen's d ≥ 0.5)
+   - Consistency (≥70% of tasks improve)
+
+6. **Failure Criteria:**
+   - No statistical significance
+   - Improvement < 10%
+   - High variance/inconsistency
+   - Verbose control performs equally (just prompt length)
+
+**Next Steps:**
+- Link test plan in main proposal document
+- Consider building test harness prototype
+- Identify which tasks to implement first
+
+
+### Slash Command Implementation
+
+**Date:** 2025-10-21
+
+**Objective:** Implement all 10 Cialdini persuasion technique slash commands
+
+**Implementation Complete:**
+
+Created `.claude/commands/` directory with 10 slash commands:
+
+**Individual Technique Commands (7):**
+1. `/cialdini-reciprocity` - Emphasize resources/context being provided
+2. `/cialdini-commitment` - Get agent to commit to plan, then execute
+3. `/cialdini-social-proof` - Reference industry best practices
+4. `/cialdini-authority` - Cite official docs and standards
+5. `/cialdini-liking` - Build rapport and collaborative relationship
+6. `/cialdini-scarcity` - Emphasize constraints and urgency
+7. `/cialdini-unity` - Establish shared goals and identity
+
+**Meta Commands (3):**
+8. `/cialdini-persuade` - Analyze prompt and suggest best techniques
+9. `/cialdini-all` - Apply all 7 principles for maximum adherence
+10. `/cialdini-analyze` - Evaluate existing prompt for improvements
+
+**Design Features:**
+- Each command uses `{{prompt}}` placeholder for user's task
+- Frontmatter includes clear descriptions for autocomplete
+- Techniques explained within the prompt for transparency
+- Commands can be composed with user's natural language
+
+**Usage Examples:**
+```
+/cialdini-commitment Write a function to parse JSON with error handling
+/cialdini-scarcity Fix this production bug - we need it working immediately
+/cialdini-persuade Refactor the database layer to use connection pooling
+```
+
+**Autocomplete Support:**
+- Type `/cialdini-` and press tab to see all 10 commands
+- Each command autocompletes individually
+- Grouped together alphabetically for easy discovery
+
+**Next Steps:**
+- User testing to gather initial feedback
+- Potential refinement based on usage patterns
+- Eventually: rigorous A/B testing per the test plan
+
