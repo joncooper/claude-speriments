@@ -25,6 +25,27 @@ Implementation of the **Verbalized Sampling** technique from the research paper 
 
 ---
 
+### 🧠 [Cialdini Persuasion Techniques](./cialdini-persuasion/)
+
+Application of **Dr. Robert Cialdini's 7 principles of persuasion** to improve AI agent instruction adherence and task completion.
+
+**What it does:** 10 Claude Code slash commands that apply proven psychological principles to get better results from AI agents.
+
+**Key principles:**
+- Reciprocity - agents reciprocate effort with thorough work
+- Commitment - early commitments lead to consistent follow-through
+- Social Proof - best practices guide agent behavior
+- Authority - official sources increase compliance
+- Liking - acknowledgment improves cooperation
+- Scarcity - urgency focuses attention
+- Unity - shared goals create stronger commitment
+
+**Commands include:** `/cialdini-reciprocity`, `/cialdini-commitment`, `/cialdini-authority`, `/cialdini-persuade`, `/cialdini-all`, and more.
+
+**Status:** ✅ Complete
+
+---
+
 ## Installation
 
 Each experiment has its own installation instructions in its README. Generally:
@@ -45,10 +66,16 @@ cat README.md
 claude-speriments/
 ├── README.md                    # This file
 ├── verbalized-sampling/         # Verbalized Sampling experiment
-│   ├── README.md
-│   ├── PAPER_SUMMARY.md
-│   ├── NOTES.md
-│   └── commands/               # 12 slash commands
+│   ├── README.md                # Usage guide
+│   ├── PAPER_SUMMARY.md         # Research paper summary
+│   ├── NOTES.md                 # Implementation notes
+│   └── commands/                # 12 slash commands
+├── cialdini-persuasion/         # Cialdini Persuasion experiment
+│   ├── README.md                # Usage guide
+│   ├── proposal.md              # Detailed principle explanations
+│   ├── test-plan.md             # Testing methodology
+│   ├── NOTES.md                 # Implementation notes
+│   └── commands/                # 10 slash commands
 └── [future experiments]/
 ```
 
