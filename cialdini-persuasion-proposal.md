@@ -102,15 +102,20 @@ Establish shared purpose, common identity, or collective goals.
 
 ## Proposed Implementation
 
-### Approach: Slash Commands
+### Approach: Slash Commands with Prefix Naming
 
-We recommend implementing **slash commands** for the following reasons:
+We recommend implementing **slash commands using a `/cialdini-*` prefix** for the following reasons:
 
 1. **Ease of Use:** Simple to invoke and learn
-2. **Discoverability:** Users can easily see available techniques
-3. **Composability:** Can be combined with regular prompts
-4. **Transparency:** Users understand exactly what's being applied
-5. **Flexibility:** Users control when and how to apply each technique
+2. **Full Autocomplete:** Tab completion works for all commands
+3. **Clear Grouping:** Commands sort together alphabetically, showing they're related
+4. **Clean Namespace:** Prefix indicates these are Cialdini techniques without subcommand complexity
+5. **Discoverability:** Users can type `/cialdini-` and see all available techniques
+6. **Composability:** Can be combined with regular prompts
+7. **Transparency:** Users understand exactly what's being applied
+8. **Flexibility:** Users control when and how to apply each technique
+
+**Design Decision:** We chose prefix naming (`/cialdini-reciprocity`) over subcommands (`/cialdini reciprocity`) because Claude Code's tab completion is based on command filenames, not subcommand parsing. This gives users the best of both worlds: namespace organization AND full autocomplete support.
 
 ### Command Design
 
@@ -118,55 +123,55 @@ We recommend implementing **slash commands** for the following reasons:
 
 Each principle gets its own command that wraps the user's prompt:
 
-**`/reciprocity <your prompt>`**
+**`/cialdini-reciprocity <your prompt>`**
 - Prepends context about providing resources/context
 - Frames the request as building on foundation you've provided
 
-**`/commitment <your prompt>`**
+**`/cialdini-commitment <your prompt>`**
 - First asks agent to state their plan/approach
 - Then instructs them to follow through on it
 - Can optionally use TodoWrite for tracking
 
-**`/social-proof <your prompt>`**
+**`/cialdini-social-proof <your prompt>`**
 - Adds context about industry best practices
 - References common patterns and widespread adoption
 - Cites "experienced developers" doing similar work
 
-**`/authority <your prompt>`**
+**`/cialdini-authority <your prompt>`**
 - Prompts user to optionally specify authoritative sources
 - Frames request in terms of official requirements/specs
 - Adds weight of documentation and standards
 
-**`/liking <your prompt>`**
+**`/cialdini-liking <your prompt>`**
 - Adds appreciative, collaborative framing
 - Builds rapport before the request
 - Uses positive, team-oriented language
 
-**`/scarcity <your prompt>`**
+**`/cialdini-scarcity <your prompt>`**
 - Emphasizes time/resource constraints
 - Frames as important/urgent opportunity
 - Adds focus through limitation
 
-**`/unity <your prompt>`**
+**`/cialdini-unity <your prompt>`**
 - Establishes shared goals and values
 - Uses "we" language and collective identity
 - Frames as collaborative achievement
 
 #### Meta Commands
 
-**`/persuade <your prompt>`**
+**`/cialdini-persuade <your prompt>`**
 - Analyzes the prompt and suggests which 2-3 techniques would be most effective
 - Explains why those techniques are recommended
 - Offers to apply them
 
-**`/persuade-all <your prompt>`**
+**`/cialdini-all <your prompt>`**
 - Applies all 7 techniques in a carefully balanced way
 - Uses sophisticated prompt engineering to combine them naturally
 - Best for critical, complex tasks requiring maximum adherence
 
 #### Analysis Command
 
-**`/analyze-prompt <your prompt>`**
+**`/cialdini-analyze <your prompt>`**
 - Analyzes an existing prompt
 - Identifies which Cialdini principles are already present
 - Suggests which additional principles could improve it
@@ -181,21 +186,23 @@ Each principle gets its own command that wraps the user's prompt:
 ```
 .claude/
   commands/
-    reciprocity.md
-    commitment.md
-    social-proof.md
-    authority.md
-    liking.md
-    scarcity.md
-    unity.md
-    persuade.md
-    persuade-all.md
-    analyze-prompt.md
+    cialdini-reciprocity.md
+    cialdini-commitment.md
+    cialdini-social-proof.md
+    cialdini-authority.md
+    cialdini-liking.md
+    cialdini-scarcity.md
+    cialdini-unity.md
+    cialdini-persuade.md
+    cialdini-all.md
+    cialdini-analyze.md
 ```
+
+All commands will autocomplete when typing `/cialdini-` followed by tab.
 
 ### Example Command Implementation
 
-**File: `.claude/commands/reciprocity.md`**
+**File: `.claude/commands/cialdini-reciprocity.md`**
 
 ```markdown
 ---
@@ -221,7 +228,7 @@ Please recognize the comprehensive context and resources I've given you, and pro
 
 ### Example Meta Command Implementation
 
-**File: `.claude/commands/persuade.md`**
+**File: `.claude/commands/cialdini-persuade.md`**
 
 ```markdown
 ---
@@ -266,9 +273,9 @@ Be thoughtful and selective - not every principle fits every situation.
 Fix the authentication bug in user_service.py
 ```
 
-**After (using /scarcity + /authority):**
+**After (using /cialdini-scarcity):**
 ```
-/scarcity According to the incident report and tech lead guidance,
+/cialdini-scarcity According to the incident report and tech lead guidance,
 fix the authentication bug in user_service.py. This is affecting
 production users right now and needs to be resolved in this session.
 ```
@@ -280,9 +287,9 @@ production users right now and needs to be resolved in this session.
 Refactor the payment processing module to use the new API
 ```
 
-**After (using /commitment + /social-proof):**
+**After (using /cialdini-commitment):**
 ```
-/commitment Refactor the payment processing module to use the new API.
+/cialdini-commitment Refactor the payment processing module to use the new API.
 First outline your complete refactoring plan, then execute it following
 industry best practices for payment system migrations.
 ```
@@ -294,9 +301,9 @@ industry best practices for payment system migrations.
 Review this pull request and suggest improvements
 ```
 
-**After (using /reciprocity + /unity):**
+**After (using /cialdini-reciprocity):**
 ```
-/reciprocity I've prepared detailed context about this PR including
+/cialdini-reciprocity I've prepared detailed context about this PR including
 the business requirements, test coverage report, and performance benchmarks.
 Using this comprehensive context, let's review this together and ensure
 it meets our shared standards for code quality and maintainability.
@@ -378,15 +385,18 @@ The slash command approach balances ease of use with power, making these techniq
 
 ## Appendix: Quick Reference
 
-| Principle | When to Use | Key Phrase |
-|-----------|-------------|------------|
-| Reciprocity | You've provided extensive context | "I've given you..." |
-| Commitment | Complex multi-step tasks | "First outline your plan..." |
-| Social Proof | Standard patterns exist | "Industry best practices..." |
-| Authority | Official requirements exist | "According to the docs..." |
-| Liking | Building ongoing relationship | "Great work on..." |
-| Scarcity | Time/resource constraints | "We only have..." |
-| Unity | Collaborative goals | "We're both committed to..." |
+| Command | Principle | When to Use | Key Phrase |
+|---------|-----------|-------------|------------|
+| `/cialdini-reciprocity` | Reciprocity | You've provided extensive context | "I've given you..." |
+| `/cialdini-commitment` | Commitment | Complex multi-step tasks | "First outline your plan..." |
+| `/cialdini-social-proof` | Social Proof | Standard patterns exist | "Industry best practices..." |
+| `/cialdini-authority` | Authority | Official requirements exist | "According to the docs..." |
+| `/cialdini-liking` | Liking | Building ongoing relationship | "Great work on..." |
+| `/cialdini-scarcity` | Scarcity | Time/resource constraints | "We only have..." |
+| `/cialdini-unity` | Unity | Collaborative goals | "We're both committed to..." |
+| `/cialdini-persuade` | Meta | Need help choosing techniques | Analyzes & suggests |
+| `/cialdini-all` | Meta | Critical/complex tasks | Applies all 7 principles |
+| `/cialdini-analyze` | Meta | Evaluate existing prompt | Shows improvements |
 
 ---
 

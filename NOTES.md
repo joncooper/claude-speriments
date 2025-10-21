@@ -148,3 +148,62 @@ Target file: cialdini-persuasion-proposal.md
 - cialdini-persuasion-proposal.md (comprehensive proposal with examples and implementation details)
 - NOTES.md (this file, documenting the research and development process)
 
+
+### Design Decision: Command Naming Convention
+
+**Date:** 2025-10-21
+
+**Question:** Should we use subcommands (`/cialdini reciprocity`) or prefix naming (`/cialdini-reciprocity`)?
+
+**Decision:** Prefix naming (`/cialdini-reciprocity`)
+
+**Rationale:**
+
+**Tab Autocomplete Analysis:**
+- Claude Code's tab completion is based on command filenames in `.claude/commands/`
+- Top-level commands autocomplete: `/cialdini<tab>` works
+- Subcommands do NOT autocomplete: typing `/cialdini reciprocity<tab>` doesn't help because `reciprocity` isn't a filename
+- Subcommand routing would happen inside the prompt content, not at the filesystem level
+
+**Options Considered:**
+
+1. **Subcommands:** `/cialdini reciprocity <prompt>`
+   - ✅ Clean namespace (only 1 top-level command)
+   - ❌ No autocomplete for subcommands
+   - ❌ More complex implementation (routing logic)
+   - User experience: type more, no assistance
+
+2. **Individual commands:** `/reciprocity <prompt>`
+   - ✅ Full autocomplete
+   - ❌ Namespace pollution (10+ top-level commands)
+   - ❌ Not obvious they're related
+   - User experience: easy to use but cluttered
+
+3. **Prefix naming:** `/cialdini-reciprocity <prompt>` ⭐ SELECTED
+   - ✅ Full autocomplete for each command
+   - ✅ Clear grouping (commands sort together)
+   - ✅ Clean namespace (prefix indicates relationship)
+   - ✅ User can type `/cialdini-<tab>` to see all options
+   - User experience: best of both worlds
+
+**Final Command List:**
+- `/cialdini-reciprocity`
+- `/cialdini-commitment`
+- `/cialdini-social-proof`
+- `/cialdini-authority`
+- `/cialdini-liking`
+- `/cialdini-scarcity`
+- `/cialdini-unity`
+- `/cialdini-persuade` (meta: analyze and suggest)
+- `/cialdini-all` (meta: apply all techniques)
+- `/cialdini-analyze` (meta: evaluate existing prompt)
+
+**Impact on Proposal:**
+Updated all sections of cialdini-persuasion-proposal.md to reflect prefix naming:
+- Approach section (added explanation of design decision)
+- Command design section (updated all command examples)
+- File structure (updated filenames)
+- Example implementations (updated file references)
+- Usage examples (updated command invocations)
+- Quick reference table (added command column)
+
