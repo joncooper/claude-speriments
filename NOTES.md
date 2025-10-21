@@ -281,3 +281,51 @@ Updated all sections of cialdini-persuasion-proposal.md to reflect prefix naming
 - Consider building test harness prototype
 - Identify which tasks to implement first
 
+
+### Slash Command Implementation
+
+**Date:** 2025-10-21
+
+**Objective:** Implement all 10 Cialdini persuasion technique slash commands
+
+**Implementation Complete:**
+
+Created `.claude/commands/` directory with 10 slash commands:
+
+**Individual Technique Commands (7):**
+1. `/cialdini-reciprocity` - Emphasize resources/context being provided
+2. `/cialdini-commitment` - Get agent to commit to plan, then execute
+3. `/cialdini-social-proof` - Reference industry best practices
+4. `/cialdini-authority` - Cite official docs and standards
+5. `/cialdini-liking` - Build rapport and collaborative relationship
+6. `/cialdini-scarcity` - Emphasize constraints and urgency
+7. `/cialdini-unity` - Establish shared goals and identity
+
+**Meta Commands (3):**
+8. `/cialdini-persuade` - Analyze prompt and suggest best techniques
+9. `/cialdini-all` - Apply all 7 principles for maximum adherence
+10. `/cialdini-analyze` - Evaluate existing prompt for improvements
+
+**Design Features:**
+- Each command uses `{{prompt}}` placeholder for user's task
+- Frontmatter includes clear descriptions for autocomplete
+- Techniques explained within the prompt for transparency
+- Commands can be composed with user's natural language
+
+**Usage Examples:**
+```
+/cialdini-commitment Write a function to parse JSON with error handling
+/cialdini-scarcity Fix this production bug - we need it working immediately
+/cialdini-persuade Refactor the database layer to use connection pooling
+```
+
+**Autocomplete Support:**
+- Type `/cialdini-` and press tab to see all 10 commands
+- Each command autocompletes individually
+- Grouped together alphabetically for easy discovery
+
+**Next Steps:**
+- User testing to gather initial feedback
+- Potential refinement based on usage patterns
+- Eventually: rigorous A/B testing per the test plan
+
