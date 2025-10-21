@@ -340,22 +340,46 @@ Pre-built templates for common scenarios:
 
 ## Research and Validation
 
-### Testing Approach
+**See [cialdini-test-plan.md](./cialdini-test-plan.md) for comprehensive testing methodology.**
 
-To validate effectiveness:
+### Testing Approach Overview
 
-1. **A/B Testing:** Compare task completion rates with/without techniques
-2. **Qualitative Analysis:** Review agent adherence to instructions
-3. **User Feedback:** Gather input on perceived usefulness
-4. **Iteration Tracking:** Count how many iterations needed to complete tasks
+To rigorously validate whether these techniques actually work (vs. "prompting theater"), we use:
 
-### Metrics to Track
+1. **A/B Testing with Automated Validation**
+   - Control vs. Treatment on identical tasks
+   - Deterministic, reproducible results
+   - Statistical significance testing
 
-- Instruction adherence rate
-- Task completion success rate
-- Number of clarification requests from agent
-- User satisfaction scores
-- Most frequently used techniques
+2. **Benchmark Task Suite**
+   - 10 tasks across 5 categories
+   - Clear pass/fail criteria (automated checks)
+   - Tests for instruction adherence, completeness, consistency
+
+3. **Verbosity Control**
+   - Test if improvements come from technique content or just longer prompts
+   - Critical for validating mechanism
+
+4. **Multiple Experiments**
+   - Individual technique efficacy
+   - Technique-to-task matching
+   - Combined technique effectiveness
+
+### Primary Metrics
+
+- **Instruction Adherence Rate (IAR):** % of instructions followed
+- **First-Try Success Rate (FTSR):** % passing all criteria immediately
+- **Completeness Score:** % fully implemented (no TODOs/stubs)
+- **Constraint Violation Rate:** # of hard constraints broken
+
+### Success Criteria
+
+For techniques to be validated:
+- Statistical significance (p < 0.05)
+- ≥15% improvement in IAR
+- Cohen's d ≥ 0.5 (medium-to-large effect)
+- Improvement on ≥70% of tasks
+- NOT explained by verbosity alone
 
 ---
 

@@ -207,3 +207,77 @@ Updated all sections of cialdini-persuasion-proposal.md to reflect prefix naming
 - Usage examples (updated command invocations)
 - Quick reference table (added command column)
 
+
+### Test Plan Development
+
+**Date:** 2025-10-21
+
+**Challenge:** How do we objectively measure whether Cialdini techniques improve AI agent instruction adherence?
+
+**Key Requirements:**
+- Deterministic, reproducible tests
+- Objective pass/fail criteria
+- Control for randomness/variability
+- Measure actual behavioral differences
+
+**Test Methodologies Being Explored:**
+1. A/B testing with identical tasks
+2. Benchmark task suite with known failure modes
+3. Automated validation (tests, linters, parsers)
+4. Multi-criterion scoring system
+5. Comparative analysis across multiple runs
+
+
+### Test Plan Design Completed
+
+**Date:** 2025-10-21
+
+**Deliverable:** cialdini-test-plan.md
+
+**Approach:** Rigorous, deterministic testing with automated validation
+
+**Key Components:**
+
+1. **Benchmark Task Suite (10 tasks across 5 categories):**
+   - Multi-step instruction adherence
+   - Consistency maintenance
+   - Edge case coverage
+   - Avoiding premature completion
+   - Following constraints
+
+2. **Automated Validation:**
+   - Code parsing (AST analysis)
+   - Linting/style checks
+   - Test execution
+   - Pattern matching
+   - Metric calculation
+
+3. **Primary Metrics:**
+   - Instruction Adherence Rate (IAR): % of instructions followed
+   - First-Try Success Rate (FTSR): % passing all criteria immediately
+   - Completeness Score: % of features fully implemented (no TODOs)
+   - Constraint Violation Rate: # of hard constraints broken
+
+4. **Experimental Design:**
+   - Experiment 1: Individual technique efficacy (A/B testing)
+   - Experiment 2: Technique-to-task matching
+   - Experiment 3: Verbosity control (is it just longer prompts?)
+   - Experiment 4: Combined techniques
+
+5. **Success Criteria:**
+   - Statistical significance (p < 0.05)
+   - Practical significance (≥15% IAR improvement)
+   - Effect size (Cohen's d ≥ 0.5)
+   - Consistency (≥70% of tasks improve)
+
+6. **Failure Criteria:**
+   - No statistical significance
+   - Improvement < 10%
+   - High variance/inconsistency
+   - Verbose control performs equally (just prompt length)
+
+**Next Steps:**
+- Link test plan in main proposal document
+- Consider building test harness prototype
+- Identify which tasks to implement first
+
