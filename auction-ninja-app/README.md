@@ -21,9 +21,9 @@ A modern, responsive web application that helps you find auctions on AuctionNinj
 
 ### Backend
 - Node.js with Express
-- Cheerio (for web scraping)
+- Puppeteer (headless Chrome for web scraping)
 - Node-cache (for performance optimization)
-- Axios (for HTTP requests)
+- Native fetch API (for geocoding)
 
 ## Quick Start
 
@@ -175,9 +175,11 @@ The optimized build will be in `frontend/dist/`.
 
 ## Notes
 
+- **Uses headless Chrome**: The backend uses Puppeteer to render JavaScript and scrape AuctionNinja.com, which allows it to bypass basic bot detection
 - The application includes mock data for development/testing when AuctionNinja.com is not accessible
-- Auction data is cached for 5 minutes to improve performance
-- The scraper respects rate limits and includes proper headers
+- Auction data is cached for 5 minutes to improve performance and reduce server load
+- The scraper uses intelligent selectors to extract auction data from various possible page structures
+- First launch may be slower as Puppeteer downloads Chromium (about 150MB)
 
 ## Troubleshooting
 
@@ -191,6 +193,12 @@ If ports 3000 or 3001 are already in use, you can change them:
 - Extend the time window (e.g., 48 or 72 hours)
 - Check if the ZIP code is valid
 - The app includes mock data for testing if real data is unavailable
+
+### Puppeteer/Browser issues
+If the backend fails to start or crashes:
+- Ensure you have enough disk space (Puppeteer needs ~150MB for Chromium)
+- On Linux, you may need to install dependencies: `sudo apt-get install -y gconf-service libasound2 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils wget`
+- Check backend console logs for detailed error messages
 
 ## Future Enhancements
 
