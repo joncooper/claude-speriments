@@ -373,11 +373,11 @@ def audit(
     console.print("[dim]This will analyze your content for political, controversial,")
     console.print("NSFW, profanity, and unprofessional content...[/dim]\n")
 
-    # Initialize auditor
-    auditor = ProfileAuditor(settings.gemini_api_key)
     all_flagged = []
 
     with TwitterDatabase(settings.db_path) as db:
+        # Initialize auditor with db connection for logging
+        auditor = ProfileAuditor(settings.gemini_api_key, db_conn=db.conn)
         # Audit tweets
         if tweets:
             tweet_list = db.query(
@@ -494,6 +494,137 @@ def audit(
     else:
         console.print("[bold green]✓ Great news! No problematic content found.[/bold green]")
         console.print("[dim]Your profile looks professional and appropriate for public viewing.[/dim]")
+
+
+@app.command()
+def logs(
+    run_id: Optional[str] = typer.Option(None, help="Show logs for specific run ID"),
+    recent: int = typer.Option(1, help="Show N most recent runs"),
+    stats: bool = typer.Option(False, help="Show statistics summary"),
+):
+    """View audit logs and statistics."""
+    settings = get_settings()
+
+    db_path = Path(settings.db_path)
+    if not db_path.exists():
+        console.print("[red]✗ Database not found[/red]")
+        raise typer.Exit(1)
+
+    with TwitterDatabase(settings.db_path) as db:
+        if stats:
+            # Show statistics
+            console.print("\n[bold cyan]📊 Audit Statistics[/bold cyan]\n")
+
+            # Total runs
+            total_runs = db.query("SELECT COUNT(DISTINCT run_id) as count FROM audit_logs")[0]['count']
+            console.print(f"Total audit runs: {total_runs}")
+
+            # Total items analyzed
+            total_items = db.query("SELECT COUNT(*) as count FROM audit_logs")[0]['count']
+            console.print(f"Total items analyzed: {total_items}")
+
+            # Flagged vs clean
+            flagged_count = db.query("SELECT COUNT(*) as count FROM audit_logs WHERE flagged = TRUE")[0]['count']
+            clean_count = total_items - flagged_count
+            console.print(f"Flagged: {flagged_count} ({flagged_count/total_items*100:.1f}%)")
+            console.print(f"Clean: {clean_count} ({clean_count/total_items*100:.1f}%)")
+
+            # By severity
+            console.print("\n[bold]By Severity:[/bold]")
+            severity_stats = db.query("""
+                SELECT severity, COUNT(*) as count
+                FROM audit_logs
+                WHERE flagged = TRUE
+                GROUP BY severity
+                ORDER BY count DESC
+            """)
+            for row in severity_stats:
+                console.print(f"  {row['severity']}: {row['count']}")
+
+            # By category
+            console.print("\n[bold]Top Categories:[/bold]")
+            # This is tricky with JSON, simplified version
+            console.print("  (Categories are stored as JSON, use query for details)")
+
+            # API usage
+            console.print("\n[bold]API Usage:[/bold]")
+            total_tokens = db.query("SELECT SUM(tokens_used) as total FROM audit_logs")[0]['total'] or 0
+            avg_latency = db.query("SELECT AVG(api_latency_ms) as avg FROM audit_logs")[0]['avg'] or 0
+            console.print(f"Total tokens used: {total_tokens:,}")
+            console.print(f"Average latency: {avg_latency:.0f}ms")
+
+        elif run_id:
+            # Show specific run
+            console.print(f"\n[bold cyan]Audit Run: {run_id}[/bold cyan]\n")
+
+            logs = db.query(f"""
+                SELECT item_type, item_id, flagged, severity, reason
+                FROM audit_logs
+                WHERE run_id = '{run_id}'
+                ORDER BY timestamp
+            """)
+
+            if not logs:
+                console.print("[yellow]No logs found for that run ID[/yellow]")
+                return
+
+            flagged_logs = [l for l in logs if l['flagged']]
+
+            console.print(f"Total items: {len(logs)}")
+            console.print(f"Flagged: {len(flagged_logs)}")
+
+            if flagged_logs:
+                console.print("\n[bold]Flagged Items:[/bold]\n")
+                for log in flagged_logs[:20]:
+                    console.print(f"[yellow]{log['item_type']} {log['item_id']}[/yellow]")
+                    console.print(f"  Severity: {log['severity']}")
+                    console.print(f"  Reason: {log['reason']}\n")
+
+        else:
+            # Show recent runs
+            console.print(f"\n[bold cyan]Recent Audit Runs[/bold cyan]\n")
+
+            runs = db.query(f"""
+                SELECT
+                    run_id,
+                    MIN(timestamp) as started,
+                    COUNT(*) as items,
+                    SUM(CASE WHEN flagged THEN 1 ELSE 0 END) as flagged,
+                    SUM(tokens_used) as tokens,
+                    model_name
+                FROM audit_logs
+                GROUP BY run_id
+                ORDER BY started DESC
+                LIMIT {recent}
+            """)
+
+            if not runs:
+                console.print("[yellow]No audit logs found yet[/yellow]")
+                console.print("[dim]Run an audit first: twitter-analyzer audit[/dim]")
+                return
+
+            table = Table(show_header=True, header_style="bold magenta")
+            table.add_column("Run ID")
+            table.add_column("Started")
+            table.add_column("Items")
+            table.add_column("Flagged")
+            table.add_column("Tokens")
+            table.add_column("Model")
+
+            for run in runs:
+                started = str(run['started'])[:19] if run['started'] else "Unknown"
+                table.add_row(
+                    run['run_id'],
+                    started,
+                    str(run['items']),
+                    str(run['flagged']),
+                    f"{run['tokens']:,}" if run['tokens'] else "0",
+                    run['model_name'] or "unknown"
+                )
+
+            console.print(table)
+            console.print(f"\n[dim]Use --run-id <ID> to see details of a specific run[/dim]")
+            console.print(f"[dim]Use --stats to see overall statistics[/dim]")
 
 
 if __name__ == "__main__":

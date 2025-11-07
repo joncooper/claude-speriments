@@ -126,11 +126,32 @@ class TwitterDatabase:
             )
         """)
 
+        # Audit logs table
+        self.conn.execute("""
+            CREATE TABLE IF NOT EXISTS audit_logs (
+                id INTEGER PRIMARY KEY,
+                run_id VARCHAR,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                item_type VARCHAR,
+                item_id BIGINT,
+                flagged BOOLEAN,
+                severity VARCHAR,
+                categories JSON,
+                reason TEXT,
+                prompt_version VARCHAR,
+                model_name VARCHAR,
+                tokens_used INTEGER,
+                api_latency_ms INTEGER
+            )
+        """)
+
         # Create indexes for common queries
         self.conn.execute("CREATE INDEX IF NOT EXISTS idx_tweets_author ON tweets(author_id)")
         self.conn.execute("CREATE INDEX IF NOT EXISTS idx_tweets_created ON tweets(created_at)")
         self.conn.execute("CREATE INDEX IF NOT EXISTS idx_likes_user ON likes(user_id)")
         self.conn.execute("CREATE INDEX IF NOT EXISTS idx_bookmarks_user ON bookmarks(user_id)")
+        self.conn.execute("CREATE INDEX IF NOT EXISTS idx_audit_logs_run ON audit_logs(run_id)")
+        self.conn.execute("CREATE INDEX IF NOT EXISTS idx_audit_logs_item ON audit_logs(item_type, item_id)")
 
     def upsert_user_profile(self, user_data: Dict[str, Any]):
         """Insert or update user profile."""

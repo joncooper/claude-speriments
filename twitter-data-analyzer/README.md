@@ -151,6 +151,21 @@ python -m twitter_analyzer.cli audit
 
 See [AUDIT_GUIDE.md](AUDIT_GUIDE.md) for complete guide.
 
+**View audit logs and statistics:**
+```bash
+# See recent audit runs
+python -m twitter_analyzer.cli logs
+
+# Show statistics
+python -m twitter_analyzer.cli logs --stats
+
+# View specific run details
+python -m twitter_analyzer.cli logs --run-id abc123
+```
+
+**Customize prompts:**
+Edit `prompts/audit_system.md` to adjust sensitivity or add industry-specific rules. See `prompts/README.md` for details.
+
 ### Check Configuration Status
 
 ```bash

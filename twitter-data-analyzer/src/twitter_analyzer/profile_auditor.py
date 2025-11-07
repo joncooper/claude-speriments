@@ -4,6 +4,9 @@ from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 from enum import Enum
 import json
+import time
+import uuid
+from pathlib import Path
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
@@ -11,6 +14,7 @@ import google.generativeai as genai
 
 
 console = Console()
+PROMPTS_DIR = Path(__file__).parent.parent.parent / "prompts"
 
 
 class Severity(Enum):
@@ -47,10 +51,50 @@ class FlaggedItem:
 class ProfileAuditor:
     """Audit Twitter profile for potentially problematic content."""
 
-    def __init__(self, api_key: str, model_name: str = "gemini-1.5-flash"):
+    def __init__(
+        self,
+        api_key: str,
+        model_name: str = "gemini-1.5-flash",
+        db_conn=None,
+        log_results: bool = True
+    ):
         """Initialize the auditor with Gemini API."""
         genai.configure(api_key=api_key)
         self.model = genai.GenerativeModel(model_name)
+        self.model_name = model_name
+        self.db_conn = db_conn
+        self.log_results = log_results
+        self.run_id = str(uuid.uuid4())[:8]  # Short run ID
+        self.prompt_template = self._load_prompt()
+
+    def _load_prompt(self) -> str:
+        """Load the audit prompt from file."""
+        prompt_file = PROMPTS_DIR / "audit_system.md"
+        if prompt_file.exists():
+            return prompt_file.read_text()
+        else:
+            # Fallback to inline prompt if file doesn't exist
+            console.print("[yellow]Warning: Prompt file not found, using fallback[/yellow]")
+            return self._get_fallback_prompt()
+
+    def _get_fallback_prompt(self) -> str:
+        """Fallback prompt if file not found."""
+        return """You are auditing a Twitter profile to identify content that might be inappropriate for a professional/public profile.
+
+Analyze each {item_type} and identify any that contain political, controversial, NSFW, profanity, personal oversharing, unprofessional, or offensive content.
+
+For each problematic {item_type}, respond with JSON:
+{{
+  "id": <tweet_id>,
+  "severity": "high|medium|low",
+  "categories": ["category1", "category2"],
+  "reason": "brief explanation"
+}}
+
+{item_type.capitalize()}s to analyze:
+{items}
+
+Respond with JSON array of flagged items only. If nothing is flagged, respond with empty array []."""
 
     def audit_tweets(
         self,
@@ -173,16 +217,34 @@ class ProfileAuditor:
         # Build prompt
         prompt = self._build_audit_prompt(texts, item_type)
 
+        start_time = time.time()
+        tokens_used = 0
+
         try:
             # Call Gemini
             response = self.model.generate_content(prompt)
+            latency_ms = int((time.time() - start_time) * 1000)
+
+            # Estimate tokens (rough approximation: 1 token ≈ 4 chars)
+            tokens_used = len(prompt) // 4 + len(response.text) // 4
 
             # Parse response
             flagged = self._parse_audit_response(response.text, items, item_type)
+
+            # Log results
+            if self.log_results and self.db_conn:
+                self._log_batch(items, flagged, item_type, tokens_used, latency_ms)
+
             return flagged
 
         except Exception as e:
             console.print(f"[yellow]Warning: Batch analysis failed: {e}[/yellow]")
+            latency_ms = int((time.time() - start_time) * 1000)
+
+            # Log failures too
+            if self.log_results and self.db_conn:
+                self._log_batch(items, [], item_type, tokens_used, latency_ms, error=str(e))
+
             return []
 
     def _build_audit_prompt(
@@ -193,32 +255,11 @@ class ProfileAuditor:
         """Build the audit prompt for Gemini."""
         items_text = "\n".join([f"{id}: {text}" for id, text in texts])
 
-        prompt = f"""You are auditing a Twitter profile to identify content that might be inappropriate for a professional/public profile (job hunting, etc.).
-
-Analyze each {item_type} below and identify any that contain:
-1. POLITICAL - Political opinions, endorsements, or partisan content
-2. CONTROVERSIAL - Religion, divisive social issues, heated debates
-3. NSFW - Adult/sexual content, suggestive material, or references
-4. PROFANITY - Vulgar language, swearing
-5. PERSONAL - Oversharing personal information
-6. UNPROFESSIONAL - Unprofessional tone, rants, complaints
-7. OFFENSIVE - Potentially offensive jokes, sarcasm that could be misunderstood
-
-For each problematic {item_type}, respond with JSON in this format:
-{{
-  "id": <tweet_id>,
-  "severity": "high|medium|low",
-  "categories": ["category1", "category2"],
-  "reason": "brief explanation"
-}}
-
-Only flag items that are genuinely concerning. Be practical - mild opinions are OK, but strong political statements or controversial topics should be flagged.
-
-{item_type.capitalize()}s to analyze:
-{items_text}
-
-Respond with JSON array of flagged items only. If nothing is flagged, respond with empty array [].
-"""
+        # Use template from file
+        prompt = self.prompt_template.format(
+            item_type=item_type,
+            items=items_text
+        )
         return prompt
 
     def _parse_audit_response(
@@ -288,6 +329,69 @@ Respond with JSON array of flagged items only. If nothing is flagged, respond wi
             console.print(f"[yellow]Warning: Error parsing results: {e}[/yellow]")
 
         return flagged
+
+    def _log_batch(
+        self,
+        items: List[Dict[str, Any]],
+        flagged: List[FlaggedItem],
+        item_type: str,
+        tokens_used: int,
+        latency_ms: int,
+        error: Optional[str] = None
+    ):
+        """Log batch results to database."""
+        if not self.db_conn:
+            return
+
+        flagged_ids = {f.item_id for f in flagged}
+
+        for item in items:
+            if item_type == "tweet":
+                item_id = item.get('id')
+            else:
+                item_id = item.get('tweet_id')
+
+            # Find if this item was flagged
+            flagged_item = next((f for f in flagged if f.item_id == item_id), None)
+
+            if flagged_item:
+                # Item was flagged
+                self.db_conn.execute("""
+                    INSERT INTO audit_logs (
+                        run_id, item_type, item_id, flagged,
+                        severity, categories, reason,
+                        prompt_version, model_name, tokens_used, api_latency_ms
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, [
+                    self.run_id,
+                    item_type,
+                    item_id,
+                    True,
+                    flagged_item.severity.value,
+                    json.dumps([c.value for c in flagged_item.categories]),
+                    flagged_item.reason,
+                    "v1",  # Prompt version
+                    self.model_name,
+                    tokens_used // len(items),  # Approximate per-item
+                    latency_ms // len(items)
+                ])
+            else:
+                # Item was clean (not flagged)
+                self.db_conn.execute("""
+                    INSERT INTO audit_logs (
+                        run_id, item_type, item_id, flagged,
+                        prompt_version, model_name, tokens_used, api_latency_ms
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """, [
+                    self.run_id,
+                    item_type,
+                    item_id,
+                    False,
+                    "v1",
+                    self.model_name,
+                    tokens_used // len(items),
+                    latency_ms // len(items)
+                ])
 
     def generate_report(self, flagged_items: List[FlaggedItem]) -> str:
         """Generate a human-readable audit report."""
