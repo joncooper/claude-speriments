@@ -46,6 +46,25 @@ Application of **Dr. Robert Cialdini's 7 principles of persuasion** to improve A
 
 ---
 
+### 🐦 [Twitter Data Analyzer](./twitter-data-analyzer/)
+
+A **command-line utility** to download, store, and analyze your Twitter/X data using DuckDB and Google Gemini AI.
+
+**What it does:** Download all your tweets, likes, and bookmarks, store them in a local DuckDB database, and analyze them with AI.
+
+**Key features:**
+- Fetch all your Twitter data via Twitter API v2
+- Store in fast, queryable DuckDB database
+- AI-powered analysis with Google Gemini
+- Run custom SQL queries on your data
+- Privacy-first: all data stays local
+
+**Commands include:** `init`, `fetch`, `analyze`, `query`, `ask`
+
+**Status:** ✅ Complete
+
+---
+
 ## Installation
 
 Each experiment has its own installation instructions in its README. Generally:
@@ -76,6 +95,12 @@ claude-speriments/
 │   ├── test-plan.md             # Testing methodology
 │   ├── NOTES.md                 # Implementation notes
 │   └── commands/                # 10 slash commands
+├── twitter-data-analyzer/       # Twitter Data Analyzer
+│   ├── README.md                # Usage guide
+│   ├── NOTES.md                 # Implementation notes
+│   ├── src/twitter_analyzer/    # Python package
+│   ├── requirements.txt         # Dependencies
+│   └── setup.py                 # Package setup
 └── [future experiments]/
 ```
 
