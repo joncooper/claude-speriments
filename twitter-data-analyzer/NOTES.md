@@ -270,6 +270,40 @@ Could add:
 4. **Media**: Not downloading attached media
 5. **Real-time**: Not a real-time monitoring tool
 
+## Package Management: Why uv?
+
+**Choice: uv as primary package manager**
+
+**Why uv:**
+- 10-100x faster than pip for installations
+- Built in Rust for performance
+- Drop-in replacement for pip (same commands)
+- Better dependency resolution
+- Faster virtual environment creation
+- Growing adoption in Python community
+
+**Setup Structure:**
+- `pyproject.toml` - Modern Python package configuration (PEP 621)
+- `requirements.txt` - Legacy support for pip users
+- `setup.py` - Legacy support for older tools
+
+**Installation:**
+```bash
+# With uv (recommended)
+uv venv
+source .venv/bin/activate
+uv pip install -e .
+
+# With pip (alternative)
+pip install -r requirements.txt
+```
+
+**Benefits for users:**
+- Much faster installs (especially first time)
+- Better error messages
+- More reliable dependency resolution
+- Same commands as pip (easy migration)
+
 ## Dependencies Explained
 
 - **tweepy**: Twitter API client
@@ -286,6 +320,10 @@ Could add:
 ### Updating Dependencies
 
 ```bash
+# With uv
+uv pip install --upgrade -e .
+
+# Or with pip
 pip install --upgrade -r requirements.txt
 ```
 

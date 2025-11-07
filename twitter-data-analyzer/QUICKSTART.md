@@ -5,12 +5,32 @@ Get up and running with Twitter Data Analyzer in 5 minutes!
 ## Prerequisites
 
 - Python 3.9 or higher
-- pip (Python package manager)
+- [uv](https://docs.astral.sh/uv/) (recommended) or pip
 
-## Step 1: Install
+## Step 0: Install uv (if you don't have it)
+
+```bash
+# macOS and Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Windows
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+# Or with pip
+pip install uv
+```
+
+## Step 1: Install Dependencies
 
 ```bash
 cd twitter-data-analyzer
+
+# With uv (recommended - much faster!)
+uv venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+uv pip install -e .
+
+# Or with pip (alternative)
 pip install -r requirements.txt
 ```
 
@@ -147,8 +167,9 @@ python -m twitter_analyzer.cli query "SELECT text, created_at FROM tweets ORDER 
 - Or skip bookmarks: `python -m twitter_analyzer.cli fetch --no-bookmarks`
 
 ### Import errors
-- Make sure you installed dependencies: `pip install -r requirements.txt`
-- Try: `pip install --upgrade -r requirements.txt`
+- Make sure you installed dependencies: `uv pip install -e .` or `pip install -r requirements.txt`
+- Make sure your virtual environment is activated
+- Try reinstalling: `uv pip install --reinstall -e .` or `pip install --upgrade -r requirements.txt`
 
 ## What's Next?
 
@@ -161,7 +182,8 @@ python -m twitter_analyzer.cli query "SELECT text, created_at FROM tweets ORDER 
 
 ```bash
 # 1. Install and configure
-pip install -r requirements.txt
+uv venv && source .venv/bin/activate
+uv pip install -e .
 python -m twitter_analyzer.cli init
 # Edit .env with your API keys
 

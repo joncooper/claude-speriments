@@ -22,32 +22,49 @@ A command-line utility to download, store, and analyze your Twitter/X data using
 ### Prerequisites
 
 - Python 3.9 or higher
+- [uv](https://docs.astral.sh/uv/) (recommended) or pip
 - Twitter API credentials ([get them here](https://developer.twitter.com/en/portal/dashboard))
 - Google Gemini API key ([get it here](https://makersuite.google.com/app/apikey))
 
 ### Setup
 
-1. **Clone or navigate to this directory**:
+1. **Install uv** (if you don't have it):
+   ```bash
+   # macOS and Linux
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+
+   # Windows
+   powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+   # Or with pip
+   pip install uv
+   ```
+
+2. **Clone or navigate to this directory**:
    ```bash
    cd twitter-data-analyzer
    ```
 
-2. **Install dependencies**:
+3. **Install dependencies with uv** (recommended):
+   ```bash
+   # Create virtual environment and install dependencies
+   uv venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   uv pip install -e .
+   ```
+
+   Or use pip (alternative):
    ```bash
    pip install -r requirements.txt
+   # Or: pip install -e .
    ```
 
-   Or install in development mode:
-   ```bash
-   pip install -e .
-   ```
-
-3. **Initialize configuration**:
+4. **Initialize configuration**:
    ```bash
    python -m twitter_analyzer.cli init
    ```
 
-4. **Configure API keys**: Edit the `.env` file with your credentials:
+5. **Configure API keys**: Edit the `.env` file with your credentials:
    ```bash
    # Twitter API Credentials
    TWITTER_BEARER_TOKEN=your_bearer_token_here
@@ -215,8 +232,9 @@ twitter-data-analyzer/
 │   ├── database.py         # DuckDB operations
 │   ├── twitter_fetcher.py  # Twitter API integration
 │   └── gemini_analyzer.py  # Gemini AI integration
-├── requirements.txt        # Python dependencies
-├── setup.py               # Package setup
+├── pyproject.toml          # Package configuration (uv/pip)
+├── requirements.txt        # Python dependencies (legacy)
+├── setup.py               # Package setup (legacy)
 ├── .env.example           # Example configuration
 └── README.md              # This file
 ```
@@ -286,6 +304,7 @@ MIT License - see repository for details
 - Powered by [DuckDB](https://duckdb.org/) for fast local analytics
 - Analysis by [Google Gemini](https://ai.google.dev/)
 - CLI built with [Typer](https://typer.tiangolo.com/) and [Rich](https://rich.readthedocs.io/)
+- Package management with [uv](https://docs.astral.sh/uv/) - An extremely fast Python package installer
 
 ---
 
