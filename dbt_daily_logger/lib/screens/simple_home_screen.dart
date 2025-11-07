@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../services/simple_storage.dart';
 import 'new_daily_entry_screen.dart';
+import 'skills_reference_screen.dart';
+import 'weekly_skills_screen.dart';
 
 class SimpleHomeScreen extends StatefulWidget {
   const SimpleHomeScreen({super.key});
@@ -36,6 +38,32 @@ class _SimpleHomeScreenState extends State<SimpleHomeScreen> {
       appBar: AppBar(
         title: const Text('My DBT Diary'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.calendar_view_week),
+            tooltip: 'Weekly Skills',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const WeeklySkillsScreen(),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.book_outlined),
+            tooltip: 'Skills Reference',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SkillsReferenceScreen(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -126,11 +154,6 @@ class _SimpleHomeScreenState extends State<SimpleHomeScreen> {
                       ],
                     ),
                   ),
-                  if (entry.tookMeds == true)
-                    const Chip(
-                      label: Text('💊', style: TextStyle(fontSize: 16)),
-                      visualDensity: VisualDensity.compact,
-                    ),
                 ],
               ),
               if (entry.notes != null && entry.notes!.isNotEmpty) ...[

@@ -10,6 +10,9 @@ class DailyEntryData {
   String? sleepTime;
   String? wakeTime;
   String? bedTime;
+  double? hoursOfSleep;
+  int? sleepQuality; // 0-5 scale
+  bool? exercised;
   bool? tookMeds;
   String? notes;
   int? usedSkills;
@@ -24,6 +27,9 @@ class DailyEntryData {
         'sleepTime': sleepTime,
         'wakeTime': wakeTime,
         'bedTime': bedTime,
+        'hoursOfSleep': hoursOfSleep,
+        'sleepQuality': sleepQuality,
+        'exercised': exercised,
         'tookMeds': tookMeds,
         'notes': notes,
         'usedSkills': usedSkills,
@@ -37,6 +43,9 @@ class DailyEntryData {
     entry.sleepTime = json['sleepTime'];
     entry.wakeTime = json['wakeTime'];
     entry.bedTime = json['bedTime'];
+    entry.hoursOfSleep = json['hoursOfSleep']?.toDouble();
+    entry.sleepQuality = json['sleepQuality'];
+    entry.exercised = json['exercised'];
     entry.tookMeds = json['tookMeds'];
     entry.notes = json['notes'];
     entry.usedSkills = json['usedSkills'];

@@ -362,6 +362,70 @@ class _NewDailyEntryScreenState extends State<NewDailyEntryScreen> {
           ),
           const SizedBox(height: 24),
 
+          // Hours of Sleep
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        '🛌 Hours of sleep',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                      ),
+                      Text(
+                        entry.hoursOfSleep != null
+                            ? '${entry.hoursOfSleep!.toStringAsFixed(1)} hours'
+                            : 'Not set',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.teal,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Slider(
+                    value: entry.hoursOfSleep ?? 7.0,
+                    min: 0,
+                    max: 12,
+                    divisions: 24,
+                    label: entry.hoursOfSleep?.toStringAsFixed(1) ?? '7.0',
+                    onChanged: (val) => setState(() => entry.hoursOfSleep = val),
+                    activeColor: Colors.teal,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Sleep Quality
+          EmojiRatingScale(
+            label: 'Sleep quality',
+            value: entry.sleepQuality,
+            onChanged: (val) => setState(() => entry.sleepQuality = val),
+            color: Colors.indigo,
+            emojis: const ['😫', '😴', '😐', '🙂', '😊', '🌟'],
+          ),
+          const SizedBox(height: 16),
+
+          // Exercise
+          Card(
+            child: SwitchListTile(
+              title: const Text('🏃 Exercised today'),
+              subtitle: const Text('Any physical activity'),
+              value: entry.exercised ?? false,
+              onChanged: (val) => setState(() => entry.exercised = val),
+              activeColor: Colors.teal,
+            ),
+          ),
+          const SizedBox(height: 16),
+
           // Medication
           Card(
             child: SwitchListTile(
