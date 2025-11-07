@@ -46,7 +46,7 @@ Application of **Dr. Robert Cialdini's 7 principles of persuasion** to improve A
 
 ---
 
-### 🐦 [Twitter Data Analyzer](./twitter-data-analyzer/)
+### 🐦 [Twitter Data Analyzer](./apps/twitter-data-analyzer/)
 
 A **command-line utility** to download, store, and analyze your Twitter/X data using DuckDB and Google Gemini AI.
 
@@ -86,6 +86,14 @@ cat README.md
 ```
 claude-speriments/
 ├── README.md                    # This file
+├── CLAUDE.md                    # Repository guide for Claude Code
+├── apps/                        # Collaborative applications built with Claude
+│   └── twitter-data-analyzer/   # Twitter Data Analyzer
+│       ├── README.md            # Usage guide
+│       ├── NOTES.md             # Implementation notes
+│       ├── src/twitter_analyzer/ # Python package
+│       ├── requirements.txt     # Dependencies
+│       └── setup.py             # Package setup
 ├── verbalized-sampling/         # Verbalized Sampling experiment
 │   ├── README.md                # Usage guide
 │   ├── PAPER_SUMMARY.md         # Research paper summary
@@ -97,14 +105,18 @@ claude-speriments/
 │   ├── test-plan.md             # Testing methodology
 │   ├── NOTES.md                 # Implementation notes
 │   └── commands/                # 10 slash commands
-├── twitter-data-analyzer/       # Twitter Data Analyzer
-│   ├── README.md                # Usage guide
-│   ├── NOTES.md                 # Implementation notes
-│   ├── src/twitter_analyzer/    # Python package
-│   ├── requirements.txt         # Dependencies
-│   └── setup.py                 # Package setup
-└── [future experiments]/
+└── [future directories]/        # skills/, agents/, etc. as needed
 ```
+
+## Organization
+
+This repository is organized to support various types of Claude Code experiments:
+
+- **`apps/`** - Collaborative applications built with Claude (e.g., Twitter Data Analyzer)
+- **Root directories** - Experiments with slash commands and prompting techniques (e.g., Verbalized Sampling, Cialdini Persuasion)
+- **Future directories** - As the repository grows, we'll add `skills/`, `agents/`, and other directories for different types of Claude Code experiments
+
+See [CLAUDE.md](./CLAUDE.md) for detailed guidance on working with this repository in Claude Code.
 
 ## Contributing
 
