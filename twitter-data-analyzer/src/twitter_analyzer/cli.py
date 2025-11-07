@@ -13,6 +13,7 @@ from .database import TwitterDatabase
 from .twitter_fetcher import TwitterFetcher
 from .gemini_analyzer import GeminiAnalyzer
 from .tui import run_tui
+from .profile_auditor import ProfileAuditor, Severity
 
 
 app = typer.Typer(
@@ -336,6 +337,163 @@ def browse():
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         raise typer.Exit(1)
+
+
+@app.command()
+def audit(
+    tweets: bool = typer.Option(True, help="Audit tweets"),
+    likes: bool = typer.Option(True, help="Audit likes"),
+    bookmarks: bool = typer.Option(True, help="Audit bookmarks"),
+    export: Optional[str] = typer.Option(None, help="Export flagged items to CSV file"),
+    show_clean: bool = typer.Option(False, help="Show items that passed audit"),
+):
+    """
+    Audit your Twitter profile for potentially problematic content.
+
+    Identifies political, controversial, NSFW, or unprofessional content
+    that you might want to remove before making your profile public.
+    """
+    settings = get_settings()
+
+    # Check for Gemini API key
+    if not settings.validate_gemini_key():
+        console.print("[red]✗ Gemini API key not configured[/red]")
+        console.print("The audit feature requires Gemini API for analysis")
+        console.print("Run: twitter-analyzer init")
+        raise typer.Exit(1)
+
+    # Check for database
+    db_path = Path(settings.db_path)
+    if not db_path.exists():
+        console.print("[red]✗ Database not found[/red]")
+        console.print("Run: twitter-analyzer fetch first")
+        raise typer.Exit(1)
+
+    console.print("\n[bold cyan]🔍 Starting Profile Audit[/bold cyan]\n")
+    console.print("[dim]This will analyze your content for political, controversial,")
+    console.print("NSFW, profanity, and unprofessional content...[/dim]\n")
+
+    # Initialize auditor
+    auditor = ProfileAuditor(settings.gemini_api_key)
+    all_flagged = []
+
+    with TwitterDatabase(settings.db_path) as db:
+        # Audit tweets
+        if tweets:
+            tweet_list = db.query(
+                "SELECT * FROM tweets ORDER BY created_at DESC LIMIT 1000"
+            )
+            if tweet_list:
+                console.print(f"[cyan]Analyzing {len(tweet_list)} tweets...[/cyan]")
+                flagged_tweets = auditor.audit_tweets(tweet_list)
+                all_flagged.extend(flagged_tweets)
+                console.print(f"[yellow]⚠ Found {len(flagged_tweets)} potentially problematic tweets[/yellow]\n")
+            else:
+                console.print("[dim]No tweets to audit[/dim]\n")
+
+        # Audit likes
+        if likes:
+            like_list = db.query(
+                "SELECT * FROM likes ORDER BY liked_at DESC LIMIT 1000"
+            )
+            if like_list:
+                console.print(f"[cyan]Analyzing {len(like_list)} likes...[/cyan]")
+                flagged_likes = auditor.audit_likes(like_list)
+                all_flagged.extend(flagged_likes)
+                console.print(f"[yellow]⚠ Found {len(flagged_likes)} potentially problematic likes[/yellow]\n")
+            else:
+                console.print("[dim]No likes to audit[/dim]\n")
+
+        # Audit bookmarks
+        if bookmarks:
+            bookmark_list = db.query(
+                "SELECT * FROM bookmarks ORDER BY bookmarked_at DESC LIMIT 1000"
+            )
+            if bookmark_list:
+                console.print(f"[cyan]Analyzing {len(bookmark_list)} bookmarks...[/cyan]")
+                flagged_bookmarks = auditor.audit_bookmarks(bookmark_list)
+                all_flagged.extend(flagged_bookmarks)
+                console.print(f"[yellow]⚠ Found {len(flagged_bookmarks)} potentially problematic bookmarks[/yellow]\n")
+            else:
+                console.print("[dim]No bookmarks to audit[/dim]\n")
+
+    # Generate report
+    if all_flagged:
+        console.print("\n[bold green]✓ Audit Complete[/bold green]\n")
+
+        # Show summary
+        high = [f for f in all_flagged if f.severity == Severity.HIGH]
+        medium = [f for f in all_flagged if f.severity == Severity.MEDIUM]
+        low = [f for f in all_flagged if f.severity == Severity.LOW]
+
+        summary_table = Table(title="Audit Summary", show_header=True)
+        summary_table.add_column("Severity", style="bold")
+        summary_table.add_column("Count", justify="right")
+        summary_table.add_column("Recommendation")
+
+        summary_table.add_row(
+            "🔴 HIGH",
+            str(len(high)),
+            "[red]Review and likely delete[/red]"
+        )
+        summary_table.add_row(
+            "🟡 MEDIUM",
+            str(len(medium)),
+            "[yellow]Review and assess[/yellow]"
+        )
+        summary_table.add_row(
+            "🟢 LOW",
+            str(len(low)),
+            "[green]Minor concerns[/green]"
+        )
+
+        console.print(summary_table)
+
+        # Generate full report
+        report = auditor.generate_report(all_flagged)
+
+        # Save report to file
+        report_file = Path("audit_report.md")
+        report_file.write_text(report)
+        console.print(f"\n[green]✓ Full report saved to: {report_file}[/green]")
+
+        # Export to CSV if requested
+        if export:
+            import csv
+            export_path = Path(export)
+
+            with open(export_path, 'w', newline='', encoding='utf-8') as f:
+                writer = csv.writer(f)
+                writer.writerow([
+                    'Type', 'ID', 'Severity', 'Categories', 'Reason', 'Text', 'Created At'
+                ])
+
+                for item in all_flagged:
+                    categories = ', '.join([c.value for c in item.categories])
+                    text = item.text.replace('\n', ' ')[:500]  # Truncate for CSV
+                    writer.writerow([
+                        item.item_type,
+                        item.item_id,
+                        item.severity.value,
+                        categories,
+                        item.reason,
+                        text,
+                        item.created_at or ''
+                    ])
+
+            console.print(f"[green]✓ Exported to CSV: {export_path}[/green]")
+
+        # Show next steps
+        console.print("\n[bold cyan]Next Steps:[/bold cyan]")
+        console.print("1. Review the full report: [bold]audit_report.md[/bold]")
+        console.print("2. Browse flagged content: [bold]twitter-analyzer browse[/bold]")
+        console.print("3. Delete problematic tweets manually on Twitter")
+        console.print("4. Unlike/unbookmark concerning content")
+        console.print("\n[dim]Tip: Use the TUI browser to search for specific topics and review them interactively[/dim]")
+
+    else:
+        console.print("[bold green]✓ Great news! No problematic content found.[/bold green]")
+        console.print("[dim]Your profile looks professional and appropriate for public viewing.[/dim]")
 
 
 if __name__ == "__main__":

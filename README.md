@@ -56,11 +56,12 @@ A **command-line utility** to download, store, and analyze your Twitter/X data u
 - Fetch all your Twitter data via Twitter API v2
 - Store in fast, queryable DuckDB database
 - **Interactive terminal UI** for browsing data with keyboard navigation
+- **Profile audit** to identify problematic content before going public
 - AI-powered analysis with Google Gemini
 - Run custom SQL queries on your data
 - Privacy-first: all data stays local
 
-**Commands include:** `init`, `fetch`, `analyze`, `query`, `ask`, `browse` (interactive TUI)
+**Commands include:** `init`, `fetch`, `analyze`, `query`, `ask`, `browse` (interactive TUI), `audit` (profile cleaner)
 
 **Status:** ✅ Complete
 

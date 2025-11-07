@@ -16,6 +16,7 @@ A command-line utility to download, store, and analyze your Twitter/X data using
 - **Likes**: What content you engage with and your interests
 - **Bookmarks**: What you save for later and why
 - **Summary**: Comprehensive overview of your Twitter presence
+- **Profile Audit**: Identify political, controversial, or unprofessional content before going public
 
 ## Installation
 
@@ -119,6 +120,36 @@ python -m twitter_analyzer.cli browse
 - `/` - Focus search box
 - `Esc` - Clear selection
 - `q` - Quit
+
+### Audit Your Profile (New! 🔍)
+
+Prepare your profile for going public by identifying potentially problematic content:
+
+```bash
+python -m twitter_analyzer.cli audit
+```
+
+**What it checks:**
+- 🏛️ Political content
+- ⚠️ Controversial topics
+- 🔞 NSFW/adult content
+- 🤬 Profanity
+- 👤 Personal oversharing
+- 💼 Unprofessional tone
+- 😬 Potentially offensive content
+
+**Output:**
+- Severity-based categorization (HIGH/MEDIUM/LOW)
+- Detailed report in `audit_report.md`
+- Optional CSV export: `--export audit_results.csv`
+
+**Perfect for:**
+- Job hunting
+- Making your profile public
+- Professional branding
+- Cleaning up old content
+
+See [AUDIT_GUIDE.md](AUDIT_GUIDE.md) for complete guide.
 
 ### Check Configuration Status
 

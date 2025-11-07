@@ -3,6 +3,10 @@
 *.duckdb
 *.duckdb.wal
 
+# Audit outputs
+audit_report.md
+audit_results.csv
+
 # Python
 __pycache__/
 *.py[cod]
