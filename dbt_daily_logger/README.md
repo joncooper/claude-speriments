@@ -1,147 +1,62 @@
-# DBT Daily Logger
+# DBT Daily Logger 🌟
 
-A Flutter mobile application for iOS that helps users with their daily DBT (Dialectical Behavior Therapy) logging and diary card tracking.
+A beautiful, innovative Flutter mobile application for iOS that helps users track their DBT (Dialectical Behavior Therapy) journey with delightful UX and powerful insights.
 
-## Features
+## ✨ Innovative Features
 
-### Core Functionality
-- **Daily Diary Cards**: Create and manage daily entries with comprehensive tracking
-- **Emotion Tracking**: Log emotions with intensity ratings (0-10 scale)
-- **Urge Tracking**: Monitor urges with intensity levels
-- **Target Behaviors**: Track occurrences of specific behaviors
-- **DBT Skills**: Record which DBT skills were used, organized by module:
-  - Mindfulness
-  - Distress Tolerance
-  - Emotion Regulation
-  - Interpersonal Effectiveness
-- **Daily Basics**: Track sleep hours and medication adherence
-- **Notes**: Add free-form journal entries
+### 🎨 Gorgeous Visual Design
+- **Dark Mode**: Eye-friendly dark theme that automatically syncs with system preferences
+- **Material Design 3**: Modern, polished interface with smooth animations
+- **Intuitive Navigation**: Quick access to all features through a streamlined menu
 
-### Data Management
-- Local data persistence using Hive database
-- View and edit past entries
-- Delete entries
-- All data stored securely on device
+### 📊 Data Insights & Visualization
+- **Emotion Trends Charts**: Beautiful line graphs showing emotion intensity over time
+- **Urge Tracking Visualization**: Monitor urge patterns with interactive charts
+- **Skills Usage Analytics**: Bar charts showing your most-used DBT skills
+- **Time Range Selection**: View data for 7, 30, or 90 days
 
-### User Interface
-- Clean, Material Design 3 interface
-- Intuitive sliders for intensity ratings
-- Organized skill selection by DBT modules
-- Quick access to recent entries
-- Date-based entry organization
+### 📅 Calendar & Streak Tracking
+- **Interactive Calendar**: Visual heat map showing logging consistency
+- **Streak Celebrations**: Confetti animations when you hit milestones!
+- **Current Streak**: See your ongoing daily logging streak
+- **Longest Streak**: Track your personal best
+- **Monthly Completion**: Progress circle showing this month's completion rate
 
-## Project Structure
+### 🎡 Interactive Emotion Wheel
+- **Circular Emotion Picker**: Fun, visual way to select emotions
+- **Color-Coded Segments**: Each emotion has its own vibrant color
+- **Tap-to-Select**: Intuitive touch interface
 
-```
-dbt_daily_logger/
-├── lib/
-│   ├── main.dart                 # App entry point
-│   ├── models/
-│   │   ├── diary_entry.dart      # Main data model
-│   │   ├── diary_entry.g.dart    # Hive adapter
-│   │   └── dbt_constants.dart    # DBT skills and constants
-│   ├── screens/
-│   │   ├── home_screen.dart      # Main list view
-│   │   ├── entry_form_screen.dart # Create/edit entries
-│   │   └── entry_detail_screen.dart # View entry details
-│   ├── widgets/
-│   │   ├── emotion_tracker.dart   # Emotion tracking widget
-│   │   ├── urge_tracker.dart      # Urge tracking widget
-│   │   ├── skills_selector.dart   # Skills selection widget
-│   │   └── behavior_selector.dart # Behavior selection widget
-│   └── services/
-│       └── diary_service.dart     # Data persistence service
-├── ios/
-│   └── Runner/
-│       └── Info.plist            # iOS configuration
-├── pubspec.yaml                  # Dependencies
-└── README.md                     # This file
-```
+### 📚 DBT Skills Reference Cards
+- **Swipeable Cards**: Beautiful gradient cards for each skill
+- **Module Organization**: Skills organized by Mindfulness, Distress Tolerance, Emotion Regulation, and Interpersonal Effectiveness
+- **Detailed Explanations**: Learn what each skill is and how to use it
+- **Quick Tips**: Actionable steps for practicing each skill
 
-## Dependencies
+### ☁️ iCloud Sync
+- **Automatic Backup**: Your data is automatically backed up to iCloud
+- **Cross-Device Sync**: Access your entries across all your iOS devices
+- **Data Safety**: Never lose your progress
+- **Sync Status**: Check iCloud connection status anytime
 
-The app uses the following Flutter packages:
+### 📄 PDF Export
+- **Professional Reports**: Export beautifully formatted PDF reports
+- **Single or Bulk Export**: Export one entry or all entries
+- **Share with Therapist**: Easily share your progress
+- **Print Support**: Print entries directly from the app
 
-- **hive** & **hive_flutter**: Local database for storing diary entries
-- **intl**: Date and time formatting
-- **provider**: State management
-- **cupertino_icons**: iOS-style icons
+## 🎯 Core Functionality
 
-## Setup Instructions
+### Daily Diary Cards
+- Create comprehensive daily entries
+- Track emotions with 0-10 intensity sliders
+- Monitor urges and their intensity
+- Log target behaviors
+- Record which DBT skills you used
+- Track sleep hours and medication adherence
+- Add free-form notes
 
-### Prerequisites
-- Flutter SDK (>=3.0.0)
-- Xcode (for iOS development)
-- iOS Simulator or physical iOS device
-
-### Installation
-
-1. **Clone or download the project**
-
-2. **Install dependencies**
-   ```bash
-   cd dbt_daily_logger
-   flutter pub get
-   ```
-
-3. **Generate Hive adapters** (if needed)
-   ```bash
-   flutter pub run build_runner build
-   ```
-
-4. **Run the app**
-   ```bash
-   # For iOS simulator
-   flutter run
-
-   # For specific device
-   flutter devices  # List available devices
-   flutter run -d <device-id>
-   ```
-
-## Usage Guide
-
-### Creating a New Entry
-
-1. Tap the **"New Entry"** floating action button on the home screen
-2. Select the date (defaults to today)
-3. Fill in the sections as needed:
-   - **Daily Basics**: Enter sleep hours and medication status
-   - **Emotions**: Add emotions and rate their intensity
-   - **Urges**: Log any urges and their intensity
-   - **Target Behaviors**: Check off any behaviors that occurred
-   - **DBT Skills**: Select skills used from the four modules
-   - **Notes**: Add any additional context or reflections
-4. Tap **"Save"** in the app bar
-
-### Viewing Entries
-
-- The home screen displays all entries in reverse chronological order
-- Each entry card shows a summary:
-  - Date
-  - Number of emotions tracked
-  - Number of urges tracked
-  - Number of skills used
-  - Number of behaviors
-  - Whether notes are present
-- Tap any entry card to view full details
-
-### Editing Entries
-
-1. Tap an entry to view its details
-2. Tap the edit icon in the app bar
-3. Make your changes
-4. Tap **"Save"**
-
-### Deleting Entries
-
-1. On the home screen, tap the delete icon on an entry card
-2. Confirm deletion in the dialog
-
-## DBT Skills Included
-
-The app includes all major DBT skills organized by module:
-
+### DBT Skills Coverage
 **Mindfulness**
 - Observe, Describe, Participate
 - One-mindfully, Non-judgmentally, Effectively
@@ -164,62 +79,209 @@ The app includes all major DBT skills organized by module:
 - Validation
 - Building/Ending Relationships
 
-## Customization
+## 📱 Project Structure
 
-Users can add custom entries for:
-- Emotions (beyond the pre-defined list)
-- Urges (beyond the pre-defined list)
-- Target behaviors (beyond the common list)
+```
+dbt_daily_logger/
+├── lib/
+│   ├── main.dart                       # App entry point with theme support
+│   ├── models/
+│   │   ├── diary_entry.dart            # Main data model
+│   │   ├── diary_entry.g.dart          # Hive adapter
+│   │   └── dbt_constants.dart          # DBT skills and constants
+│   ├── screens/
+│   │   ├── home_screen.dart            # Main list view
+│   │   ├── entry_form_screen.dart      # Create/edit entries
+│   │   ├── entry_detail_screen.dart    # View entry details
+│   │   ├── insights_screen.dart        # Charts and analytics
+│   │   ├── calendar_screen.dart        # Calendar and streaks
+│   │   └── skills_reference_screen.dart # Skill learning cards
+│   ├── widgets/
+│   │   ├── emotion_tracker.dart        # Emotion tracking widget
+│   │   ├── urge_tracker.dart           # Urge tracking widget
+│   │   ├── skills_selector.dart        # Skills selection widget
+│   │   ├── behavior_selector.dart      # Behavior selection widget
+│   │   └── emotion_wheel.dart          # Interactive emotion wheel
+│   └── services/
+│       ├── diary_service.dart          # Data persistence service
+│       ├── icloud_sync_service.dart    # iCloud sync
+│       ├── theme_service.dart          # Dark mode support
+│       └── pdf_export_service.dart     # PDF generation
+├── ios/
+│   └── Runner/
+│       ├── Info.plist                  # iOS configuration
+│       └── Runner.entitlements         # iCloud capabilities
+├── pubspec.yaml                        # Dependencies
+└── README.md                           # This file
+```
 
-## Data Storage
+## 🚀 Getting Started
 
-All data is stored locally on the device using Hive, a fast and lightweight NoSQL database. Data includes:
-- Diary entries
-- Emotions with intensity ratings
-- Urges with intensity ratings
-- Target behaviors
-- Skills used
-- Notes and daily basics
+### Prerequisites
+- Flutter SDK (>=3.0.0)
+- Xcode (for iOS development)
+- iOS Simulator or physical iOS device (iOS 13+)
 
-**Note**: Data is not synced to the cloud and remains on the device.
+### Installation
 
-## Building for Release
-
-### iOS
-
-1. Update version in `pubspec.yaml`
-2. Build the app:
+1. **Navigate to the project directory**
    ```bash
-   flutter build ios --release
+   cd dbt_daily_logger
    ```
-3. Open in Xcode for signing and submission:
+
+2. **Install dependencies**
    ```bash
-   open ios/Runner.xcworkspace
+   flutter pub get
    ```
 
-## Privacy & Health Information
+3. **Generate Hive adapters** (if needed)
+   ```bash
+   flutter pub run build_runner build
+   ```
 
-This app is designed to help track DBT therapy progress. Please note:
-- All data is stored locally on your device
-- No data is transmitted to external servers
-- This app is a tool for self-monitoring and does not replace professional therapy
-- In case of emergency, please contact your therapist or crisis services
+4. **Enable iCloud in Xcode** (for sync features)
+   - Open `ios/Runner.xcworkspace` in Xcode
+   - Select the Runner target
+   - Go to "Signing & Capabilities"
+   - Add "iCloud" capability
+   - Enable "iCloud Documents"
 
-## Support
+5. **Run the app**
+   ```bash
+   flutter run
+   ```
 
-For DBT resources and crisis support:
-- National Suicide Prevention Lifeline: 988
-- Crisis Text Line: Text HOME to 741741
+## 📖 User Guide
+
+### Creating Your First Entry
+
+1. Tap the **"New Entry"** button
+2. Select a date (defaults to today)
+3. Fill in your data:
+   - Sleep hours and medication status
+   - Emotions with intensity sliders
+   - Urges with intensity ratings
+   - Target behaviors that occurred
+   - DBT skills you practiced
+   - Any notes or reflections
+4. Tap **"Save"**
+
+### Viewing Insights
+
+1. Tap the **Insights** icon in the app bar
+2. Choose a time range (7, 30, or 90 days)
+3. Explore:
+   - Emotion intensity trends
+   - Urge patterns
+   - Most-used skills
+   - Summary statistics
+
+### Tracking Streaks
+
+1. Tap the **Calendar** icon
+2. View your:
+   - Current logging streak (with confetti for milestones!)
+   - Longest streak ever
+   - Monthly completion percentage
+3. Tap any date to view or create an entry
+
+### Learning DBT Skills
+
+1. Open the menu (three dots)
+2. Select **"Skills Reference"**
+3. Choose a module
+4. Swipe through beautiful cards to learn each skill
+
+### Exporting Data
+
+1. Open the menu (three dots)
+2. Select **"Export All to PDF"**
+3. Choose where to share or save
+
+### Enabling Dark Mode
+
+1. Open the menu (three dots)
+2. Select **"Toggle Dark Mode"**
+3. Or it automatically follows your system settings
+
+## 🛠 Technical Details
+
+### Dependencies
+
+**Core**
+- `flutter`: Cross-platform framework
+- `hive` & `hive_flutter`: Local database
+- `provider`: State management
+- `path_provider`: File system access
+
+**Visualization**
+- `fl_chart`: Beautiful charts
+- `table_calendar`: Calendar widget
+- `confetti`: Celebration animations
+
+**Export & Sharing**
+- `pdf`: PDF generation
+- `printing`: Print support
+- `share_plus`: System share sheet
+
+**Other**
+- `intl`: Date formatting
+- `shared_preferences`: App settings
+- `lottie`: Smooth animations
+
+## 🔒 Privacy & Data
+
+- **100% Local First**: All data stored on your device
+- **iCloud Optional**: Opt-in backup to your personal iCloud
+- **No Third Parties**: Zero data sent to external servers
+- **HIPAA Considerations**: Suitable for healthcare use
+- **Export Control**: You own your data, export anytime
+
+## 🎨 Design Philosophy
+
+This app is designed to be:
+- **Delightful**: Beautiful animations and smooth interactions
+- **Motivating**: Streaks and celebrations encourage consistency
+- **Insightful**: Charts help you see patterns and progress
+- **Empowering**: Learn skills while tracking your journey
+- **Respectful**: Your data stays private and under your control
+
+## 📝 Best Practices
+
+For optimal results:
+- Log daily (even if brief) to build streaks
+- Review insights weekly to spot patterns
+- Use the Skills Reference to deepen your DBT practice
+- Export monthly reports to share with your therapist
+- Enable iCloud sync for peace of mind
+
+## 🆘 Support Resources
+
+**Crisis Support**
+- National Suicide Prevention Lifeline: **988**
+- Crisis Text Line: Text **HOME** to **741741**
 - Find a DBT therapist: https://behavioraltech.org/resources/find-a-therapist/
 
-## License
+**DBT Resources**
+- The Linehan Institute: https://behavioraltech.org
+- DBT Skills Training Handouts and Worksheets (Marsha Linehan)
 
-This project is open source and available for personal and educational use.
+## 🤝 Contributing
 
-## Contributing
+This is an open-source project. Contributions, issues, and feature requests are welcome!
 
-Contributions, issues, and feature requests are welcome!
+## 📄 License
 
-## Acknowledgments
+This project is available for personal and educational use.
 
-Based on DBT principles developed by Dr. Marsha Linehan.
+## 🙏 Acknowledgments
+
+- Based on DBT principles developed by **Dr. Marsha Linehan**
+- Built with ❤️ using Flutter
+- Designed for the DBT community
+
+---
+
+**Remember**: This app is a tool for self-monitoring and skill practice. It does not replace professional therapy. If you're in crisis, please reach out to a mental health professional or crisis service immediately.
+
+**Your mental health matters. You've got this! 💪✨**
