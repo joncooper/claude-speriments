@@ -1,29 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:provider/provider.dart';
-import 'models/diary_entry.dart';
-import 'services/diary_service.dart';
-import 'screens/home_screen.dart';
+import 'screens/simple_home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize Hive
-  await Hive.initFlutter();
-
-  // Register adapters
-  Hive.registerAdapter(DiaryEntryAdapter());
-
-  // Initialize diary service
-  final diaryService = DiaryService();
-  await diaryService.init();
-
-  runApp(
-    Provider<DiaryService>(
-      create: (_) => diaryService,
-      child: const DBTDailyLoggerApp(),
-    ),
-  );
+  runApp(const DBTDailyLoggerApp());
 }
 
 class DBTDailyLoggerApp extends StatelessWidget {
@@ -45,10 +25,10 @@ class DBTDailyLoggerApp extends StatelessWidget {
           centerTitle: true,
           elevation: 2,
         ),
-        cardTheme: CardTheme(
+        cardTheme: const CardThemeData(
           elevation: 2,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.all(Radius.circular(12)),
           ),
         ),
         inputDecorationTheme: InputDecorationTheme(
@@ -58,7 +38,7 @@ class DBTDailyLoggerApp extends StatelessWidget {
           filled: true,
         ),
       ),
-      home: const HomeScreen(),
+      home: const SimpleHomeScreen(),
     );
   }
 }
