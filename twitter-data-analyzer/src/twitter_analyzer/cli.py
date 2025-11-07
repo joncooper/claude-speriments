@@ -12,6 +12,7 @@ from .config import get_settings
 from .database import TwitterDatabase
 from .twitter_fetcher import TwitterFetcher
 from .gemini_analyzer import GeminiAnalyzer
+from .tui import run_tui
 
 
 app = typer.Typer(
@@ -312,6 +313,29 @@ Recent likes:
 
     console.print("\n")
     console.print(Panel(Markdown(result), title="Answer", border_style="cyan"))
+
+
+@app.command()
+def browse():
+    """Launch interactive browser to explore your Twitter data with keyboard navigation."""
+    settings = get_settings()
+
+    db_path = Path(settings.db_path)
+    if not db_path.exists():
+        console.print("[red]✗ Database not found[/red]")
+        console.print("Run: twitter-analyzer fetch first")
+        raise typer.Exit(1)
+
+    console.print("[cyan]Launching interactive browser...[/cyan]")
+    console.print("[dim]Use arrow keys to navigate, Tab to switch tabs, / to search, q to quit[/dim]\n")
+
+    try:
+        run_tui(settings.db_path)
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Browser closed[/yellow]")
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        raise typer.Exit(1)
 
 
 if __name__ == "__main__":

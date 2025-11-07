@@ -94,6 +94,32 @@ A command-line utility to download, store, and analyze your Twitter/X data using
 
 ## Usage
 
+### Interactive Browser (New! 🎉)
+
+Browse your Twitter data interactively with a beautiful terminal UI:
+
+```bash
+python -m twitter_analyzer.cli browse
+```
+
+**Features:**
+- 📊 View tweets, likes, and bookmarks in tables
+- ⌨️ Navigate with arrow keys
+- 🔍 Search with `/` key
+- 📄 View tweet details on selection
+- 📈 Live statistics panel
+- Tab between different data views
+
+**Keyboard shortcuts:**
+- `↑/↓` - Navigate rows
+- `Tab` - Switch between tabs
+- `t` - Jump to Tweets
+- `l` - Jump to Likes
+- `b` - Jump to Bookmarks
+- `/` - Focus search box
+- `Esc` - Clear selection
+- `q` - Quit
+
 ### Check Configuration Status
 
 ```bash

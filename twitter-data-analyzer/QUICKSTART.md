@@ -98,7 +98,20 @@ This will:
 - Download your tweets, likes, and bookmarks
 - Save everything to `twitter_data.duckdb`
 
-## Step 5: Analyze!
+## Step 5: Explore Your Data!
+
+### Interactive Browser (Recommended - It's Fun! 🎉)
+
+```bash
+# Launch the interactive TUI browser
+python -m twitter_analyzer.cli browse
+```
+
+Use arrow keys to navigate, `/` to search, `t`/`l`/`b` to switch tabs, `q` to quit!
+
+See [TUI_GUIDE.md](TUI_GUIDE.md) for full keyboard shortcuts and features.
+
+### Or Use CLI Commands
 
 ```bash
 # Get a summary
@@ -173,6 +186,7 @@ python -m twitter_analyzer.cli query "SELECT text, created_at FROM tweets ORDER 
 
 ## What's Next?
 
+- Try the **interactive browser**: [TUI_GUIDE.md](TUI_GUIDE.md)
 - Read the full [README.md](README.md) for more details
 - Check [NOTES.md](NOTES.md) for implementation details
 - Explore your data with custom SQL queries
@@ -193,11 +207,14 @@ python -m twitter_analyzer.cli status
 # 3. Fetch your data
 python -m twitter_analyzer.cli fetch --limit 100
 
-# 4. Get insights
+# 4. Browse interactively (fun!)
+python -m twitter_analyzer.cli browse
+
+# 5. Get AI insights
 python -m twitter_analyzer.cli analyze summary
 python -m twitter_analyzer.cli ask "What are my main interests based on likes?"
 
-# 5. Explore with SQL
+# 6. Explore with SQL
 python -m twitter_analyzer.cli query "SELECT COUNT(*) FROM tweets"
 python -m twitter_analyzer.cli query "SELECT text FROM tweets LIMIT 5"
 ```
