@@ -19,9 +19,10 @@ claude-speriments/
 ├── CLAUDE.md                    # This file - guidance for Claude Code
 ├── apps/                        # Collaborative applications
 │   └── twitter-data-analyzer/   # Full-featured CLI applications
-├── verbalized-sampling/         # Prompting technique experiments
-├── cialdini-persuasion/         # Prompting technique experiments
-└── [future directories]/        # skills/, agents/, etc.
+├── skills/                      # Slash commands and skills
+│   ├── verbalized-sampling/     # Prompting technique experiments
+│   └── cialdini-persuasion/     # Prompting technique experiments
+└── [future directories]/        # agents/, hooks/, mcp/, etc.
 ```
 
 ### Directory Organization
@@ -60,31 +61,33 @@ apps/
 - Store prompts in external files (prompts/ directory)
 - Maintain an ICEBOX.md for future ideas
 
-#### Root-Level Directories - Experiments
+#### `skills/` - Slash Commands and Skills
 
-**Purpose:** Experiments with slash commands, prompting techniques, and research implementations.
+**Purpose:** Slash commands and skills for Claude Code, including prompting techniques and research implementations.
 
 **What goes here:**
 - Slash command collections
 - Prompting technique demonstrations
 - Research paper implementations
 - Technique showcases
+- Custom skills for Claude Code
 
 **Structure:**
 ```
-experiment-name/
-├── README.md                  # Usage guide
-├── NOTES.md                   # Implementation notes
-├── PAPER_SUMMARY.md           # Research summary (if applicable)
-├── commands/                  # Slash commands
-│   ├── command1.md
-│   └── command2.md
-└── examples/                  # Example outputs
+skills/
+└── skill-name/
+    ├── README.md              # Usage guide
+    ├── NOTES.md               # Implementation notes
+    ├── PAPER_SUMMARY.md       # Research summary (if applicable)
+    ├── commands/              # Slash commands
+    │   ├── command1.md
+    │   └── command2.md
+    └── examples/              # Example outputs
 ```
 
 **Examples:**
-- `verbalized-sampling/` - Implements research on improving LLM diversity
-- `cialdini-persuasion/` - Applies psychological principles to prompts
+- `skills/verbalized-sampling/` - Implements research on improving LLM diversity
+- `skills/cialdini-persuasion/` - Applies psychological principles to prompts
 
 **Best practices:**
 - Document the research or technique being explored
@@ -95,10 +98,6 @@ experiment-name/
 #### Future Directories
 
 As the repository grows, we'll add:
-
-- **`skills/`** - Custom Claude Code skills
-  - Reusable capabilities that can be invoked across sessions
-  - Follow Claude Code skill conventions
 
 - **`agents/`** - Agent configurations and workflows
   - Specialized agent setups for specific tasks
@@ -123,9 +122,9 @@ As the repository grows, we'll add:
 5. Include comprehensive documentation
 6. Commit with descriptive messages
 
-### Adding a New Experiment
+### Adding a New Skill
 
-1. Create a new root-level directory with a descriptive name
+1. Create a new directory under `skills/` with a descriptive name
 2. Add README with overview and usage
 3. Add NOTES.md with implementation details
 4. Create `commands/` directory for slash commands
@@ -220,8 +219,8 @@ The structure is designed to be flexible and accommodate new types of experiment
 
 If you have questions about where something should go or how to organize a new experiment, consider:
 - Is it a complete application? → `apps/`
-- Is it a prompting technique or slash commands? → Root level directory
-- Is it a skill or agent? → Future `skills/` or `agents/` directory
+- Is it a prompting technique or slash commands? → `skills/` directory
+- Is it an agent configuration? → Future `agents/` directory
 - Is it configuration or tooling? → Consider if it belongs in an existing project
 
 When in doubt, ask the user for guidance on organization.

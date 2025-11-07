@@ -8,7 +8,7 @@ This repository contains various experiments and implementations based on resear
 
 ## Experiments
 
-### 🎲 [Verbalized Sampling](./verbalized-sampling/)
+### 🎲 [Verbalized Sampling](./skills/verbalized-sampling/)
 
 Implementation of the **Verbalized Sampling** technique from the research paper ["Verbalized Sampling: How to Mitigate Mode Collapse and Unlock LLM Diversity"](https://arxiv.org/abs/2510.01171) (arXiv:2510.01171v3).
 
@@ -25,7 +25,7 @@ Implementation of the **Verbalized Sampling** technique from the research paper 
 
 ---
 
-### 🧠 [Cialdini Persuasion Techniques](./cialdini-persuasion/)
+### 🧠 [Cialdini Persuasion Techniques](./skills/cialdini-persuasion/)
 
 Application of **Dr. Robert Cialdini's 7 principles of persuasion** to improve AI agent instruction adherence and task completion.
 
@@ -76,8 +76,8 @@ Each experiment has its own installation instructions in its README. Generally:
 git clone https://github.com/joncooper/claude-speriments.git
 cd claude-speriments
 
-# Navigate to an experiment and follow its README
-cd verbalized-sampling
+# Navigate to a skill and follow its README
+cd skills/verbalized-sampling
 cat README.md
 ```
 
@@ -94,18 +94,19 @@ claude-speriments/
 │       ├── src/twitter_analyzer/ # Python package
 │       ├── requirements.txt     # Dependencies
 │       └── setup.py             # Package setup
-├── verbalized-sampling/         # Verbalized Sampling experiment
-│   ├── README.md                # Usage guide
-│   ├── PAPER_SUMMARY.md         # Research paper summary
-│   ├── NOTES.md                 # Implementation notes
-│   └── commands/                # 12 slash commands
-├── cialdini-persuasion/         # Cialdini Persuasion experiment
-│   ├── README.md                # Usage guide
-│   ├── proposal.md              # Detailed principle explanations
-│   ├── test-plan.md             # Testing methodology
-│   ├── NOTES.md                 # Implementation notes
-│   └── commands/                # 10 slash commands
-└── [future directories]/        # skills/, agents/, etc. as needed
+├── skills/                      # Slash commands and skills
+│   ├── verbalized-sampling/     # Verbalized Sampling skill
+│   │   ├── README.md            # Usage guide
+│   │   ├── PAPER_SUMMARY.md     # Research paper summary
+│   │   ├── NOTES.md             # Implementation notes
+│   │   └── commands/            # 12 slash commands
+│   └── cialdini-persuasion/     # Cialdini Persuasion skill
+│       ├── README.md            # Usage guide
+│       ├── proposal.md          # Detailed principle explanations
+│       ├── test-plan.md         # Testing methodology
+│       ├── NOTES.md             # Implementation notes
+│       └── commands/            # 10 slash commands
+└── [future directories]/        # agents/, hooks/, mcp/, etc. as needed
 ```
 
 ## Organization
@@ -113,8 +114,8 @@ claude-speriments/
 This repository is organized to support various types of Claude Code experiments:
 
 - **`apps/`** - Collaborative applications built with Claude (e.g., Twitter Data Analyzer)
-- **Root directories** - Experiments with slash commands and prompting techniques (e.g., Verbalized Sampling, Cialdini Persuasion)
-- **Future directories** - As the repository grows, we'll add `skills/`, `agents/`, and other directories for different types of Claude Code experiments
+- **`skills/`** - Slash commands and skills for Claude Code (e.g., Verbalized Sampling, Cialdini Persuasion)
+- **Future directories** - As the repository grows, we'll add `agents/`, `hooks/`, `mcp/`, and other directories for different types of Claude Code experiments
 
 See [CLAUDE.md](./CLAUDE.md) for detailed guidance on working with this repository in Claude Code.
 
