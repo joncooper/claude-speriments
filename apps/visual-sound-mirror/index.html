@@ -49,6 +49,55 @@
             </div>
         </div>
 
+        <div id="padDebugPanel" class="hidden">
+            <div class="pad-debug-content">
+                <h3>Pad Tuning (Press 'P' to toggle)</h3>
+
+                <div class="control-group">
+                    <label>Tap Algorithm:</label>
+                    <select id="tapAlgorithm">
+                        <option value="z-velocity">Z-Velocity (forward motion)</option>
+                        <option value="dwell-retreat">Dwell + Retreat</option>
+                        <option value="wiggle">Wiggle (XY movement)</option>
+                        <option value="hybrid">Hybrid (Z + wiggle)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label>Pad Size: <span id="padSizeValue">70</span>px</label>
+                    <input type="range" id="padSize" min="40" max="120" value="70" step="5">
+                </div>
+
+                <div class="control-group">
+                    <label>Spacing Multiplier: <span id="spacingValue">0.8</span>x</label>
+                    <input type="range" id="spacing" min="0.5" max="2.0" value="0.8" step="0.1">
+                </div>
+
+                <div class="control-group">
+                    <label>Z Threshold: <span id="zThresholdValue">0.03</span></label>
+                    <input type="range" id="zThreshold" min="0.01" max="0.1" value="0.03" step="0.005">
+                </div>
+
+                <div class="control-group">
+                    <label>Dwell Time: <span id="dwellTimeValue">200</span>ms</label>
+                    <input type="range" id="dwellTime" min="100" max="500" value="200" step="50">
+                </div>
+
+                <div class="control-group">
+                    <label>Wiggle Threshold: <span id="wiggleValue">10</span>px</label>
+                    <input type="range" id="wiggle" min="5" max="30" value="10" step="1">
+                </div>
+
+                <div class="control-group">
+                    <label>Retreat Threshold: <span id="retreatValue">0.02</span></label>
+                    <input type="range" id="retreat" min="0.01" max="0.05" value="0.02" step="0.005">
+                </div>
+
+                <button id="resetPads">Reset to Defaults</button>
+                <button id="recalibrate">Recalibrate Pads</button>
+            </div>
+        </div>
+
         <div id="info" class="hidden">
             <div class="info-content">
                 <h2>Visual Sound Mirror - v6.2</h2>

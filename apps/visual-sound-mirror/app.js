@@ -84,6 +84,18 @@ class VisualSoundMirror {
             handCenter: null,
             scale: 1.0
         };
+
+        // Pad tuning parameters (adjustable via debug UI)
+        this.padSettings = {
+            basePadSize: 70,           // Base pad size in pixels (40-120)
+            spacingMultiplier: 0.8,    // Spacing between pads (0.5-2.0)
+            tapAlgorithm: 'z-velocity', // 'z-velocity', 'dwell-retreat', 'wiggle', 'hybrid'
+            zThreshold: 0.03,          // Z-axis movement threshold (0.01-0.1)
+            dwellTime: 200,            // Time to hover before tap counts (100-500ms)
+            wiggleThreshold: 10,       // XY wiggle distance in pixels (5-30)
+            retreatThreshold: 0.02     // Z-axis retreat speed (0.01-0.05)
+        };
+
         this.initPads();
 
         // Virtual knobs
@@ -93,6 +105,7 @@ class VisualSoundMirror {
 
         // Debug mode
         this.debugMode = false;
+        this.debugPanelVisible = false;
 
         // No hands timer
         this.noHandsTime = 0;
@@ -160,8 +173,9 @@ class VisualSoundMirror {
             // Use calibrated hand geometry
             console.log('Using calibrated pad layout');
             const scale = this.padCalibration.scale;
-            const padSize = Math.max(40, Math.min(70, 50 * scale)); // Scale pad size, min 40px, max 70px
-            const padSpacing = Math.max(60, 80 * scale); // Scale spacing between pads
+            const padSize = Math.max(40, Math.min(120, this.padSettings.basePadSize * scale));
+            // Make pads adjacent: spacing = padSize * multiplier
+            const padSpacing = padSize * this.padSettings.spacingMultiplier;
 
             for (let finger = 0; finger < 5; finger++) {
                 const fingertip = this.padCalibration.fingertipPositions[finger];
@@ -174,21 +188,27 @@ class VisualSoundMirror {
 
                 // Place pads along a line extending from fingertip away from hand center
                 for (let padIdx = 0; padIdx < padsPerFinger; padIdx++) {
-                    const distance = padSpacing * (padIdx + 0.5); // Start 0.5 spacing away from fingertip
+                    const distance = padSpacing * (padIdx + 1); // Adjacent pads starting from fingertip
                     const x = fingertip.x + Math.cos(angle) * distance;
                     const y = fingertip.y + Math.sin(angle) * distance;
 
+                    // Clamp to screen bounds
+                    const clampedX = Math.max(padSize / 2, Math.min(this.canvas.width - padSize / 2, x));
+                    const clampedY = Math.max(padSize / 2, Math.min(this.canvas.height - padSize / 2, y));
+
                     this.pads.push({
-                        x: x - padSize / 2,
-                        y: y - padSize / 2,
+                        x: clampedX - padSize / 2,
+                        y: clampedY - padSize / 2,
                         size: padSize,
-                        centerX: x,
-                        centerY: y,
+                        centerX: clampedX,
+                        centerY: clampedY,
                         type: fingerSounds[finger][padIdx],
                         fingerIndex: finger,
                         triggered: false,
                         triggerTime: 0,
                         lastZ: null,
+                        dwellStartTime: null,  // For dwell-retreat algorithm
+                        lastXY: null,          // For wiggle detection
                         color: this.getPadColor(fingerSounds[finger][padIdx])
                     });
                 }
@@ -318,6 +338,10 @@ class VisualSoundMirror {
             if (e.key === '2') this.switchMode('theremin');
             if (e.key === '3') this.switchMode('pads');
             if (e.key === 's') this.cycleScale();
+            if (e.key === 'p' || e.key === 'P') {
+                this.debugPanelVisible = !this.debugPanelVisible;
+                document.getElementById('padDebugPanel').classList.toggle('hidden');
+            }
         });
 
         document.getElementById('startButton').addEventListener('click', () => {
@@ -348,6 +372,85 @@ class VisualSoundMirror {
                 this.switchMode(mode);
                 this.updateModeButtons();
             });
+        });
+
+        // Pad Debug Panel Controls
+        document.getElementById('tapAlgorithm').addEventListener('change', (e) => {
+            this.padSettings.tapAlgorithm = e.target.value;
+            console.log(`Tap algorithm: ${e.target.value}`);
+        });
+
+        document.getElementById('padSize').addEventListener('input', (e) => {
+            this.padSettings.basePadSize = parseFloat(e.target.value);
+            document.getElementById('padSizeValue').textContent = e.target.value;
+        });
+
+        document.getElementById('spacing').addEventListener('input', (e) => {
+            this.padSettings.spacingMultiplier = parseFloat(e.target.value);
+            document.getElementById('spacingValue').textContent = e.target.value;
+        });
+
+        document.getElementById('zThreshold').addEventListener('input', (e) => {
+            this.padSettings.zThreshold = parseFloat(e.target.value);
+            document.getElementById('zThresholdValue').textContent = e.target.value;
+        });
+
+        document.getElementById('dwellTime').addEventListener('input', (e) => {
+            this.padSettings.dwellTime = parseInt(e.target.value);
+            document.getElementById('dwellTimeValue').textContent = e.target.value;
+        });
+
+        document.getElementById('wiggle').addEventListener('input', (e) => {
+            this.padSettings.wiggleThreshold = parseFloat(e.target.value);
+            document.getElementById('wiggleValue').textContent = e.target.value;
+        });
+
+        document.getElementById('retreat').addEventListener('input', (e) => {
+            this.padSettings.retreatThreshold = parseFloat(e.target.value);
+            document.getElementById('retreatValue').textContent = e.target.value;
+        });
+
+        document.getElementById('resetPads').addEventListener('click', () => {
+            // Reset to defaults
+            this.padSettings.basePadSize = 70;
+            this.padSettings.spacingMultiplier = 0.8;
+            this.padSettings.tapAlgorithm = 'z-velocity';
+            this.padSettings.zThreshold = 0.03;
+            this.padSettings.dwellTime = 200;
+            this.padSettings.wiggleThreshold = 10;
+            this.padSettings.retreatThreshold = 0.02;
+
+            // Update UI
+            document.getElementById('tapAlgorithm').value = 'z-velocity';
+            document.getElementById('padSize').value = '70';
+            document.getElementById('padSizeValue').textContent = '70';
+            document.getElementById('spacing').value = '0.8';
+            document.getElementById('spacingValue').textContent = '0.8';
+            document.getElementById('zThreshold').value = '0.03';
+            document.getElementById('zThresholdValue').textContent = '0.03';
+            document.getElementById('dwellTime').value = '200';
+            document.getElementById('dwellTimeValue').textContent = '200';
+            document.getElementById('wiggle').value = '10';
+            document.getElementById('wiggleValue').textContent = '10';
+            document.getElementById('retreat').value = '0.02';
+            document.getElementById('retreatValue').textContent = '0.02';
+
+            // Reinit pads if in pads mode
+            if (this.mode === 'pads') {
+                this.initPads();
+            }
+
+            console.log('Reset pad settings to defaults');
+        });
+
+        document.getElementById('recalibrate').addEventListener('click', () => {
+            if (this.leftHand && this.leftHand.fingertips.length === 5) {
+                this.calibratePadsFromHand(this.leftHand);
+                this.initPads();
+                console.log('Recalibrated pads');
+            } else {
+                console.log('Cannot recalibrate: need to detect left hand with 5 fingers');
+            }
         });
     }
 
@@ -1523,7 +1626,7 @@ class VisualSoundMirror {
         if (this.leftHand) hands.push(this.leftHand);
         if (this.rightHand) hands.push(this.rightHand);
 
-        const TAP_THRESHOLD = 0.03; // Z-axis movement threshold for tap detection
+        const now = Date.now();
 
         for (const hand of hands) {
             for (const fingertip of hand.fingertips) {
@@ -1536,40 +1639,122 @@ class VisualSoundMirror {
                     const dy = fingertip.y - pad.centerY;
                     const dist = Math.sqrt(dx * dx + dy * dy);
 
-                    if (dist < pad.size * 0.8) {
-                        // Fingertip is over pad - check for tap motion
-                        if (pad.lastZ !== null) {
-                            // Detect forward motion (tap) - Z decreases when moving toward camera
-                            const zDelta = pad.lastZ - fingertip.z;
+                    const isOver = dist < pad.size * 0.6; // Larger hit radius
 
-                            if (zDelta > TAP_THRESHOLD) {
-                                // Tap detected!
-                                const now = Date.now();
-                                if (!pad.triggered || now - pad.triggerTime > 300) {
-                                    pad.triggered = true;
-                                    pad.triggerTime = now;
-                                    this.playDrumSample(pad.type);
-                                    console.log(`Tapped pad: ${pad.type}`);
-                                }
-                            }
+                    if (isOver) {
+                        // Fingertip is over pad - use selected algorithm
+                        let tapDetected = false;
+
+                        switch (this.padSettings.tapAlgorithm) {
+                            case 'z-velocity':
+                                tapDetected = this.detectTap_ZVelocity(pad, fingertip, now);
+                                break;
+                            case 'dwell-retreat':
+                                tapDetected = this.detectTap_DwellRetreat(pad, fingertip, now);
+                                break;
+                            case 'wiggle':
+                                tapDetected = this.detectTap_Wiggle(pad, fingertip, now);
+                                break;
+                            case 'hybrid':
+                                tapDetected = this.detectTap_Hybrid(pad, fingertip, now);
+                                break;
                         }
 
-                        pad.lastZ = fingertip.z;
+                        if (tapDetected && (!pad.triggered || now - pad.triggerTime > 300)) {
+                            pad.triggered = true;
+                            pad.triggerTime = now;
+                            this.playDrumSample(pad.type);
+                            console.log(`[${this.padSettings.tapAlgorithm}] Tapped: ${pad.type}`);
+                        }
                     } else {
-                        // Finger left the pad area - reset
+                        // Finger left the pad area - reset all state
                         pad.lastZ = null;
+                        pad.dwellStartTime = null;
+                        pad.lastXY = null;
                     }
                 }
             }
         }
 
-        // Reset triggered state after timeout
-        const now = Date.now();
+        // Reset triggered state after visual feedback timeout
         for (const pad of this.pads) {
             if (pad.triggered && now - pad.triggerTime > 150) {
                 pad.triggered = false;
             }
         }
+    }
+
+    // Algorithm 1: Z-Velocity (forward motion detection)
+    detectTap_ZVelocity(pad, fingertip, now) {
+        if (pad.lastZ !== null) {
+            const zDelta = pad.lastZ - fingertip.z; // Positive = toward camera
+            if (zDelta > this.padSettings.zThreshold) {
+                pad.lastZ = fingertip.z;
+                return true;
+            }
+        }
+        pad.lastZ = fingertip.z;
+        return false;
+    }
+
+    // Algorithm 2: Dwell + Retreat (hover then pull back)
+    detectTap_DwellRetreat(pad, fingertip, now) {
+        if (pad.dwellStartTime === null) {
+            pad.dwellStartTime = now;
+            pad.lastZ = fingertip.z;
+        } else {
+            const dwellDuration = now - pad.dwellStartTime;
+            if (dwellDuration >= this.padSettings.dwellTime && pad.lastZ !== null) {
+                // Check for retreat (Z increases = away from camera)
+                const zDelta = fingertip.z - pad.lastZ; // Positive = away
+                if (zDelta > this.padSettings.retreatThreshold) {
+                    pad.dwellStartTime = null;
+                    pad.lastZ = null;
+                    return true;
+                }
+            }
+            pad.lastZ = fingertip.z;
+        }
+        return false;
+    }
+
+    // Algorithm 3: Wiggle (rapid XY movement)
+    detectTap_Wiggle(pad, fingertip, now) {
+        if (pad.lastXY !== null) {
+            const xyDist = Math.hypot(fingertip.x - pad.lastXY.x, fingertip.y - pad.lastXY.y);
+            if (xyDist > this.padSettings.wiggleThreshold) {
+                pad.lastXY = { x: fingertip.x, y: fingertip.y };
+                return true;
+            }
+        }
+        pad.lastXY = { x: fingertip.x, y: fingertip.y };
+        return false;
+    }
+
+    // Algorithm 4: Hybrid (combines Z-velocity + small wiggle)
+    detectTap_Hybrid(pad, fingertip, now) {
+        let score = 0;
+
+        // Check Z-velocity
+        if (pad.lastZ !== null) {
+            const zDelta = pad.lastZ - fingertip.z;
+            if (zDelta > this.padSettings.zThreshold * 0.5) {
+                score += 1;
+            }
+        }
+
+        // Check wiggle
+        if (pad.lastXY !== null) {
+            const xyDist = Math.hypot(fingertip.x - pad.lastXY.x, fingertip.y - pad.lastXY.y);
+            if (xyDist > this.padSettings.wiggleThreshold * 0.5) {
+                score += 1;
+            }
+        }
+
+        pad.lastZ = fingertip.z;
+        pad.lastXY = { x: fingertip.x, y: fingertip.y };
+
+        return score >= 2; // Need both indicators
     }
 
     detectKnobInteractions() {
