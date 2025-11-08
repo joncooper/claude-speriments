@@ -233,6 +233,46 @@ body {
     opacity: 1;
 }
 
+/* Debug panel */
+#debug {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 15;
+    transition: opacity 0.3s;
+}
+
+#debug.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.debug-panel {
+    padding: 15px 20px;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.debug-panel h3 {
+    margin: 0 0 10px 0;
+    color: #667eea;
+    font-size: 1em;
+}
+
+.debug-panel p {
+    margin: 5px 0;
+    color: #aaa;
+}
+
+.debug-panel span {
+    color: #fff;
+    font-weight: bold;
+}
+
 /* Loading animation */
 @keyframes pulse {
     0%, 100% { opacity: 1; }
