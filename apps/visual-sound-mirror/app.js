@@ -90,10 +90,11 @@ class VisualSoundMirror {
             basePadSize: 70,           // Base pad size in pixels (40-120)
             spacingMultiplier: 0.8,    // Spacing between pads (0.5-2.0)
             tapAlgorithm: 'z-velocity', // 'z-velocity', 'dwell-retreat', 'wiggle', 'hybrid'
-            zThreshold: 0.03,          // Z-axis movement threshold (0.01-0.1)
+            zThreshold: 0.02,          // Z-axis movement threshold (0.005-0.1) - MORE SENSITIVE
             dwellTime: 200,            // Time to hover before tap counts (100-500ms)
             wiggleThreshold: 10,       // XY wiggle distance in pixels (5-30)
-            retreatThreshold: 0.02     // Z-axis retreat speed (0.01-0.05)
+            retreatThreshold: 0.02,    // Z-axis retreat speed (0.01-0.05)
+            retriggerDelay: 100        // Cooldown between re-triggers in ms (50-300) - FAST for drums!
         };
 
         this.initPads();
@@ -410,15 +411,21 @@ class VisualSoundMirror {
             document.getElementById('retreatValue').textContent = e.target.value;
         });
 
+        document.getElementById('retriggerDelay').addEventListener('input', (e) => {
+            this.padSettings.retriggerDelay = parseInt(e.target.value);
+            document.getElementById('retriggerDelayValue').textContent = e.target.value;
+        });
+
         document.getElementById('resetPads').addEventListener('click', () => {
             // Reset to defaults
             this.padSettings.basePadSize = 70;
             this.padSettings.spacingMultiplier = 0.8;
             this.padSettings.tapAlgorithm = 'z-velocity';
-            this.padSettings.zThreshold = 0.03;
+            this.padSettings.zThreshold = 0.02;
             this.padSettings.dwellTime = 200;
             this.padSettings.wiggleThreshold = 10;
             this.padSettings.retreatThreshold = 0.02;
+            this.padSettings.retriggerDelay = 100;
 
             // Update UI
             document.getElementById('tapAlgorithm').value = 'z-velocity';
@@ -426,14 +433,16 @@ class VisualSoundMirror {
             document.getElementById('padSizeValue').textContent = '70';
             document.getElementById('spacing').value = '0.8';
             document.getElementById('spacingValue').textContent = '0.8';
-            document.getElementById('zThreshold').value = '0.03';
-            document.getElementById('zThresholdValue').textContent = '0.03';
+            document.getElementById('zThreshold').value = '0.02';
+            document.getElementById('zThresholdValue').textContent = '0.02';
             document.getElementById('dwellTime').value = '200';
             document.getElementById('dwellTimeValue').textContent = '200';
             document.getElementById('wiggle').value = '10';
             document.getElementById('wiggleValue').textContent = '10';
             document.getElementById('retreat').value = '0.02';
             document.getElementById('retreatValue').textContent = '0.02';
+            document.getElementById('retriggerDelay').value = '100';
+            document.getElementById('retriggerDelayValue').textContent = '100';
 
             // Reinit pads if in pads mode
             if (this.mode === 'pads') {
@@ -1660,7 +1669,7 @@ class VisualSoundMirror {
                                 break;
                         }
 
-                        if (tapDetected && (!pad.triggered || now - pad.triggerTime > 300)) {
+                        if (tapDetected && (!pad.triggered || now - pad.triggerTime > this.padSettings.retriggerDelay)) {
                             pad.triggered = true;
                             pad.triggerTime = now;
                             this.playDrumSample(pad.type);
