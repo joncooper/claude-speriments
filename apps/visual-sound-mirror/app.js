@@ -114,68 +114,112 @@ class VisualSoundMirror {
     }
 
     initPads() {
-        const padding = 40;
-        const gridWidth = 400;
-        const gridHeight = 400;
-        const startX = this.canvas.width - gridWidth - padding;
-        const startY = (this.canvas.height - gridHeight) / 2;
-        const padSize = (gridWidth - (this.padGrid.cols + 1) * 10) / this.padGrid.cols;
+        // Arc-based layout - 5 arcs (one per finger), 5 pads per arc
+        // Positioned ergonomically for natural finger sweeping motion
+        const centerX = this.canvas.width / 2;
+        const centerY = this.canvas.height * 0.7; // Lower on screen
+        const arcRadius = 200; // Base radius for arcs
+        const padSize = 50;
+        const padsPerFinger = 5;
 
-        // Define drum samples for each pad
-        const drumTypes = [
-            'kick', 'snare', 'hihat', 'clap',
-            'tom1', 'tom2', 'rim', 'cowbell',
-            'crash', 'ride', 'perc1', 'perc2',
-            'bass', 'chord1', 'chord2', 'lead'
+        // Define sounds for each finger's arc (5 fingers × 5 pads = 25 sounds)
+        const fingerSounds = [
+            // Thumb (0): Bass and low tones
+            ['kick', 'bass1', 'bass2', 'bass3', 'subkick'],
+            // Index (1): Snares and mid percussion
+            ['snare', 'rimshot', 'clap', 'snap', 'sidestick'],
+            // Middle (2): Hi-hats and cymbals
+            ['hihat', 'hihat_open', 'crash', 'ride', 'splash'],
+            // Ring (3): Toms and melodic percussion
+            ['tom1', 'tom2', 'tom3', 'conga', 'bongo'],
+            // Pinky (4): Synths and effects
+            ['chord1', 'chord2', 'lead', 'fx1', 'fx2']
         ];
 
-        for (let row = 0; row < this.padGrid.rows; row++) {
-            for (let col = 0; col < this.padGrid.cols; col++) {
-                const idx = row * this.padGrid.cols + col;
+        this.pads = [];
+
+        for (let finger = 0; finger < 5; finger++) {
+            // Angle spread for this finger's arc (fan out from center)
+            const baseAngle = -Math.PI / 2; // Start from top
+            const angleSpread = Math.PI * 0.6; // 108 degrees total spread
+            const startAngle = baseAngle - angleSpread / 2 + (finger * angleSpread / 4);
+
+            for (let padIdx = 0; padIdx < padsPerFinger; padIdx++) {
+                // Position pads in an arc, closer pads = closer to hand
+                const angle = startAngle + (padIdx / (padsPerFinger - 1)) * (angleSpread / 5);
+                const radius = arcRadius + (finger * 35); // Stack arcs outward
+                const distance = radius - (padIdx * 30); // Closer pads are nearer
+
+                const x = centerX + Math.cos(angle) * distance;
+                const y = centerY + Math.sin(angle) * distance;
+
                 this.pads.push({
-                    x: startX + col * (padSize + 10) + 10,
-                    y: startY + row * (padSize + 10) + 10,
+                    x: x - padSize / 2,
+                    y: y - padSize / 2,
                     size: padSize,
-                    type: drumTypes[idx],
+                    centerX: x,
+                    centerY: y,
+                    type: fingerSounds[finger][padIdx],
+                    fingerIndex: finger,
                     triggered: false,
                     triggerTime: 0,
-                    color: this.getPadColor(drumTypes[idx])
+                    lastZ: null, // For tap detection
+                    color: this.getPadColor(fingerSounds[finger][padIdx])
                 });
             }
         }
     }
 
     initKnobs() {
-        const padding = 40;
-        const knobRadius = 50;
-        const knobY = 100;
+        const padding = 60;
+        const knobRadius = 80; // Bigger knobs for easier control
+        const knobY = 150;
+        const spacing = 200;
 
         this.knobs = [
-            { x: padding + 70, y: knobY, radius: knobRadius, value: 0.5, label: 'Filter', param: 'filter', angle: 0 },
-            { x: padding + 200, y: knobY, radius: knobRadius, value: 0.3, label: 'Reverb', param: 'reverb', angle: 0 },
-            { x: padding + 330, y: knobY, radius: knobRadius, value: 0.4, label: 'Delay', param: 'delay', angle: 0 },
-            { x: padding + 460, y: knobY, radius: knobRadius, value: 0.7, label: 'Res', param: 'resonance', angle: 0 }
+            { x: padding + knobRadius, y: knobY, radius: knobRadius, value: 0.5, label: 'Filter', param: 'filter', angle: 0 },
+            { x: padding + knobRadius + spacing, y: knobY, radius: knobRadius, value: 0.3, label: 'Reverb', param: 'reverb', angle: 0 },
+            { x: padding + knobRadius + spacing * 2, y: knobY, radius: knobRadius, value: 0.4, label: 'Delay', param: 'delay', angle: 0 },
+            { x: padding + knobRadius + spacing * 3, y: knobY, radius: knobRadius, value: 0.7, label: 'Res', param: 'resonance', angle: 0 }
         ];
     }
 
     getPadColor(type) {
         const colors = {
+            // Thumb - Bass (reds/oranges)
             kick: { r: 255, g: 60, b: 60 },
+            bass1: { r: 200, g: 40, b: 40 },
+            bass2: { r: 180, g: 60, b: 40 },
+            bass3: { r: 160, g: 80, b: 60 },
+            subkick: { r: 120, g: 40, b: 40 },
+
+            // Index - Snares (blues)
             snare: { r: 60, g: 150, b: 255 },
+            rimshot: { r: 80, g: 180, b: 255 },
+            clap: { r: 100, g: 200, b: 255 },
+            snap: { r: 120, g: 220, b: 255 },
+            sidestick: { r: 60, g: 120, b: 200 },
+
+            // Middle - Hi-hats/Cymbals (yellows/whites)
             hihat: { r: 200, g: 200, b: 60 },
-            clap: { r: 255, g: 150, b: 60 },
+            hihat_open: { r: 220, g: 220, b: 100 },
+            crash: { r: 240, g: 240, b: 240 },
+            ride: { r: 200, g: 200, b: 200 },
+            splash: { r: 255, g: 255, b: 150 },
+
+            // Ring - Toms (purples)
             tom1: { r: 180, g: 80, b: 200 },
-            tom2: { r: 150, g: 100, b: 220 },
-            rim: { r: 100, g: 200, b: 150 },
-            cowbell: { r: 220, g: 180, b: 100 },
-            crash: { r: 200, g: 200, b: 200 },
-            ride: { r: 180, g: 180, b: 180 },
-            perc1: { r: 100, g: 255, b: 150 },
-            perc2: { r: 150, g: 100, b: 255 },
-            bass: { r: 80, g: 80, b: 200 },
-            chord1: { r: 200, g: 100, b: 100 },
-            chord2: { r: 100, g: 200, b: 100 },
-            lead: { r: 255, g: 200, b: 100 }
+            tom2: { r: 160, g: 100, b: 220 },
+            tom3: { r: 140, g: 120, b: 240 },
+            conga: { r: 200, g: 100, b: 180 },
+            bongo: { r: 220, g: 120, b: 200 },
+
+            // Pinky - Synths (greens/teals)
+            chord1: { r: 100, g: 200, b: 100 },
+            chord2: { r: 80, g: 220, b: 120 },
+            lead: { r: 100, g: 255, b: 150 },
+            fx1: { r: 60, g: 200, b: 200 },
+            fx2: { r: 80, g: 180, b: 220 }
         };
         return colors[type] || { r: 150, g: 150, b: 150 };
     }
@@ -524,29 +568,46 @@ class VisualSoundMirror {
 
         try {
             switch (type) {
+                // Thumb - Bass sounds
                 case 'kick':
                     this.playKick(now);
                     break;
+                case 'bass1':
+                    this.playBass(now, 55);
+                    break;
+                case 'bass2':
+                    this.playBass(now, 65);
+                    break;
+                case 'bass3':
+                    this.playBass(now, 82);
+                    break;
+                case 'subkick':
+                    this.playKick(now, 100, 30);
+                    break;
+
+                // Index - Snares
                 case 'snare':
                     this.playSnare(now);
                     break;
-                case 'hihat':
-                    this.playHihat(now);
+                case 'rimshot':
+                    this.playRim(now, 600);
                     break;
                 case 'clap':
                     this.playClap(now);
                     break;
-                case 'tom1':
-                    this.playTom(now, 120);
+                case 'snap':
+                    this.playSnap(now);
                     break;
-                case 'tom2':
-                    this.playTom(now, 80);
+                case 'sidestick':
+                    this.playRim(now, 800);
                     break;
-                case 'rim':
-                    this.playRim(now);
+
+                // Middle - Hi-hats/Cymbals
+                case 'hihat':
+                    this.playHihat(now, 0.1);
                     break;
-                case 'cowbell':
-                    this.playCowbell(now);
+                case 'hihat_open':
+                    this.playHihat(now, 0.3);
                     break;
                 case 'crash':
                     this.playCrash(now);
@@ -554,15 +615,28 @@ class VisualSoundMirror {
                 case 'ride':
                     this.playRide(now);
                     break;
-                case 'perc1':
-                    this.playPerc(now, 800);
+                case 'splash':
+                    this.playCrash(now, 0.8);
                     break;
-                case 'perc2':
-                    this.playPerc(now, 400);
+
+                // Ring - Toms
+                case 'tom1':
+                    this.playTom(now, 120);
                     break;
-                case 'bass':
-                    this.playBass(now);
+                case 'tom2':
+                    this.playTom(now, 90);
                     break;
+                case 'tom3':
+                    this.playTom(now, 70);
+                    break;
+                case 'conga':
+                    this.playTom(now, 200);
+                    break;
+                case 'bongo':
+                    this.playTom(now, 250);
+                    break;
+
+                // Pinky - Synths
                 case 'chord1':
                     this.playChordPad(now, [261.63, 329.63, 392.00]); // C major
                     break;
@@ -572,18 +646,24 @@ class VisualSoundMirror {
                 case 'lead':
                     this.playLead(now);
                     break;
+                case 'fx1':
+                    this.playFX(now, 800, 2000);
+                    break;
+                case 'fx2':
+                    this.playFX(now, 400, 1200);
+                    break;
             }
         } catch (error) {
             console.error('Error playing drum sample:', error);
         }
     }
 
-    playKick(now) {
+    playKick(now, startFreq = 150, endFreq = 40) {
         const osc = this.audioContext.createOscillator();
         const gain = this.audioContext.createGain();
 
-        osc.frequency.setValueAtTime(150, now);
-        osc.frequency.exponentialRampToValueAtTime(40, now + 0.1);
+        osc.frequency.setValueAtTime(startFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, now + 0.1);
 
         gain.gain.setValueAtTime(1, now);
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
@@ -627,8 +707,8 @@ class VisualSoundMirror {
         noise.start(now);
     }
 
-    playHihat(now) {
-        const bufferSize = this.audioContext.sampleRate * 0.1;
+    playHihat(now, decay = 0.1) {
+        const bufferSize = this.audioContext.sampleRate * decay;
         const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
         const data = buffer.getChannelData(0);
         for (let i = 0; i < bufferSize; i++) {
@@ -644,7 +724,7 @@ class VisualSoundMirror {
 
         const gain = this.audioContext.createGain();
         gain.gain.setValueAtTime(0.3, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + decay);
 
         noise.connect(filter);
         filter.connect(gain);
@@ -692,10 +772,10 @@ class VisualSoundMirror {
         osc.stop(now + 0.3);
     }
 
-    playRim(now) {
+    playRim(now, freq = 400) {
         const osc = this.audioContext.createOscillator();
         const gain = this.audioContext.createGain();
-        osc.frequency.value = 400;
+        osc.frequency.value = freq;
         osc.type = 'square';
 
         gain.gain.setValueAtTime(0.3, now);
@@ -706,6 +786,34 @@ class VisualSoundMirror {
 
         osc.start(now);
         osc.stop(now + 0.05);
+    }
+
+    playSnap(now) {
+        // Short, sharp noise burst
+        const bufferSize = this.audioContext.sampleRate * 0.05;
+        const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = this.audioContext.createBufferSource();
+        noise.buffer = buffer;
+
+        const filter = this.audioContext.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 2000;
+        filter.Q.value = 10;
+
+        const gain = this.audioContext.createGain();
+        gain.gain.setValueAtTime(0.5, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+
+        noise.start(now);
     }
 
     playCowbell(now) {
@@ -731,8 +839,8 @@ class VisualSoundMirror {
         osc2.stop(now + 0.2);
     }
 
-    playCrash(now) {
-        const bufferSize = this.audioContext.sampleRate * 1.5;
+    playCrash(now, decay = 1.5) {
+        const bufferSize = this.audioContext.sampleRate * decay;
         const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
         const data = buffer.getChannelData(0);
         for (let i = 0; i < bufferSize; i++) {
@@ -748,7 +856,7 @@ class VisualSoundMirror {
 
         const gain = this.audioContext.createGain();
         gain.gain.setValueAtTime(0.5, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 1.5);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + decay);
 
         noise.connect(filter);
         filter.connect(gain);
@@ -796,10 +904,10 @@ class VisualSoundMirror {
         osc.stop(now + 0.15);
     }
 
-    playBass(now) {
+    playBass(now, freq = 55) {
         const osc = this.audioContext.createOscillator();
         const gain = this.audioContext.createGain();
-        osc.frequency.value = 55; // A1
+        osc.frequency.value = freq;
         osc.type = 'sawtooth';
 
         const filter = this.audioContext.createBiquadFilter();
@@ -812,6 +920,25 @@ class VisualSoundMirror {
         osc.connect(filter);
         filter.connect(gain);
         gain.connect(this.masterGain);
+
+        osc.start(now);
+        osc.stop(now + 0.4);
+    }
+
+    playFX(now, startFreq, endFreq) {
+        // Sweep effect sound
+        const osc = this.audioContext.createOscillator();
+        const gain = this.audioContext.createGain();
+        osc.type = 'sawtooth';
+
+        osc.frequency.setValueAtTime(startFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, now + 0.4);
+
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+
+        osc.connect(gain);
+        gain.connect(this.filterNode);
 
         osc.start(now);
         osc.stop(now + 0.4);
@@ -1152,22 +1279,41 @@ class VisualSoundMirror {
         if (this.leftHand) hands.push(this.leftHand);
         if (this.rightHand) hands.push(this.rightHand);
 
+        const TAP_THRESHOLD = 0.03; // Z-axis movement threshold for tap detection
+
         for (const hand of hands) {
             for (const fingertip of hand.fingertips) {
+                // Find pads that match this finger
                 for (const pad of this.pads) {
-                    const dx = fingertip.x - (pad.x + pad.size / 2);
-                    const dy = fingertip.y - (pad.y + pad.size / 2);
+                    // Only check pads for this specific finger
+                    if (pad.fingerIndex !== fingertip.fingerIndex) continue;
+
+                    const dx = fingertip.x - pad.centerX;
+                    const dy = fingertip.y - pad.centerY;
                     const dist = Math.sqrt(dx * dx + dy * dy);
 
-                    if (dist < pad.size / 2) {
-                        // Fingertip is over pad
-                        const now = Date.now();
-                        if (!pad.triggered || now - pad.triggerTime > 200) {
-                            pad.triggered = true;
-                            pad.triggerTime = now;
-                            this.playDrumSample(pad.type);
-                            console.log(`Triggered pad: ${pad.type}`);
+                    if (dist < pad.size * 0.8) {
+                        // Fingertip is over pad - check for tap motion
+                        if (pad.lastZ !== null) {
+                            // Detect forward motion (tap) - Z decreases when moving toward camera
+                            const zDelta = pad.lastZ - fingertip.z;
+
+                            if (zDelta > TAP_THRESHOLD) {
+                                // Tap detected!
+                                const now = Date.now();
+                                if (!pad.triggered || now - pad.triggerTime > 300) {
+                                    pad.triggered = true;
+                                    pad.triggerTime = now;
+                                    this.playDrumSample(pad.type);
+                                    console.log(`Tapped pad: ${pad.type}`);
+                                }
+                            }
                         }
+
+                        pad.lastZ = fingertip.z;
+                    } else {
+                        // Finger left the pad area - reset
+                        pad.lastZ = null;
                     }
                 }
             }
@@ -1176,7 +1322,7 @@ class VisualSoundMirror {
         // Reset triggered state after timeout
         const now = Date.now();
         for (const pad of this.pads) {
-            if (pad.triggered && now - pad.triggerTime > 100) {
+            if (pad.triggered && now - pad.triggerTime > 150) {
                 pad.triggered = false;
             }
         }
@@ -1190,26 +1336,45 @@ class VisualSoundMirror {
         if (this.rightHand) hands.push(this.rightHand);
 
         for (const hand of hands) {
-            // Use index finger for knob control
-            const indexFinger = hand.fingertips[1]; // Index is finger 1
+            // Require BOTH thumb and index finger for pinch control
+            const thumb = hand.fingertips[0];
+            const index = hand.fingertips[1];
 
             for (const knob of this.knobs) {
-                const dx = indexFinger.x - knob.x;
-                const dy = indexFinger.y - knob.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
+                // Check if both fingers are inside knob area
+                const thumbDist = Math.sqrt(
+                    Math.pow(thumb.x - knob.x, 2) +
+                    Math.pow(thumb.y - knob.y, 2)
+                );
+                const indexDist = Math.sqrt(
+                    Math.pow(index.x - knob.x, 2) +
+                    Math.pow(index.y - knob.y, 2)
+                );
 
-                if (dist < knob.radius * 1.5) {
-                    // Finger is over knob - calculate rotation angle
+                // Both fingers must be within the knob radius
+                if (thumbDist < knob.radius && indexDist < knob.radius) {
+                    // Calculate pinch center (midpoint between thumb and index)
+                    const pinchX = (thumb.x + index.x) / 2;
+                    const pinchY = (thumb.y + index.y) / 2;
+
+                    // Calculate angle from knob center to pinch center
+                    const dx = pinchX - knob.x;
+                    const dy = pinchY - knob.y;
                     const angle = Math.atan2(dy, dx);
-                    knob.angle = angle;
 
                     // Map angle to value (0-1)
-                    // Angle ranges from -π to π, map to 0-1
-                    const normalizedAngle = (angle + Math.PI) / (2 * Math.PI);
-                    knob.value = normalizedAngle;
+                    // Start at bottom (-π/2) and rotate clockwise
+                    const startAngle = -Math.PI / 2;
+                    const normalizedAngle = ((angle - startAngle + 2 * Math.PI) % (2 * Math.PI)) / (2 * Math.PI);
+                    knob.value = Math.max(0, Math.min(1, normalizedAngle));
 
                     this.activeKnob = knob;
                     break;
+                } else {
+                    // Reset active knob if fingers leave
+                    if (this.activeKnob === knob) {
+                        this.activeKnob = null;
+                    }
                 }
             }
         }
@@ -1459,28 +1624,60 @@ class VisualSoundMirror {
     }
 
     renderPadsMode() {
-        // Draw sample pad grid
+        // Draw arc guides showing finger paths (subtle)
+        const centerX = this.canvas.width / 2;
+        const centerY = this.canvas.height * 0.7;
+
+        for (let finger = 0; finger < 5; finger++) {
+            const radius = 200 + (finger * 35);
+            this.ctx.strokeStyle = `rgba(100, 100, 150, 0.15)`;
+            this.ctx.lineWidth = 1;
+            this.ctx.setLineDash([5, 5]);
+            this.ctx.beginPath();
+            this.ctx.arc(centerX, centerY, radius, -Math.PI * 0.8, -Math.PI * 0.2);
+            this.ctx.stroke();
+            this.ctx.setLineDash([]);
+        }
+
+        // Draw sample pads in arc layout
         for (const pad of this.pads) {
-            const alpha = pad.triggered ? 1.0 : 0.6;
-            const size = pad.triggered ? pad.size * 1.1 : pad.size;
-            const x = pad.triggered ? pad.x - (size - pad.size) / 2 : pad.x;
-            const y = pad.triggered ? pad.y - (size - pad.size) / 2 : pad.y;
+            const alpha = pad.triggered ? 1.0 : 0.5;
+            const size = pad.triggered ? pad.size * 1.2 : pad.size;
 
-            // Pad background
-            this.ctx.fillStyle = `rgba(${pad.color.r}, ${pad.color.g}, ${pad.color.b}, ${alpha * 0.4})`;
-            this.ctx.fillRect(x, y, size, size);
+            // Draw circular pads instead of squares for better visibility
+            this.ctx.save();
 
-            // Pad border
+            // Pad background (circle)
+            this.ctx.fillStyle = `rgba(${pad.color.r}, ${pad.color.g}, ${pad.color.b}, ${alpha * 0.3})`;
+            this.ctx.beginPath();
+            this.ctx.arc(pad.centerX, pad.centerY, size / 2, 0, Math.PI * 2);
+            this.ctx.fill();
+
+            // Pad border (circle)
             this.ctx.strokeStyle = `rgba(${pad.color.r}, ${pad.color.g}, ${pad.color.b}, ${alpha})`;
-            this.ctx.lineWidth = 2;
-            this.ctx.strokeRect(x, y, size, size);
+            this.ctx.lineWidth = 3;
+            this.ctx.beginPath();
+            this.ctx.arc(pad.centerX, pad.centerY, size / 2, 0, Math.PI * 2);
+            this.ctx.stroke();
+
+            // Glow effect when triggered
+            if (pad.triggered) {
+                this.ctx.shadowBlur = 30;
+                this.ctx.shadowColor = `rgba(${pad.color.r}, ${pad.color.g}, ${pad.color.b}, 0.8)`;
+                this.ctx.beginPath();
+                this.ctx.arc(pad.centerX, pad.centerY, size / 2, 0, Math.PI * 2);
+                this.ctx.stroke();
+            }
 
             // Pad label
+            this.ctx.shadowBlur = 0;
             this.ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-            this.ctx.font = '14px monospace';
+            this.ctx.font = '11px monospace';
             this.ctx.textAlign = 'center';
             this.ctx.textBaseline = 'middle';
-            this.ctx.fillText(pad.type, x + size / 2, y + size / 2);
+            this.ctx.fillText(pad.type, pad.centerX, pad.centerY);
+
+            this.ctx.restore();
         }
 
         // Draw hand fingertips
@@ -1490,6 +1687,13 @@ class VisualSoundMirror {
         if (this.rightHand) {
             this.drawFingertipMarkers(this.rightHand);
         }
+
+        // Draw instructions
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        this.ctx.font = '16px monospace';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'top';
+        this.ctx.fillText('Tap pads with corresponding finger', this.canvas.width / 2, 20);
 
         this.ctx.textAlign = 'left';
         this.ctx.textBaseline = 'alphabetic';
@@ -1554,6 +1758,13 @@ class VisualSoundMirror {
         if (this.rightHand) {
             this.drawFingertipMarkers(this.rightHand);
         }
+
+        // Draw instructions
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        this.ctx.font = '16px monospace';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'top';
+        this.ctx.fillText('Pinch thumb + index inside knob to rotate', this.canvas.width / 2, 20);
 
         this.ctx.textAlign = 'left';
         this.ctx.textBaseline = 'alphabetic';
