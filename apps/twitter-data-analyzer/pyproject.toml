@@ -1,0 +1,62 @@
+[project]
+name = "twitter-data-analyzer"
+version = "0.1.0"
+description = "CLI tool to download and analyze Twitter data using DuckDB and Gemini"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "claude-speriments"}
+]
+keywords = ["twitter", "data-analysis", "duckdb", "gemini", "cli"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content :: News/Diary",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+
+dependencies = [
+    "tweepy>=4.14.0",
+    "duckdb>=0.10.0",
+    "google-generativeai>=0.3.0",
+    "typer>=0.9.0",
+    "rich>=13.0.0",
+    "textual>=0.47.0",
+    "python-dotenv>=1.0.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+]
+
+[project.scripts]
+twitter-analyzer = "twitter_analyzer.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/joncooper/claude-speriments"
+Repository = "https://github.com/joncooper/claude-speriments"
+Issues = "https://github.com/joncooper/claude-speriments/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/twitter_analyzer"]
+
+[tool.uv]
+dev-dependencies = []
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N"]
+ignore = []

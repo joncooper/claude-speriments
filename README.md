@@ -8,7 +8,7 @@ This repository contains various experiments and implementations based on resear
 
 ## Experiments
 
-### 🎲 [Verbalized Sampling](./verbalized-sampling/)
+### 🎲 [Verbalized Sampling](./skills/verbalized-sampling/)
 
 Implementation of the **Verbalized Sampling** technique from the research paper ["Verbalized Sampling: How to Mitigate Mode Collapse and Unlock LLM Diversity"](https://arxiv.org/abs/2510.01171) (arXiv:2510.01171v3).
 
@@ -25,7 +25,7 @@ Implementation of the **Verbalized Sampling** technique from the research paper 
 
 ---
 
-### 🧠 [Cialdini Persuasion Techniques](./cialdini-persuasion/)
+### 🧠 [Cialdini Persuasion Techniques](./skills/cialdini-persuasion/)
 
 Application of **Dr. Robert Cialdini's 7 principles of persuasion** to improve AI agent instruction adherence and task completion.
 
@@ -46,6 +46,27 @@ Application of **Dr. Robert Cialdini's 7 principles of persuasion** to improve A
 
 ---
 
+### 🐦 [Twitter Data Analyzer](./apps/twitter-data-analyzer/)
+
+A **command-line utility** to download, store, and analyze your Twitter/X data using DuckDB and Google Gemini AI.
+
+**What it does:** Download all your tweets, likes, and bookmarks, store them in a local DuckDB database, and analyze them with AI.
+
+**Key features:**
+- Fetch all your Twitter data via Twitter API v2
+- Store in fast, queryable DuckDB database
+- **Interactive terminal UI** for browsing data with keyboard navigation
+- **Profile audit** to identify problematic content before going public
+- AI-powered analysis with Google Gemini
+- Run custom SQL queries on your data
+- Privacy-first: all data stays local
+
+**Commands include:** `init`, `fetch`, `analyze`, `query`, `ask`, `browse` (interactive TUI), `audit` (profile cleaner)
+
+**Status:** ✅ Complete
+
+---
+
 ## Installation
 
 Each experiment has its own installation instructions in its README. Generally:
@@ -55,8 +76,8 @@ Each experiment has its own installation instructions in its README. Generally:
 git clone https://github.com/joncooper/claude-speriments.git
 cd claude-speriments
 
-# Navigate to an experiment and follow its README
-cd verbalized-sampling
+# Navigate to a skill and follow its README
+cd skills/verbalized-sampling
 cat README.md
 ```
 
@@ -65,19 +86,38 @@ cat README.md
 ```
 claude-speriments/
 ├── README.md                    # This file
-├── verbalized-sampling/         # Verbalized Sampling experiment
-│   ├── README.md                # Usage guide
-│   ├── PAPER_SUMMARY.md         # Research paper summary
-│   ├── NOTES.md                 # Implementation notes
-│   └── commands/                # 12 slash commands
-├── cialdini-persuasion/         # Cialdini Persuasion experiment
-│   ├── README.md                # Usage guide
-│   ├── proposal.md              # Detailed principle explanations
-│   ├── test-plan.md             # Testing methodology
-│   ├── NOTES.md                 # Implementation notes
-│   └── commands/                # 10 slash commands
-└── [future experiments]/
+├── CLAUDE.md                    # Repository guide for Claude Code
+├── apps/                        # Collaborative applications built with Claude
+│   └── twitter-data-analyzer/   # Twitter Data Analyzer
+│       ├── README.md            # Usage guide
+│       ├── NOTES.md             # Implementation notes
+│       ├── src/twitter_analyzer/ # Python package
+│       ├── requirements.txt     # Dependencies
+│       └── setup.py             # Package setup
+├── skills/                      # Slash commands and skills
+│   ├── verbalized-sampling/     # Verbalized Sampling skill
+│   │   ├── README.md            # Usage guide
+│   │   ├── PAPER_SUMMARY.md     # Research paper summary
+│   │   ├── NOTES.md             # Implementation notes
+│   │   └── commands/            # 12 slash commands
+│   └── cialdini-persuasion/     # Cialdini Persuasion skill
+│       ├── README.md            # Usage guide
+│       ├── proposal.md          # Detailed principle explanations
+│       ├── test-plan.md         # Testing methodology
+│       ├── NOTES.md             # Implementation notes
+│       └── commands/            # 10 slash commands
+└── [future directories]/        # agents/, hooks/, mcp/, etc. as needed
 ```
+
+## Organization
+
+This repository is organized to support various types of Claude Code experiments:
+
+- **`apps/`** - Collaborative applications built with Claude (e.g., Twitter Data Analyzer)
+- **`skills/`** - Slash commands and skills for Claude Code (e.g., Verbalized Sampling, Cialdini Persuasion)
+- **Future directories** - As the repository grows, we'll add `agents/`, `hooks/`, `mcp/`, and other directories for different types of Claude Code experiments
+
+See [CLAUDE.md](./CLAUDE.md) for detailed guidance on working with this repository in Claude Code.
 
 ## Contributing
 
