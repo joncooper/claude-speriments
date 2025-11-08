@@ -93,6 +93,34 @@ A **command-line utility** to download, store, and analyze your Twitter/X data u
 
 ---
 
+### 🔍 [Forensic Accounting Agent](./apps/forensic-accounting/)
+
+**Professional-grade forensic accounting analysis** - Detect aggressive accounting practices and potential earnings manipulation in publicly-traded companies.
+
+**What it does:** Acts as a senior forensic accountant to analyze companies for accounting red flags, calculate the Beneish M-Score, and generate comprehensive reports suitable for equity research analysts.
+
+**Key features:**
+- **Beneish M-Score Analysis** - Detects earnings manipulation with ~76% accuracy using 8 financial ratios
+- **Comprehensive Red Flag Detection** - Identifies issues across revenue quality, earnings quality, working capital, assets, and leverage
+- **Trend Analysis** - Shows if accounting policies are becoming more or less aggressive over time
+- **Professional Reports** - Generates detailed markdown reports with executive summaries, findings, and recommendations
+- **MCP Integration** - Uses SEC EDGAR MCP server for robust financial data fetching
+- **5 Years of Analysis** - Examines historical patterns across multiple fiscal years
+
+**Red flags detected:**
+- Days Sales Outstanding (DSO) trends
+- Revenue vs. accounts receivable divergence
+- Operating cash flow vs. net income gaps
+- Inventory buildup and liquidity deterioration
+- Soft asset growth and capitalization issues
+- Margin deterioration and leverage increases
+
+**Command:** `/forensic-analyze TICKER:AAPL`
+
+**Status:** ✅ Complete
+
+---
+
 ## Installation
 
 Each experiment has its own installation instructions in its README. Generally:
@@ -120,13 +148,20 @@ claude-speriments/
 │   │   ├── src/twitter_analyzer/ # Python package
 │   │   ├── requirements.txt     # Dependencies
 │   │   └── setup.py             # Package setup
-│   └── analyst-workspace/       # Analyst Workspace (equity research tools)
-│       ├── README.md            # Project overview
-│       ├── STRUCTURE.md         # Repository organization
-│       ├── .claude/             # Commands, agents, MCP servers
-│       ├── coverage/            # Per-company research
-│       ├── patterns/            # Cross-company insights
-│       └── notes/               # Design documentation
+│   ├── analyst-workspace/       # Analyst Workspace (equity research tools)
+│   │   ├── README.md            # Project overview
+│   │   ├── STRUCTURE.md         # Repository organization
+│   │   ├── .claude/             # Commands, agents, MCP servers
+│   │   ├── coverage/            # Per-company research
+│   │   ├── patterns/            # Cross-company insights
+│   │   └── notes/               # Design documentation
+│   └── forensic-accounting/     # Forensic Accounting Agent
+│       ├── README.md            # Usage guide and installation
+│       ├── TESTING.md           # Testing instructions
+│       ├── commands/            # Slash command
+│       ├── lib/                 # Analysis library (Beneish, red flags, etc.)
+│       ├── data/                # MCP-gathered SEC data
+│       └── reports/             # Generated analysis reports
 ├── skills/                      # Slash commands and skills
 │   ├── verbalized-sampling/     # Verbalized Sampling skill
 │   │   ├── README.md            # Usage guide
@@ -146,7 +181,7 @@ claude-speriments/
 
 This repository is organized to support various types of Claude Code experiments:
 
-- **`apps/`** - Collaborative applications built with Claude (e.g., Twitter Data Analyzer, Analyst Workspace)
+- **`apps/`** - Collaborative applications built with Claude (e.g., Twitter Data Analyzer, Analyst Workspace, Forensic Accounting Agent)
 - **`skills/`** - Slash commands and skills for Claude Code (e.g., Verbalized Sampling, Cialdini Persuasion)
 - **Future directories** - As the repository grows, we'll add more specialized directories for different types of Claude Code experiments
 

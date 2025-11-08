@@ -151,7 +151,7 @@ Use the SEC EDGAR MCP tools to:
 
 Save the gathered data to:
 ```
-forensic-accounting/data/{TICKER}_sec_data.json
+apps/forensic-accounting/data/{TICKER}_sec_data.json
 ```
 
 The data structure should be:
@@ -184,7 +184,7 @@ Create and run a Python script that:
 ```python
 import json
 import sys
-sys.path.insert(0, 'forensic-accounting/lib')
+sys.path.insert(0, 'apps/forensic-accounting/lib')
 
 from beneish_score import BeneishMScore
 from red_flags import ForensicRedFlagAnalyzer
@@ -192,7 +192,7 @@ from forensic_analysis import ForensicAccountingAnalyzer
 from report_generator import ForensicAccountingReport
 
 # Load the MCP-gathered data
-with open('forensic-accounting/data/{TICKER}_sec_data.json') as f:
+with open('apps/forensic-accounting/data/{TICKER}_sec_data.json') as f:
     data = json.load(f)
 
 # Run analysis using the gathered data
@@ -201,7 +201,7 @@ results = analyzer.analyze_from_data(data)
 
 # Generate report
 report = ForensicAccountingReport(results)
-report.save_report('forensic-accounting/reports/{TICKER}_analysis.md')
+report.save_report('apps/forensic-accounting/reports/{TICKER}_analysis.md')
 ```
 
 ## Step 4: Present Findings
@@ -248,7 +248,7 @@ report.save_report('forensic-accounting/reports/{TICKER}_analysis.md')
 # DELIVERABLES
 
 1. **Terminal Output:** Summary of key findings and overall risk assessment
-2. **Detailed Report File:** Professional markdown report saved to `forensic-accounting/reports/`
+2. **Detailed Report File:** Professional markdown report saved to `apps/forensic-accounting/reports/`
 3. **Data Files:** Save the complete analysis results as JSON for future reference
 4. **Clear Recommendation:** Specific guidance on what the analyst should do next
 
