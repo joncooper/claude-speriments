@@ -67,6 +67,32 @@ A **command-line utility** to download, store, and analyze your Twitter/X data u
 
 ---
 
+### 📊 [Analyst Workspace](./apps/analyst-workspace/)
+
+**Claude Code-powered tools for equity research analysts** - Give analysts superpowers to do better, deeper, more thorough research.
+
+**What it does:** Autonomous agents and workflows that help equity research analysts systematically research companies, build investment theses, and compound knowledge over time.
+
+**Key features:**
+- **`/deep-dive TICKER`** - Autonomous agent performs 30-60 min comprehensive company research
+- Saves 4-6 hours of manual research time
+- Git-based knowledge management (version control for thinking)
+- Systematic analysis frameworks (business model, financials, competition, risks)
+- Pattern recognition across companies
+- Thesis evolution tracking
+
+**Architecture:**
+- Agentic workflows with human checkpoints
+- MCP servers for data access (SEC filings, market data)
+- Git-first storage (all research version controlled)
+- Local-first execution (analyst's machine is source of truth)
+
+**v1.0 Focus:** One workflow that saves 4+ hours of analyst time
+
+**Status:** 🚧 In Development (Planning complete, ready for implementation)
+
+---
+
 ## Installation
 
 Each experiment has its own installation instructions in its README. Generally:
@@ -88,12 +114,19 @@ claude-speriments/
 ├── README.md                    # This file
 ├── CLAUDE.md                    # Repository guide for Claude Code
 ├── apps/                        # Collaborative applications built with Claude
-│   └── twitter-data-analyzer/   # Twitter Data Analyzer
-│       ├── README.md            # Usage guide
-│       ├── NOTES.md             # Implementation notes
-│       ├── src/twitter_analyzer/ # Python package
-│       ├── requirements.txt     # Dependencies
-│       └── setup.py             # Package setup
+│   ├── twitter-data-analyzer/   # Twitter Data Analyzer
+│   │   ├── README.md            # Usage guide
+│   │   ├── NOTES.md             # Implementation notes
+│   │   ├── src/twitter_analyzer/ # Python package
+│   │   ├── requirements.txt     # Dependencies
+│   │   └── setup.py             # Package setup
+│   └── analyst-workspace/       # Analyst Workspace (equity research tools)
+│       ├── README.md            # Project overview
+│       ├── STRUCTURE.md         # Repository organization
+│       ├── .claude/             # Commands, agents, MCP servers
+│       ├── coverage/            # Per-company research
+│       ├── patterns/            # Cross-company insights
+│       └── notes/               # Design documentation
 ├── skills/                      # Slash commands and skills
 │   ├── verbalized-sampling/     # Verbalized Sampling skill
 │   │   ├── README.md            # Usage guide
@@ -113,9 +146,9 @@ claude-speriments/
 
 This repository is organized to support various types of Claude Code experiments:
 
-- **`apps/`** - Collaborative applications built with Claude (e.g., Twitter Data Analyzer)
+- **`apps/`** - Collaborative applications built with Claude (e.g., Twitter Data Analyzer, Analyst Workspace)
 - **`skills/`** - Slash commands and skills for Claude Code (e.g., Verbalized Sampling, Cialdini Persuasion)
-- **Future directories** - As the repository grows, we'll add `agents/`, `hooks/`, `mcp/`, and other directories for different types of Claude Code experiments
+- **Future directories** - As the repository grows, we'll add more specialized directories for different types of Claude Code experiments
 
 See [CLAUDE.md](./CLAUDE.md) for detailed guidance on working with this repository in Claude Code.
 
