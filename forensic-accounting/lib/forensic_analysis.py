@@ -121,6 +121,96 @@ class ForensicAccountingAnalyzer:
 
         return self.analysis_results
 
+    def analyze_from_data(self, data: Dict) -> Dict:
+        """
+        Perform complete forensic accounting analysis from pre-gathered data.
+
+        This method is used when data has been gathered via MCP tools rather
+        than fetching directly from SEC EDGAR.
+
+        Args:
+            data: Dictionary containing company_info and annual_data
+                  Expected format:
+                  {
+                    "company_info": {
+                      "name": "Company Name",
+                      "cik": "0000000000",
+                      "ticker": "TICK",
+                      "sic": "1234",
+                      "sicDescription": "Industry"
+                    },
+                    "annual_data": [
+                      {
+                        "fiscal_year_end": "2023-12-31",
+                        "form": "10-K",
+                        "Revenues": 1000000,
+                        ...
+                      },
+                      ...
+                    ]
+                  }
+
+        Returns:
+            Dictionary containing complete analysis results
+        """
+        company_info = data.get("company_info", {})
+        annual_data = data.get("annual_data", [])
+
+        ticker = company_info.get("ticker", "UNKNOWN")
+
+        print(f"\n{'='*70}")
+        print(f"FORENSIC ACCOUNTING ANALYSIS: {ticker.upper()}")
+        print(f"{'='*70}\n")
+
+        print(f"✓ Loaded {len(annual_data)} years of data for {company_info['name']}\n")
+
+        # Step 1: Calculate Beneish M-Score for each year (need 2 years)
+        print("Step 1: Calculating Beneish M-Scores...")
+        beneish_results = self._calculate_beneish_scores(annual_data)
+        print(f"✓ Calculated M-Scores for {len(beneish_results)} periods\n")
+
+        # Step 2: Detect red flags
+        print("Step 2: Analyzing for accounting red flags...")
+        red_flags = self.red_flag_analyzer.analyze_all(annual_data)
+        severity_counts = self.red_flag_analyzer.get_severity_counts()
+        print(f"✓ Identified {len(red_flags)} red flags:")
+        for severity in ["Critical", "High", "Medium", "Low"]:
+            count = severity_counts.get(severity, 0)
+            if count > 0:
+                print(f"  - {severity}: {count}")
+        print()
+
+        # Step 3: Trend analysis
+        print("Step 3: Performing trend analysis...")
+        trends = self._analyze_trends(annual_data, beneish_results)
+        print(f"✓ Analyzed {len(trends)} trend indicators\n")
+
+        # Step 4: Overall assessment
+        print("Step 4: Generating overall assessment...")
+        assessment = self._generate_assessment(beneish_results, red_flags, trends)
+        print(f"✓ Overall Risk Level: {assessment['risk_level']}\n")
+
+        # Compile results
+        self.analysis_results = {
+            "metadata": {
+                "ticker": ticker.upper(),
+                "company_name": company_info.get("name", "Unknown"),
+                "cik": company_info.get("cik", "Unknown"),
+                "industry": company_info.get("sicDescription", "Unknown"),
+                "analysis_date": datetime.now().isoformat(),
+                "years_analyzed": len(annual_data),
+                "data_source": "MCP"
+            },
+            "company_info": company_info,
+            "annual_data": annual_data,
+            "beneish_scores": beneish_results,
+            "red_flags": [self._serialize_red_flag(rf) for rf in red_flags],
+            "trends": trends,
+            "assessment": assessment
+        }
+
+        return self.analysis_results
+
     def _prepare_annual_data(self, financial_metrics: Dict[str, List[Dict]]) -> List[Dict]:
         """
         Prepare annual financial data in standardized format.

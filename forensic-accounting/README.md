@@ -57,19 +57,44 @@ Generates comprehensive forensic accounting reports including:
 
 ## Installation
 
-### 1. Install the Slash Command
+### 1. Install SEC EDGAR MCP Server (Required)
+
+This tool uses the Model Context Protocol (MCP) to fetch financial data from SEC EDGAR. You must install an SEC EDGAR MCP server first.
+
+**Recommended: stefanoamorelli/sec-edgar-mcp**
+
+```bash
+# Install the MCP server
+pip install sec-edgar-mcp
+
+# Or using uv (faster)
+uv pip install sec-edgar-mcp
+```
+
+Then add to your Claude Code MCP configuration (`~/.config/claude/mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "sec-edgar": {
+      "command": "python",
+      "args": ["-m", "sec_edgar_mcp"]
+    }
+  }
+}
+```
+
+**Alternative SEC EDGAR MCP servers:**
+- `leopoldodonnell/edgar-mcp` (.NET-based)
+- `LuisRincon23/SEC-MCP` (Python with streaming)
+
+After installation, **restart Claude Code** for the MCP server to become available.
+
+### 2. Install the Slash Command
 
 ```bash
 # From the repository root
 cp forensic-accounting/commands/forensic-analyze.md ~/.claude/commands/
-```
-
-### 2. Install Python Dependencies
-
-The system requires Python 3.7+ and the `requests` library:
-
-```bash
-pip install requests
 ```
 
 ### 3. Verify Installation
@@ -78,6 +103,11 @@ pip install requests
 # Check that the command is available
 ls ~/.claude/commands/forensic-analyze.md
 ```
+
+After restarting Claude Code, MCP tools should be available with names like:
+- `mcp__sec_edgar__get_company_facts`
+- `mcp__sec_edgar__get_submissions`
+- etc.
 
 ## Usage
 
@@ -96,12 +126,14 @@ Replace `AAPL` with any publicly-traded U.S. company ticker symbol.
 When you run the command, Claude will:
 
 1. Act as a senior forensic accountant
-2. Fetch 5 years of historical financial data from SEC EDGAR
-3. Calculate Beneish M-Scores for each period
-4. Identify all accounting red flags
-5. Analyze trends over time
-6. Generate a professional forensic accounting report
-7. Provide clear guidance on risk level and next steps
+2. Use MCP tools to fetch 5 years of historical financial data from SEC EDGAR
+3. Structure and save the financial data
+4. Run Python analysis scripts to:
+   - Calculate Beneish M-Scores for each period
+   - Identify all accounting red flags
+   - Analyze trends over time
+5. Generate a professional forensic accounting report
+6. Provide clear guidance on risk level and next steps
 
 ### Output
 

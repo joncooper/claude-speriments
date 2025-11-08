@@ -23,13 +23,52 @@ You have deep expertise in:
 
 # ANALYSIS REQUIREMENTS
 
-## 1. Data Gathering
+## 1. Data Gathering via MCP
 
-Use the forensic accounting Python library located in `forensic-accounting/lib/` to:
+**CRITICAL:** You MUST use the SEC EDGAR MCP server tools to gather financial data. Do NOT use direct API calls.
 
-- Fetch historical financial data from SEC EDGAR (10-K filings)
-- Extract at least 5 years of financial statement data
-- Gather all metrics needed for comprehensive analysis
+Use the available MCP tools (prefixed with `mcp__sec_edgar__` or similar) to:
+
+- Look up the company's CIK from ticker symbol
+- Fetch company facts (all XBRL financial data)
+- Extract at least 5 years of annual financial statement data from 10-K filings
+- Gather all metrics needed for Beneish M-Score calculation:
+  - Revenue, Cost of Revenue, Gross Profit
+  - Total Assets, Current Assets, PPE
+  - Accounts Receivable, Inventory
+  - Total Liabilities, Current Liabilities
+  - Net Income, Operating Cash Flow
+  - Depreciation & Amortization
+  - Stockholders Equity
+
+**Available MCP Tools** (use whatever SEC EDGAR MCP tools are installed):
+- Company lookup/CIK conversion
+- `get_company_facts` or equivalent - retrieves all XBRL financial data
+- `get_submissions` or equivalent - retrieves filing history
+- Any other SEC data retrieval tools
+
+**Data Structure Needed:**
+
+For each fiscal year, extract these metrics (use XBRL us-gaap tags):
+```python
+{
+  "fiscal_year_end": "2023-09-30",
+  "Revenues": 394328000000,
+  "CostOfRevenue": 214137000000,
+  "Assets": 352755000000,
+  "CurrentAssets": 143566000000,
+  "AccountsReceivable": 29508000000,
+  "Inventory": 6331000000,
+  "PropertyPlantEquipment": 43715000000,
+  "Liabilities": 290437000000,
+  "CurrentLiabilities": 145308000000,
+  "NetIncome": 96995000000,
+  "OperatingCashFlow": 110543000000,
+  "DepreciationAndAmortization": 11519000000,
+  "StockholdersEquity": 62318000000,
+  # ... additional metrics
+}
+```
 
 ## 2. Beneish M-Score Analysis
 
@@ -95,23 +134,82 @@ Generate a professional forensic accounting report suitable for presentation to 
 
 # EXECUTION STEPS
 
-1. **Install Required Dependencies** (if needed):
-   ```bash
-   pip install requests
-   ```
+## Step 1: Verify MCP Server Installation
 
-2. **Run the Analysis**:
-   Create a Python script that:
-   - Imports the forensic accounting library
-   - Runs the complete analysis
-   - Generates the professional report
-   - Saves results
+First, check that the SEC EDGAR MCP server is installed and available:
+- Look for MCP tools with names like `mcp__sec_edgar__*` or similar
+- If not found, inform the user they need to install it (see Installation section below)
 
-3. **Present Findings**:
-   - Display the key findings to the user
-   - Save the complete report as a markdown file
-   - Highlight the most critical concerns
-   - Provide clear guidance on risk level
+## Step 2: Gather Financial Data via MCP
+
+Use the SEC EDGAR MCP tools to:
+
+1. **Look up CIK**: Convert ticker symbol to CIK number
+2. **Fetch Company Facts**: Use MCP to get all XBRL financial data
+3. **Extract Annual Data**: Filter for 10-K filings (annual reports), get last 5 years
+4. **Structure the Data**: Organize into the format expected by the analysis library
+
+Save the gathered data to:
+```
+forensic-accounting/data/{TICKER}_sec_data.json
+```
+
+The data structure should be:
+```json
+{
+  "company_info": {
+    "name": "Apple Inc",
+    "cik": "0000320193",
+    "ticker": "AAPL",
+    "sic": "3571",
+    "sicDescription": "Electronic Computers"
+  },
+  "annual_data": [
+    {
+      "fiscal_year_end": "2023-09-30",
+      "form": "10-K",
+      "Revenues": 394328000000,
+      "CostOfRevenue": 214137000000,
+      "Assets": 352755000000,
+      ...
+    },
+    ...
+  ]
+}
+```
+
+## Step 3: Run Forensic Analysis
+
+Create and run a Python script that:
+```python
+import json
+import sys
+sys.path.insert(0, 'forensic-accounting/lib')
+
+from beneish_score import BeneishMScore
+from red_flags import ForensicRedFlagAnalyzer
+from forensic_analysis import ForensicAccountingAnalyzer
+from report_generator import ForensicAccountingReport
+
+# Load the MCP-gathered data
+with open('forensic-accounting/data/{TICKER}_sec_data.json') as f:
+    data = json.load(f)
+
+# Run analysis using the gathered data
+analyzer = ForensicAccountingAnalyzer()
+results = analyzer.analyze_from_data(data)
+
+# Generate report
+report = ForensicAccountingReport(results)
+report.save_report('forensic-accounting/reports/{TICKER}_analysis.md')
+```
+
+## Step 4: Present Findings
+
+- Display key findings summary in terminal
+- Show the path to the detailed markdown report
+- Highlight critical concerns and risk level
+- Provide clear actionable recommendation
 
 # IMPORTANT GUIDELINES
 
@@ -186,4 +284,61 @@ DETAILED REPORT: [filepath]
 
 ---
 
-Now perform the forensic accounting analysis on {{ticker}}. Be thorough, professional, and don't hesitate to identify concerning patterns. The analyst is counting on your expertise to identify risks they might miss.
+# MCP SERVER INSTALLATION
+
+If the SEC EDGAR MCP server is not installed, inform the user to install it:
+
+## Installation Instructions
+
+### Option 1: stefanoamorelli/sec-edgar-mcp (Recommended)
+
+```bash
+# Install the MCP server
+pip install sec-edgar-mcp
+
+# Or using uv (faster)
+uv pip install sec-edgar-mcp
+```
+
+Then add to Claude Code's MCP configuration (`~/.config/claude/mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "sec-edgar": {
+      "command": "python",
+      "args": ["-m", "sec_edgar_mcp"]
+    }
+  }
+}
+```
+
+### Option 2: Other SEC EDGAR MCP Servers
+
+Other available servers:
+- `leopoldodonnell/edgar-mcp` (.NET-based)
+- `LuisRincon23/SEC-MCP` (Python with streaming)
+
+Refer to their respective documentation for installation.
+
+### Verification
+
+After installation, restart Claude Code. The MCP tools should be available with names like:
+- `mcp__sec_edgar__get_company_facts`
+- `mcp__sec_edgar__get_submissions`
+- `mcp__sec_edgar__lookup_cik`
+- etc.
+
+---
+
+# BEGIN ANALYSIS
+
+Now perform the forensic accounting analysis on **{{ticker}}**.
+
+**Remember:**
+1. Use MCP tools to gather SEC data (do NOT make direct API calls)
+2. Structure the data properly for the Python analysis libraries
+3. Run the complete analysis pipeline
+4. Generate a professional report
+
+Be thorough, professional, and don't hesitate to identify concerning patterns. The analyst is counting on your expertise to identify risks they might miss.

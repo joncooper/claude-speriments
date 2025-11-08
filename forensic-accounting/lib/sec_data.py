@@ -1,9 +1,20 @@
 """
-SEC EDGAR Data Access Module
+SEC EDGAR Data Access Module (LEGACY)
+
+⚠️  DEPRECATION NOTICE:
+This module is kept for backward compatibility and standalone usage.
+The recommended approach is to use an SEC EDGAR MCP server for data fetching.
+
+See README.md for MCP server installation instructions.
+
+---
 
 This module provides utilities to fetch and parse financial data from SEC EDGAR filings.
 It accesses the official SEC API at data.sec.gov to retrieve 10-K and 10-Q filings
 and extracts key financial metrics for forensic accounting analysis.
+
+This implementation may encounter rate limiting, 403 errors, or network restrictions
+in certain environments. MCP-based data fetching is more robust and recommended.
 """
 
 import requests
