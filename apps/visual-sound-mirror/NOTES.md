@@ -298,7 +298,7 @@ Built during Claude Code session: claude/interactive-art-sound-visuals-011CUvuEd
 - Advanced audio chain: Oscillator → Filter → Delay → Reverb → Master
 
 **Version 6.2 Improvements (Hands-Free Edition - ARCHITECTURAL REDESIGN):**
-- **Gesture-based mode switching** - Right hand finger count switches modes (1, 2, or 5 fingers)
+- **Gesture-based mode switching** - Left hand finger count switches modes (1, 2, or 5 fingers)
 - **Global knob controls** - Knobs now work in ALL modes, not just knobs mode
 - **Removed knobs mode** - Reduced from 4 modes to 3 (ribbons, theremin, pads)
 - **Repositioned knobs** - Smaller knobs in top-left corner, always visible
@@ -308,6 +308,12 @@ Built during Claude Code session: claude/interactive-art-sound-visuals-011CUvuEd
 - **Updated UI** - Removed knobs mode button, updated tooltips with gesture hints
 - **Pinch gesture for knobs** - Both thumb AND index must be inside knob radius
 - **Improved UX** - Goal achieved: don't touch the keyboard!
+
+**Version 6.2.1 Coordinate Fix:**
+- **Removed coordinate mirroring** - Eliminated (1 - x) transformation for true camera orientation
+- **Fixed video/canvas alignment** - Canvas now matches camera feed (right hand on right side)
+- **Corrected gesture hand** - Changed from right hand to left hand for mode switching
+- **Proper XY mapping** - Coordinates now correctly map to screen position without mirroring
 
 **Version 6.0 Improvements (Music Synthesis Edition - MAJOR FEATURE UPDATE):**
 - **Mode system** - Three distinct interaction modes with seamless switching
