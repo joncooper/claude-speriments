@@ -343,13 +343,13 @@ class VisualSoundMirror {
             return;
         }
 
-        // Use right hand for mode gestures
-        if (!this.rightHand || !this.rightHand.landmarks) {
+        // Use LEFT hand for mode gestures (corrected from right)
+        if (!this.leftHand || !this.leftHand.landmarks) {
             return;
         }
 
         // Count extended fingers
-        const extendedFingers = this.countExtendedFingers(this.rightHand.landmarks);
+        const extendedFingers = this.countExtendedFingers(this.leftHand.landmarks);
 
         // Map finger count to mode
         let newMode = null;
@@ -1094,19 +1094,19 @@ class VisualSoundMirror {
                 const landmarks = results.multiHandLandmarks[handIndex];
                 const handedness = results.multiHandedness[handIndex].label; // "Left" or "Right"
 
-                // Get fingertips
+                // Get fingertips (no mirroring - use true camera coordinates)
                 const fingertipIndices = [4, 8, 12, 16, 20];
                 const fingertips = fingertipIndices.map((idx, i) => ({
-                    x: (1 - landmarks[idx].x) * this.canvas.width,
+                    x: landmarks[idx].x * this.canvas.width,
                     y: landmarks[idx].y * this.canvas.height,
                     z: landmarks[idx].z,
                     fingerIndex: i,
                     fingerId: `${handedness}_finger${i}`
                 }));
 
-                // Calculate palm position
+                // Calculate palm position (no mirroring)
                 const palm = {
-                    x: (1 - landmarks[9].x) * this.canvas.width,
+                    x: landmarks[9].x * this.canvas.width,
                     y: landmarks[9].y * this.canvas.height,
                     z: landmarks[9].z
                 };
@@ -1987,8 +1987,8 @@ class VisualSoundMirror {
                 const endPoint = landmarks[end];
 
                 this.ctx.beginPath();
-                this.ctx.moveTo((1 - startPoint.x) * this.canvas.width, startPoint.y * this.canvas.height);
-                this.ctx.lineTo((1 - endPoint.x) * this.canvas.width, endPoint.y * this.canvas.height);
+                this.ctx.moveTo(startPoint.x * this.canvas.width, startPoint.y * this.canvas.height);
+                this.ctx.lineTo(endPoint.x * this.canvas.width, endPoint.y * this.canvas.height);
                 this.ctx.stroke();
             }
         }
