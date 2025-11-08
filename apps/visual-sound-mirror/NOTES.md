@@ -309,6 +309,22 @@ Built during Claude Code session: claude/interactive-art-sound-visuals-011CUvuEd
 - **Pinch gesture for knobs** - Both thumb AND index must be inside knob radius
 - **Improved UX** - Goal achieved: don't touch the keyboard!
 
+**Version 6.2.2 Deliberate Gesture Hold System:**
+- **Gesture hold requirement** - Must hold gesture steady for 2.5 seconds to switch modes
+- **Stricter finger detection** - Increased thresholds (1.3x for thumb, 0.05 for fingers) for more deliberate gestures
+- **Progress indicator** - Circular progress bar around palm shows hold progress
+  - Background circle shows target area
+  - Green arc fills clockwise as gesture is held
+  - Shows gesture name ("1 FINGER", "PEACE", "OPEN HAND") and percentage
+- **Celebration animation** - Visual burst effect when mode switches successfully
+  - 50 colored particles expanding from center
+  - White flash effect
+  - Mode name displayed prominently
+  - Ascending arpeggio sound (C-E-G-C)
+- **Gesture stability tracking** - Resets if finger count changes during hold
+- **Non-twitchy behavior** - Eliminates accidental mode switching from hand movements
+- **Visual feedback loop** - User always knows if gesture is being recognized
+
 **Version 6.2.1 MediaPipe Handedness & Coordinate System:**
 - **MediaPipe labels hands from camera perspective** - User's RIGHT hand = MediaPipe "Left" label
 - **Canvas coordinates require mirroring** - Using (1 - x) transformation for proper visual mapping
