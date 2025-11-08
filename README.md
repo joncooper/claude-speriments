@@ -57,6 +57,29 @@ A **command-line utility** to download, store, and analyze your Twitter/X data u
 
 ---
 
+#### 🎨 [Visual Sound Mirror](./apps/visual-sound-mirror/)
+
+An **interactive art piece** that transforms your movements into mesmerizing visuals and soothing bloopy sounds.
+
+**What it does:** Uses your webcam to detect motion and creates real-time generative art with responsive audio synthesis.
+
+**Key features:**
+- Real-time motion detection from webcam
+- Physics-based particle system with dreamy colors
+- Web Audio synthesis for organic, bloopy sounds
+- Privacy-first: all processing happens locally in your browser
+- Zero dependencies: pure HTML5, Canvas, and Web Audio API
+- Click anywhere for particle bursts
+- Responsive to motion intensity and position
+
+**Perfect for:** Meditation, creative expression, zoning out, or just enjoying mesmerizing audio-visual feedback.
+
+**Usage:** Simply open `index.html` in a modern browser and grant camera permissions.
+
+**Status:** ✅ Complete
+
+---
+
 ### Agents
 
 #### 🔍 [Forensic Accounting Agent](./agents/forensic-accounting/)
@@ -154,13 +177,20 @@ claude-speriments/
 │   │   ├── src/twitter_analyzer/ # Python package
 │   │   ├── requirements.txt     # Dependencies
 │   │   └── setup.py             # Package setup
-│   └── analyst-workspace/       # Analyst Workspace (equity research tools)
-│       ├── README.md            # Project overview
-│       ├── STRUCTURE.md         # Repository organization
-│       ├── .claude/             # Commands, agents, MCP servers
-│       ├── coverage/            # Per-company research
-│       ├── patterns/            # Cross-company insights
-│       └── notes/               # Design documentation
+│   ├── analyst-workspace/       # Analyst Workspace (equity research tools)
+│   │   ├── README.md            # Project overview
+│   │   ├── STRUCTURE.md         # Repository organization
+│   │   ├── .claude/             # Commands, agents, MCP servers
+│   │   ├── coverage/            # Per-company research
+│   │   ├── patterns/            # Cross-company insights
+│   │   └── notes/               # Design documentation
+│   └── visual-sound-mirror/     # Interactive art piece with camera and audio
+│       ├── README.md            # Usage guide
+│       ├── NOTES.md             # Implementation notes
+│       ├── ICEBOX.md            # Future enhancements
+│       ├── index.html           # Main application
+│       ├── app.js               # Application logic
+│       └── styles.css           # Styling
 ├── agents/                      # Agent configurations and workflows
 │   └── forensic-accounting/     # Forensic Accounting Agent
 │       ├── README.md            # Usage guide and installation
