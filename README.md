@@ -108,6 +108,33 @@ A **full-stack web application** to find nearby auctions on AuctionNinja.com tha
 
 ---
 
+#### 📊 [Management Integrity Agent](./agents/equity-mgmt-integrity/)
+
+**AI-powered management credibility analysis** - Analyze whether public company management follows through on their commitments.
+
+**What it does:** Answers the critical investor question "Does management do what they say they're going to do?" by extracting commitments from SEC filings, verifying outcomes, and scoring management credibility.
+
+**Key features:**
+- **AI-Powered Commitment Extraction** - Uses Claude to identify specific, verifiable commitments from MD&A sections (financial targets, capital allocation, strategic initiatives, etc.)
+- **AI-Powered Outcome Verification** - Analyzes subsequent filings to determine if promises were kept (fulfilled, partially fulfilled, not fulfilled, abandoned)
+- **Quantitative Scoring** - 0-100 credibility scores with letter grades (A+ to F) based on fulfillment rates
+- **Red Flag Detection** - Identifies declining specificity, high miss rates, abandoned initiatives, and systematic underperformance
+- **Time Trend Analysis** - Shows if credibility is improving, declining, or stable (declining is a major warning sign)
+- **Professional Reports** - Comprehensive markdown reports with evidence, category breakdowns, and investment implications
+
+**Analysis includes:**
+- ~10-30 commitments extracted per company
+- Category-specific performance (financial, capital allocation, strategic, operational, product)
+- Evidence quotes from filings
+- Variance calculations for quantitative targets
+- Investment risk assessment
+
+**Command:** `/mgmt-integrity TICKER:AAPL`
+
+**Status:** ✅ Complete
+
+---
+
 ### Skills
 
 #### 🎲 [Verbalized Sampling](./skills/verbalized-sampling/)
@@ -190,13 +217,20 @@ claude-speriments/
 │       ├── frontend/            # React + Vite + Tailwind UI
 │       └── package.json         # Root scripts
 ├── agents/                      # Agent configurations and workflows
-│   └── forensic-accounting/     # Forensic Accounting Agent
+│   ├── forensic-accounting/     # Forensic Accounting Agent
+│   │   ├── README.md            # Usage guide and installation
+│   │   ├── TESTING.md           # Testing instructions
+│   │   ├── commands/            # Slash command
+│   │   ├── lib/                 # Analysis library (Beneish, red flags, etc.)
+│   │   ├── data/                # MCP-gathered SEC data
+│   │   └── reports/             # Generated analysis reports
+│   └── equity-mgmt-integrity/   # Management Integrity Agent
 │       ├── README.md            # Usage guide and installation
 │       ├── TESTING.md           # Testing instructions
 │       ├── commands/            # Slash command
-│       ├── lib/                 # Analysis library (Beneish, red flags, etc.)
-│       ├── data/                # MCP-gathered SEC data
-│       └── reports/             # Generated analysis reports
+│       ├── lib/                 # Analysis library (extractors, trackers, scorers)
+│       ├── data/                # Analysis data and reports
+│       └── example_analysis.py  # Programmatic usage example
 ├── skills/                      # Slash commands and skills
 │   ├── verbalized-sampling/     # Verbalized Sampling skill
 │   │   ├── README.md            # Usage guide
