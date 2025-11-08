@@ -37,7 +37,42 @@ Audio responsiveness:
 - Multiple sounds play polyphonically for multiple detected points
 - Sound generation throttled to 100ms intervals for musicality
 
-### Particle System - Swirly Bubbles
+### Visual System - Flowing Ribbons & Constellations
+
+**Version 4.0 - Ultra-Responsive, Ephemeral Design:**
+
+The visualization now consists of three layered systems:
+
+**1. Ribbon Trails (Primary)**
+- Each fingertip maintains its own trail of up to 20 position points
+- Trails rendered as smooth Bézier curves using quadraticCurveTo
+- Linear gradients from transparent (old) to vibrant (current fingertip)
+- Line width increases with motion intensity (3-7px)
+- Soft glow effects (shadowBlur 20px)
+- Trails clear immediately when finger leaves or hand exits frame
+
+**2. Constellation Lines (Secondary)**
+- Drawn between any two fingertips within 120px distance
+- Alpha/width based on distance (closer = brighter/thicker)
+- Gradient coloring between the two finger colors
+- Creates dynamic web/constellation patterns as fingers move
+- Only appears when multiple fingers/hands detected
+
+**3. Velocity Particles (Accents)**
+- Only spawn when movement speed exceeds threshold
+- Size based on velocity (2-10px)
+- Very short lifespan (40 frames = ~0.7 seconds)
+- Limited to 200 max particles
+- Each particle inherits velocity direction from finger
+- Quick decay (0.95 friction)
+
+**Fingertip Markers:**
+- Glowing dots at each fingertip (4-8px based on intensity)
+- Outer pulsing ring (8-14px)
+- Each finger gets unique color from palette
+- Intensity-based glow (shadowBlur 25-45px)
+
+### Particle System - Swirly Bubbles (DEPRECATED - v3.0)
 
 **Version 3.0 - Organic Bubble Motion:**
 
@@ -240,6 +275,20 @@ Built during Claude Code session: claude/interactive-art-sound-visuals-011CUvuEd
 - Slower, gentler movement for meditative feel
 - Bigger, more visible bubbles (5-25px vs 2-7px)
 
+**Version 4.0 Improvements (Flowing Ribbons - MAJOR OVERHAUL):**
+- Complete redesign based on user feedback for responsiveness
+- **Ribbon trails** - Each fingertip leaves a smooth, flowing trail (max 20 points)
+- **Constellation lines** - Lines connect nearby fingers when within 120px
+- **Velocity-based particles** - Only spawn when moving fast enough (ephemeral!)
+- **Much shorter lifespans** - Particles live only 40 frames (vs 200)
+- **Fingertip-focused** - Only track 5 fingertips per hand (not palm)
+- **Quick fadeout** - 1 second timer clears screen when no hands detected
+- **Performance optimized** - Reduced particle count (200 max vs 1000)
+- **Glowing fingertip markers** - Each finger gets a pulsing dot with color
+- **Smooth curves** - Using quadraticCurveTo for silky ribbon rendering
+- **Used performance.now()** - Better timing for smoother animation
+- **Gradient ribbons** - Trails fade from transparent to vibrant
+
 Key insights:
 - Browser audio restrictions require careful handling
 - MediaPipe provides much better UX than pixel difference
@@ -249,3 +298,9 @@ Key insights:
 - Canvas trail effects create mesmerizing visuals with minimal code
 - User experience is greatly enhanced by smooth audio/visual transitions
 - Testing with actual hands in frame is critical (not just moving around)
+- **Ephemeral is better than persistent** - short lifespans feel more responsive
+- **Less is more** - fewer, well-placed effects > many scattered effects
+- **Direct coupling** - effects must be obviously tied to hand positions
+- **Quick fadeout essential** - blank screen signals "ready for input"
+- **Velocity matters** - movement speed should affect visual intensity
+- **Performance** - using performance.now() and reducing particle count improves framerate significantly

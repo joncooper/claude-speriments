@@ -1,5 +1,5 @@
-// Visual Sound Mirror - Fixed and Improved
-// An interactive art piece that transforms movement into visuals and sound
+// Visual Sound Mirror - v4.0 Flowing Ribbons Edition
+// Ultra-responsive, ephemeral, musical visualization
 
 class VisualSoundMirror {
     constructor() {
@@ -10,28 +10,30 @@ class VisualSoundMirror {
 
         // Video setup
         this.video = document.getElementById('video');
-        this.videoCanvas = document.createElement('canvas');
-        this.videoCtx = this.videoCanvas.getContext('2d');
 
         // Hand tracking
         this.hands = null;
         this.handResults = null;
         this.camera = null;
 
-        // Motion detection (fallback)
+        // Hand positions for tracking
+        this.handPositions = [];
+        this.prevHandPositions = [];
+
+        // Motion data
         this.motionData = {
             intensity: 0,
             x: 0.5,
-            y: 0.5,
-            prevFrame: null
+            y: 0.5
         };
 
-        // Hand positions for tracking
-        this.handPositions = [];
+        // Fingertip trails - each finger gets its own trail
+        this.fingerTrails = {};  // key: finger index, value: array of trail points
+        this.maxTrailLength = 20;  // Keep trails short and responsive
 
-        // Particle system
+        // Particles - minimal, velocity-based
         this.particles = [];
-        this.maxParticles = 1000;
+        this.maxParticles = 200;  // Much fewer particles
 
         // Audio setup
         this.audioContext = null;
@@ -43,7 +45,11 @@ class VisualSoundMirror {
         // Debug mode
         this.debugMode = false;
 
-        // Color palette (dreamy, soothing colors)
+        // No hands timer
+        this.noHandsTime = 0;
+        this.fadeoutStarted = false;
+
+        // Color palette
         this.colors = [
             { r: 147, g: 197, b: 253 }, // Soft blue
             { r: 196, g: 181, b: 253 }, // Lavender
@@ -55,20 +61,17 @@ class VisualSoundMirror {
 
         // Settings
         this.settings = {
-            motionThreshold: 5,  // Much lower threshold
-            particleLifespan: 200,  // Longer life for more trails
-            soundEnabled: true,
-            trailAlpha: 0.05,  // Much lower for longer trails
-            motionSmoothing: 0.5,
-            soundInterval: 100  // Minimum ms between sounds
+            particleLifespan: 40,  // Much shorter - ephemeral!
+            trailAlpha: 0.15,      // More aggressive clearing
+            soundInterval: 80,      // More frequent sounds
+            connectionDistance: 120, // Distance to draw lines between fingers
+            minVelocityForParticles: 2  // Only spawn particles when moving
         };
-
-        // Swirl/flow parameters
-        this.time = 0;
 
         // Animation
         this.lastTime = 0;
         this.isRunning = false;
+        this.time = 0;
 
         this.setupEventListeners();
     }
@@ -81,33 +84,27 @@ class VisualSoundMirror {
     setupEventListeners() {
         window.addEventListener('resize', () => this.resizeCanvas());
 
-        // Click to add particles
         this.canvas.addEventListener('click', (e) => {
             this.createParticleBurst(e.clientX, e.clientY);
-            // Play sound on click too
             if (this.audioContext && this.audioContext.state === 'suspended') {
                 this.audioContext.resume();
             }
             this.playBloop(400 + Math.random() * 400, 0.3);
         });
 
-        // Start button
         document.getElementById('startButton').addEventListener('click', () => {
             this.start();
         });
 
-        // Mute button
         document.getElementById('muteButton').addEventListener('click', () => {
             this.toggleMute();
         });
 
-        // Debug button
         document.getElementById('debugButton').addEventListener('click', () => {
             this.debugMode = !this.debugMode;
             document.getElementById('debug').classList.toggle('hidden');
         });
 
-        // Info button
         document.getElementById('infoButton').addEventListener('click', () => {
             document.getElementById('info').classList.remove('hidden');
         });
@@ -119,32 +116,25 @@ class VisualSoundMirror {
 
     async start() {
         try {
-            // Hide overlay
             document.getElementById('overlay').classList.add('hidden');
 
-            // Show status
             const status = document.getElementById('status');
-            status.textContent = 'Initializing camera...';
+            status.textContent = 'Initializing audio...';
             status.classList.add('visible');
 
-            // Initialize audio FIRST (important!)
-            status.textContent = 'Initializing audio...';
             await this.initAudio();
 
-            // Initialize camera
             status.textContent = 'Starting camera...';
             await this.initCamera();
 
-            // Initialize hand tracking
             status.textContent = 'Loading hand tracking...';
             await this.initHandTracking();
 
             status.textContent = 'Ready! Wave your hands!';
             setTimeout(() => status.classList.remove('visible'), 3000);
 
-            // Start animation loop
             this.isRunning = true;
-            this.animate(0);
+            this.animate(performance.now());
 
         } catch (error) {
             console.error('Error starting:', error);
@@ -163,45 +153,35 @@ class VisualSoundMirror {
 
         this.video.srcObject = stream;
 
-        // Wait for video to be ready
         return new Promise((resolve) => {
             this.video.onloadedmetadata = () => {
-                this.videoCanvas.width = this.video.videoWidth;
-                this.videoCanvas.height = this.video.videoHeight;
                 resolve();
             };
         });
     }
 
     async initAudio() {
-        // Create audio context
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-        // CRITICAL: Resume audio context on user interaction
         const resumeAudio = async () => {
             if (this.audioContext.state === 'suspended') {
                 await this.audioContext.resume();
                 console.log('Audio context resumed!');
-                this.updateDebug();
             }
         };
 
-        // Try to resume on various user interactions
         document.body.addEventListener('click', resumeAudio, { once: true });
         document.body.addEventListener('touchstart', resumeAudio, { once: true });
         document.body.addEventListener('keydown', resumeAudio, { once: true });
 
-        // Master gain (volume control)
         this.masterGain = this.audioContext.createGain();
-        this.masterGain.gain.value = 0.2;  // Start with reasonable volume
+        this.masterGain.gain.value = 0.2;
         this.masterGain.connect(this.audioContext.destination);
 
-        // Create reverb
         this.reverb = this.createReverb();
         this.reverb.connect(this.masterGain);
 
         this.audioEnabled = true;
-
         console.log('Audio initialized. State:', this.audioContext.state);
     }
 
@@ -223,7 +203,6 @@ class VisualSoundMirror {
     }
 
     async initHandTracking() {
-        // Initialize MediaPipe Hands
         this.hands = new Hands({
             locateFile: (file) => {
                 return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
@@ -239,7 +218,6 @@ class VisualSoundMirror {
 
         this.hands.onResults((results) => this.onHandResults(results));
 
-        // Start camera with MediaPipe
         this.camera = new Camera(this.video, {
             onFrame: async () => {
                 await this.hands.send({ image: this.video });
@@ -253,69 +231,100 @@ class VisualSoundMirror {
 
     onHandResults(results) {
         this.handResults = results;
-
-        // Update hand positions
+        this.prevHandPositions = [...this.handPositions];
         this.handPositions = [];
 
-        if (results.multiHandLandmarks) {
-            for (const landmarks of results.multiHandLandmarks) {
-                // Get palm center (landmark 9 is middle of palm)
-                const palm = landmarks[9];
+        if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+            // Reset no hands timer
+            this.noHandsTime = 0;
+            this.fadeoutStarted = false;
 
-                // Also get fingertips for more interaction points
-                const fingertips = [
-                    landmarks[4],   // Thumb
-                    landmarks[8],   // Index
-                    landmarks[12],  // Middle
-                    landmarks[16],  // Ring
-                    landmarks[20]   // Pinky
-                ];
+            for (let handIndex = 0; handIndex < results.multiHandLandmarks.length; handIndex++) {
+                const landmarks = results.multiHandLandmarks[handIndex];
 
-                // Add palm - MIRROR X coordinate for natural mapping
-                this.handPositions.push({
-                    x: (1 - palm.x) * this.canvas.width,
-                    y: palm.y * this.canvas.height,
-                    z: palm.z,
-                    isPalm: true
-                });
+                // Get fingertips only - more focused
+                const fingertipIndices = [4, 8, 12, 16, 20];  // Thumb, Index, Middle, Ring, Pinky
 
-                // Add fingertips - MIRROR X coordinate
-                for (const tip of fingertips) {
-                    this.handPositions.push({
+                for (let i = 0; i < fingertipIndices.length; i++) {
+                    const tip = landmarks[fingertipIndices[i]];
+                    const fingerId = `hand${handIndex}_finger${i}`;
+
+                    const pos = {
                         x: (1 - tip.x) * this.canvas.width,
                         y: tip.y * this.canvas.height,
                         z: tip.z,
-                        isPalm: false
+                        fingerId: fingerId,
+                        fingerIndex: i,
+                        handIndex: handIndex
+                    };
+
+                    this.handPositions.push(pos);
+
+                    // Update trail for this finger
+                    if (!this.fingerTrails[fingerId]) {
+                        this.fingerTrails[fingerId] = [];
+                    }
+
+                    this.fingerTrails[fingerId].push({
+                        x: pos.x,
+                        y: pos.y,
+                        time: this.time,
+                        color: this.colors[i % this.colors.length]
                     });
+
+                    // Keep trails short
+                    if (this.fingerTrails[fingerId].length > this.maxTrailLength) {
+                        this.fingerTrails[fingerId].shift();
+                    }
                 }
+
+                // Calculate palm position for motion intensity
+                const palm = landmarks[9];
+                const palmPos = {
+                    x: (1 - palm.x) * this.canvas.width,
+                    y: palm.y * this.canvas.height
+                };
+
+                // Calculate movement for this palm
+                const avgX = palmPos.x / this.canvas.width;
+                const avgY = palmPos.y / this.canvas.height;
+
+                if (this.prevHandPositions.length > 0) {
+                    // Find closest previous position
+                    let minDist = Infinity;
+                    let closestPrev = null;
+
+                    for (const prev of this.prevHandPositions) {
+                        const dist = Math.sqrt(
+                            Math.pow(palmPos.x - prev.x, 2) +
+                            Math.pow(palmPos.y - prev.y, 2)
+                        );
+                        if (dist < minDist) {
+                            minDist = dist;
+                            closestPrev = prev;
+                        }
+                    }
+
+                    if (closestPrev) {
+                        const dx = palmPos.x - closestPrev.x;
+                        const dy = palmPos.y - closestPrev.y;
+                        const movement = Math.sqrt(dx * dx + dy * dy);
+                        this.motionData.intensity = Math.min(movement / 20, 1);
+                    }
+                }
+
+                this.motionData.x = avgX;
+                this.motionData.y = avgY;
             }
-        }
-
-        // Calculate motion intensity from hand movement
-        if (this.handPositions.length > 0) {
-            // Use average hand position
-            let totalX = 0, totalY = 0;
-            for (const pos of this.handPositions) {
-                totalX += pos.x;
-                totalY += pos.y;
-            }
-
-            const avgX = totalX / this.handPositions.length;
-            const avgY = totalY / this.handPositions.length;
-
-            // Calculate movement
-            const dx = Math.abs(avgX - this.motionData.x * this.canvas.width);
-            const dy = Math.abs(avgY - this.motionData.y * this.canvas.height);
-            const movement = Math.sqrt(dx * dx + dy * dy);
-
-            // Update motion data
-            const smoothing = this.settings.motionSmoothing;
-            this.motionData.x = this.motionData.x * smoothing + (avgX / this.canvas.width) * (1 - smoothing);
-            this.motionData.y = this.motionData.y * smoothing + (avgY / this.canvas.height) * (1 - smoothing);
-            this.motionData.intensity = Math.min(movement / 100, 1);
         } else {
-            // No hands detected, decay motion
-            this.motionData.intensity *= 0.9;
+            // No hands detected - start fadeout timer
+            this.noHandsTime += 16; // ~16ms per frame
+            if (this.noHandsTime > 1000) {  // 1 second
+                this.fadeoutStarted = true;
+                // Clear trails
+                this.fingerTrails = {};
+                this.particles = [];
+            }
         }
 
         this.updateDebug();
@@ -336,135 +345,79 @@ class VisualSoundMirror {
     }
 
     updateParticles(deltaTime) {
-        // Increment time for swirl effects
-        this.time += deltaTime * 0.001;
+        this.time += deltaTime;
 
-        // Create particles from hand positions
-        if (this.handPositions.length > 0 && this.particles.length < this.maxParticles) {
-            for (const handPos of this.handPositions) {
-                // More particles for faster movement
-                if (Math.random() < this.motionData.intensity * 0.5 + 0.15) {
-                    this.createParticle(
-                        handPos.x,
-                        handPos.y,
-                        this.motionData.intensity * 0.5 + 0.3,
-                        handPos.isPalm
-                    );
+        // Only spawn particles when hands are moving
+        if (this.handPositions.length > 0 && this.motionData.intensity > 0.1) {
+            for (const pos of this.handPositions) {
+                // Calculate velocity
+                let velocity = { x: 0, y: 0 };
+                for (const prev of this.prevHandPositions) {
+                    if (prev.fingerId === pos.fingerId) {
+                        velocity.x = pos.x - prev.x;
+                        velocity.y = pos.y - prev.y;
+                        break;
+                    }
+                }
+
+                const speed = Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+
+                // Only spawn if moving fast enough
+                if (speed > this.settings.minVelocityForParticles && Math.random() < 0.3) {
+                    this.createVelocityParticle(pos, velocity, speed);
                 }
             }
         }
 
-        // Fallback: create particles from general motion
-        if (this.handPositions.length === 0 && this.motionData.intensity > 0.05 && this.particles.length < this.maxParticles) {
-            const numParticles = Math.floor(this.motionData.intensity * 3);
-            for (let i = 0; i < numParticles; i++) {
-                this.createParticle(
-                    this.motionData.x * this.canvas.width,
-                    this.motionData.y * this.canvas.height,
-                    this.motionData.intensity,
-                    false
-                );
-            }
-        }
-
-        // Update existing particles with swirly, bubbly motion
+        // Update existing particles
         for (let i = this.particles.length - 1; i >= 0; i--) {
             const p = this.particles[i];
 
-            // Add swirling force based on particle age and position
-            const age = 1 - (p.life / this.settings.particleLifespan);
-            const swirl = Math.sin(this.time * 2 + p.swirlOffset) * 0.3;
-            const rise = Math.cos(this.time * 1.5 + p.swirlOffset) * 0.15;
-
-            // Swirling motion
-            p.ax = swirl;
-            p.ay = -0.08 + rise;  // Gentle upward float with wave
-
-            // Update physics
-            p.vx += p.ax;
-            p.vy += p.ay;
-            p.vx *= 0.98;  // Less friction for more flow
-            p.vy *= 0.98;
-
-            // Add orbital motion around origin point
-            const dx = p.originX - p.x;
-            const dy = p.originY - p.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-
-            if (dist > 5) {
-                const pull = 0.002;  // Weak attraction to origin
-                p.vx += dx * pull;
-                p.vy += dy * pull;
-            }
-
+            p.vx *= 0.95;
+            p.vy *= 0.95;
             p.x += p.vx;
             p.y += p.vy;
 
-            // Grow and shrink like a bubble
-            const breathe = Math.sin(age * Math.PI) * 0.3;
-            p.currentSize = p.baseSize * (1 + breathe);
-
-            // Update life
             p.life--;
-            p.alpha = Math.sin((p.life / this.settings.particleLifespan) * Math.PI);  // Smooth fade in/out
+            p.alpha = p.life / this.settings.particleLifespan;
 
-            // Remove dead particles
             if (p.life <= 0) {
                 this.particles.splice(i, 1);
             }
         }
     }
 
-    createParticle(x, y, intensity, isPalm = false) {
-        const color = this.colors[Math.floor(Math.random() * this.colors.length)];
-        const angle = Math.random() * Math.PI * 2;
-        const speed = intensity * 2 + Math.random() * 1.5;  // Slower initial speed
+    createVelocityParticle(pos, velocity, speed) {
+        if (this.particles.length >= this.maxParticles) return;
 
-        // Bigger bubbles from palm
-        const baseSize = isPalm ?
-            Math.random() * 15 + 10 :  // Palm: 10-25px bubbles
-            Math.random() * 10 + 5;     // Fingers: 5-15px bubbles
+        const color = this.colors[pos.fingerIndex % this.colors.length];
 
         this.particles.push({
-            x: x + (Math.random() - 0.5) * 20,
-            y: y + (Math.random() - 0.5) * 20,
-            originX: x,  // Remember origin for orbital motion
-            originY: y,
-            vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed,
-            ax: 0,
-            ay: -0.05,  // Gentle upward float
-            baseSize: baseSize,
-            currentSize: baseSize,
-            swirlOffset: Math.random() * Math.PI * 2,  // Random phase for swirl
+            x: pos.x,
+            y: pos.y,
+            vx: velocity.x * 0.5,
+            vy: velocity.y * 0.5,
+            size: Math.min(speed * 0.5, 8) + 2,
             color: color,
-            alpha: 0,  // Start invisible
+            alpha: 1,
             life: this.settings.particleLifespan
         });
     }
 
     createParticleBurst(x, y) {
-        // Gentler, more organic burst
-        for (let i = 0; i < 20; i++) {
-            const angle = Math.random() * Math.PI * 2;  // Random angles instead of uniform
-            const speed = Math.random() * 3 + 1;  // Slower, gentler
+        for (let i = 0; i < 15; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.random() * 4 + 2;
             const color = this.colors[Math.floor(Math.random() * this.colors.length)];
-            const baseSize = Math.random() * 12 + 8;  // Bigger bubbles
 
             this.particles.push({
                 x: x,
                 y: y,
-                originX: x,
-                originY: y,
                 vx: Math.cos(angle) * speed,
                 vy: Math.sin(angle) * speed,
-                ax: 0,
-                ay: -0.05,
-                baseSize: baseSize,
-                currentSize: baseSize,
-                swirlOffset: Math.random() * Math.PI * 2,
+                size: Math.random() * 6 + 3,
                 color: color,
-                alpha: 0,
+                alpha: 1,
                 life: this.settings.particleLifespan * 1.5
             });
         }
@@ -475,28 +428,23 @@ class VisualSoundMirror {
             return;
         }
 
-        // Resume audio context if needed
         if (this.audioContext.state === 'suspended') {
             this.audioContext.resume();
         }
 
         const now = Date.now();
 
-        // Play bloopy sounds based on hand positions
-        if (this.handPositions.length > 0) {
-            // Throttle sound generation
+        if (this.handPositions.length > 0 && this.motionData.intensity > 0.05) {
             if (now - this.lastSoundTime > this.settings.soundInterval) {
-                // Play a sound for each hand/finger detected
+                // Play sounds for up to 3 fingers
                 for (let i = 0; i < Math.min(this.handPositions.length, 3); i++) {
                     const pos = this.handPositions[i];
-                    // X is already mirrored in handPositions, so this maps correctly
                     const freq = 200 + (pos.x / this.canvas.width) * 600;
-                    const volume = 0.1 + this.motionData.intensity * 0.15;
+                    const volume = 0.08 + this.motionData.intensity * 0.12;
 
-                    // Random delay for polyphonic effect
                     setTimeout(() => {
                         this.playBloop(freq, volume);
-                    }, i * 50);
+                    }, i * 40);
                 }
 
                 this.lastSoundTime = now;
@@ -509,9 +457,7 @@ class VisualSoundMirror {
             return;
         }
 
-        // Make sure audio context is running
         if (this.audioContext.state === 'suspended') {
-            console.log('Audio context suspended, attempting to resume...');
             this.audioContext.resume();
             return;
         }
@@ -519,141 +465,182 @@ class VisualSoundMirror {
         const now = this.audioContext.currentTime;
 
         try {
-            // Create oscillator
             const osc = this.audioContext.createOscillator();
             const gain = this.audioContext.createGain();
             const filter = this.audioContext.createBiquadFilter();
 
-            // Configure oscillator for bloopy sound
             osc.type = 'sine';
             osc.frequency.setValueAtTime(frequency, now);
             osc.frequency.exponentialRampToValueAtTime(frequency * 0.6, now + 0.4);
 
-            // Configure filter for character
             filter.type = 'lowpass';
             filter.frequency.setValueAtTime(frequency * 2, now);
             filter.Q.setValueAtTime(3, now);
 
-            // Configure envelope (attack-release)
             gain.gain.setValueAtTime(0, now);
-            gain.gain.linearRampToValueAtTime(volume, now + 0.03);  // Quick attack
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);  // Smooth release
+            gain.gain.linearRampToValueAtTime(volume, now + 0.03);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
 
-            // Connect nodes
             osc.connect(filter);
             filter.connect(gain);
             gain.connect(this.reverb);
 
-            // Play
             osc.start(now);
             osc.stop(now + 0.4);
-
-            console.log(`Playing bloop at ${frequency.toFixed(0)}Hz, volume ${volume.toFixed(2)}`);
         } catch (error) {
             console.error('Error playing sound:', error);
         }
     }
 
     render() {
-        // Create trail effect
-        this.ctx.fillStyle = `rgba(0, 0, 0, ${this.settings.trailAlpha})`;
+        // Aggressive clearing when no hands, gentle trails when hands present
+        if (this.fadeoutStarted || this.handPositions.length === 0) {
+            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';  // Quick fadeout
+        } else {
+            this.ctx.fillStyle = `rgba(0, 0, 0, ${this.settings.trailAlpha})`;
+        }
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Draw hand tracking visualizations (if hands detected)
+        // Draw constellation lines between nearby fingers
+        if (this.handPositions.length > 1) {
+            for (let i = 0; i < this.handPositions.length; i++) {
+                for (let j = i + 1; j < this.handPositions.length; j++) {
+                    const pos1 = this.handPositions[i];
+                    const pos2 = this.handPositions[j];
+
+                    const dist = Math.sqrt(
+                        Math.pow(pos2.x - pos1.x, 2) +
+                        Math.pow(pos2.y - pos1.y, 2)
+                    );
+
+                    if (dist < this.settings.connectionDistance) {
+                        const alpha = 1 - (dist / this.settings.connectionDistance);
+
+                        const gradient = this.ctx.createLinearGradient(pos1.x, pos1.y, pos2.x, pos2.y);
+                        const color1 = this.colors[pos1.fingerIndex % this.colors.length];
+                        const color2 = this.colors[pos2.fingerIndex % this.colors.length];
+
+                        gradient.addColorStop(0, `rgba(${color1.r}, ${color1.g}, ${color1.b}, ${alpha * 0.6})`);
+                        gradient.addColorStop(1, `rgba(${color2.r}, ${color2.g}, ${color2.b}, ${alpha * 0.6})`);
+
+                        this.ctx.strokeStyle = gradient;
+                        this.ctx.lineWidth = 2 + alpha * 2;
+                        this.ctx.shadowBlur = 15;
+                        this.ctx.shadowColor = `rgba(255, 255, 255, ${alpha * 0.5})`;
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(pos1.x, pos1.y);
+                        this.ctx.lineTo(pos2.x, pos2.y);
+                        this.ctx.stroke();
+                        this.ctx.shadowBlur = 0;
+                    }
+                }
+            }
+        }
+
+        // Draw flowing ribbon trails for each finger
+        for (const fingerId in this.fingerTrails) {
+            const trail = this.fingerTrails[fingerId];
+
+            if (trail.length < 2) continue;
+
+            // Draw as smooth curve
+            this.ctx.beginPath();
+            this.ctx.moveTo(trail[0].x, trail[0].y);
+
+            for (let i = 1; i < trail.length; i++) {
+                const point = trail[i];
+                const prevPoint = trail[i - 1];
+
+                // Smooth curve
+                const cpx = (prevPoint.x + point.x) / 2;
+                const cpy = (prevPoint.y + point.y) / 2;
+                this.ctx.quadraticCurveTo(prevPoint.x, prevPoint.y, cpx, cpy);
+            }
+
+            // Gradient along trail
+            const lastPoint = trail[trail.length - 1];
+            const firstPoint = trail[0];
+            const gradient = this.ctx.createLinearGradient(
+                firstPoint.x, firstPoint.y,
+                lastPoint.x, lastPoint.y
+            );
+
+            const color = lastPoint.color;
+            gradient.addColorStop(0, `rgba(${color.r}, ${color.g}, ${color.b}, 0.1)`);
+            gradient.addColorStop(1, `rgba(${color.r}, ${color.g}, ${color.b}, 0.8)`);
+
+            this.ctx.strokeStyle = gradient;
+            this.ctx.lineWidth = 3 + this.motionData.intensity * 4;
+            this.ctx.shadowBlur = 20;
+            this.ctx.shadowColor = `rgba(${color.r}, ${color.g}, ${color.b}, 0.6)`;
+            this.ctx.stroke();
+            this.ctx.shadowBlur = 0;
+        }
+
+        // Draw particles
+        for (const p of this.particles) {
+            this.ctx.save();
+
+            this.ctx.shadowBlur = 15;
+            this.ctx.shadowColor = `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${p.alpha})`;
+
+            this.ctx.fillStyle = `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${p.alpha * 0.8})`;
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            this.ctx.fill();
+
+            this.ctx.restore();
+        }
+
+        // Draw fingertip positions as glowing dots
+        for (const pos of this.handPositions) {
+            const color = this.colors[pos.fingerIndex % this.colors.length];
+            const intensity = this.motionData.intensity;
+
+            this.ctx.save();
+            this.ctx.shadowBlur = 25 + intensity * 20;
+            this.ctx.shadowColor = `rgba(${color.r}, ${color.g}, ${color.b}, 0.8)`;
+
+            this.ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 0.9)`;
+            this.ctx.beginPath();
+            this.ctx.arc(pos.x, pos.y, 4 + intensity * 4, 0, Math.PI * 2);
+            this.ctx.fill();
+
+            // Outer ring
+            this.ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 0.5)`;
+            this.ctx.lineWidth = 2;
+            this.ctx.beginPath();
+            this.ctx.arc(pos.x, pos.y, 8 + intensity * 6, 0, Math.PI * 2);
+            this.ctx.stroke();
+
+            this.ctx.restore();
+        }
+
+        // Debug overlay
         if (this.debugMode && this.handResults && this.handResults.multiHandLandmarks) {
             for (const landmarks of this.handResults.multiHandLandmarks) {
-                // Draw connections
+                const connections = [
+                    [0, 1], [1, 2], [2, 3], [3, 4],
+                    [0, 5], [5, 6], [6, 7], [7, 8],
+                    [0, 9], [9, 10], [10, 11], [11, 12],
+                    [0, 13], [13, 14], [14, 15], [15, 16],
+                    [0, 17], [17, 18], [18, 19], [19, 20],
+                    [5, 9], [9, 13], [13, 17]
+                ];
+
                 this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
                 this.ctx.lineWidth = 2;
-
-                // Draw hand skeleton
-                const connections = [
-                    [0, 1], [1, 2], [2, 3], [3, 4],  // Thumb
-                    [0, 5], [5, 6], [6, 7], [7, 8],  // Index
-                    [0, 9], [9, 10], [10, 11], [11, 12],  // Middle
-                    [0, 13], [13, 14], [14, 15], [15, 16],  // Ring
-                    [0, 17], [17, 18], [18, 19], [19, 20],  // Pinky
-                    [5, 9], [9, 13], [13, 17]  // Palm
-                ];
 
                 for (const [start, end] of connections) {
                     const startPoint = landmarks[start];
                     const endPoint = landmarks[end];
 
-                    // Mirror X coordinates to match visual positions
                     this.ctx.beginPath();
                     this.ctx.moveTo((1 - startPoint.x) * this.canvas.width, startPoint.y * this.canvas.height);
                     this.ctx.lineTo((1 - endPoint.x) * this.canvas.width, endPoint.y * this.canvas.height);
                     this.ctx.stroke();
                 }
-
-                // Draw landmarks
-                for (const landmark of landmarks) {
-                    this.ctx.fillStyle = 'rgba(255, 100, 100, 0.5)';
-                    this.ctx.beginPath();
-                    this.ctx.arc(
-                        (1 - landmark.x) * this.canvas.width,
-                        landmark.y * this.canvas.height,
-                        5, 0, Math.PI * 2
-                    );
-                    this.ctx.fill();
-                }
             }
-        }
-
-        // Draw particles as bubble-like spheres
-        for (const p of this.particles) {
-            this.ctx.save();
-
-            // Soft glow effect
-            this.ctx.shadowBlur = 30;
-            this.ctx.shadowColor = `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${p.alpha * 0.5})`;
-
-            // Main bubble body - more transparent
-            this.ctx.fillStyle = `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${p.alpha * 0.3})`;
-            this.ctx.beginPath();
-            this.ctx.arc(p.x, p.y, p.currentSize, 0, Math.PI * 2);
-            this.ctx.fill();
-
-            // Bubble highlight (top-left shine)
-            const gradient = this.ctx.createRadialGradient(
-                p.x - p.currentSize * 0.3,
-                p.y - p.currentSize * 0.3,
-                0,
-                p.x - p.currentSize * 0.3,
-                p.y - p.currentSize * 0.3,
-                p.currentSize * 0.6
-            );
-            gradient.addColorStop(0, `rgba(255, 255, 255, ${p.alpha * 0.6})`);
-            gradient.addColorStop(0.5, `rgba(255, 255, 255, ${p.alpha * 0.2})`);
-            gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-
-            this.ctx.fillStyle = gradient;
-            this.ctx.beginPath();
-            this.ctx.arc(p.x, p.y, p.currentSize, 0, Math.PI * 2);
-            this.ctx.fill();
-
-            // Subtle rim outline for bubble effect
-            this.ctx.strokeStyle = `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${p.alpha * 0.6})`;
-            this.ctx.lineWidth = 1.5;
-            this.ctx.beginPath();
-            this.ctx.arc(p.x, p.y, p.currentSize, 0, Math.PI * 2);
-            this.ctx.stroke();
-
-            this.ctx.restore();
-        }
-
-        // Draw motion indicator circles at hand positions
-        for (const pos of this.handPositions) {
-            this.ctx.save();
-            this.ctx.strokeStyle = pos.isPalm ?
-                'rgba(255, 200, 100, 0.6)' :
-                'rgba(100, 200, 255, 0.4)';
-            this.ctx.lineWidth = 3;
-            this.ctx.beginPath();
-            this.ctx.arc(pos.x, pos.y, pos.isPalm ? 30 : 15, 0, Math.PI * 2);
-            this.ctx.stroke();
-            this.ctx.restore();
         }
     }
 
@@ -663,19 +650,14 @@ class VisualSoundMirror {
         const deltaTime = timestamp - this.lastTime;
         this.lastTime = timestamp;
 
-        // Update systems
         this.updateParticles(deltaTime);
         this.updateAudio();
-
-        // Render
         this.render();
 
-        // Update debug
         if (this.debugMode) {
             this.updateDebug();
         }
 
-        // Continue loop
         requestAnimationFrame((t) => this.animate(t));
     }
 
