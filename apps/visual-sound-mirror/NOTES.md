@@ -37,18 +37,33 @@ Audio responsiveness:
 - Multiple sounds play polyphonically for multiple detected points
 - Sound generation throttled to 100ms intervals for musicality
 
-### Particle System
+### Particle System - Swirly Bubbles
 
-Physics-based particles with:
+**Version 3.0 - Organic Bubble Motion:**
+
+Physics-based bubbles with:
 - Position, velocity, acceleration
-- Life span and fade-out
+- Swirling/orbital motion around origin point
+- Breathing effect (grow/shrink like bubbles)
+- Life span with smooth fade in/out
 - Color based on motion properties
-- Attraction/repulsion forces
+- Upward floating with wave patterns
+
+Motion characteristics:
+- Sine/cosine-based swirling forces
+- Orbital attraction back to spawn point
+- Slower initial velocities for gentle flow
+- Less friction (0.98) for longer trails
+- Palm spawns larger bubbles (10-25px)
+- Fingertips spawn smaller bubbles (5-15px)
 
 Rendering:
 - Canvas 2D with alpha compositing
-- Trail effects via canvas clearing with low alpha
-- Glow effects using shadow blur
+- Very long trail effects (alpha 0.05)
+- Translucent bubble bodies (30% opacity)
+- Radial gradient highlights for 3D bubble effect
+- Subtle rim outline for definition
+- Soft glow (shadowBlur 30px)
 
 ### Audio Synthesis
 
@@ -214,6 +229,16 @@ Built during Claude Code session: claude/interactive-art-sound-visuals-011CUvuEd
 - Added comprehensive debug mode
 - Console logging for audio troubleshooting
 - Much more responsive and obvious interaction
+
+**Version 3.0 Improvements (Swirly Bubbles):**
+- Fixed mirrored X-axis - hand movement now maps naturally
+- Transformed from fireworks to swirly, flowing bubbles
+- Added breathing/pulsing effect to bubbles
+- Implemented orbital motion around spawn points
+- Much longer, dreamier trails (reduced alpha to 0.05)
+- Translucent bubble rendering with highlights and rims
+- Slower, gentler movement for meditative feel
+- Bigger, more visible bubbles (5-25px vs 2-7px)
 
 Key insights:
 - Browser audio restrictions require careful handling
