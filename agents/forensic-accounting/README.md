@@ -94,7 +94,7 @@ After installation, **restart Claude Code** for the MCP server to become availab
 
 ```bash
 # From the repository root
-cp apps/forensic-accounting/commands/forensic-analyze.md ~/.claude/commands/
+cp agents/forensic-accounting/commands/forensic-analyze.md ~/.claude/commands/
 ```
 
 ### 3. Verify Installation
