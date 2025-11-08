@@ -1,5 +1,6 @@
-// Visual Sound Mirror - v6.0 Music Synthesis Edition
-// Interactive music instrument with gesture-controlled synthesis, theremin mode, sample pads, and virtual knobs
+// Visual Sound Mirror - v6.2 Hands-Free Edition
+// Interactive music instrument with gesture-controlled mode switching and global audio controls
+// No keyboard required - switch modes with hand gestures (1, 2, or 5 fingers)
 
 class VisualSoundMirror {
     constructor() {
@@ -23,8 +24,12 @@ class VisualSoundMirror {
         this.prevRightHand = null;
 
         // Mode system
-        this.mode = 'ribbons'; // 'ribbons', 'theremin', 'pads', 'knobs'
-        this.modes = ['ribbons', 'theremin', 'pads', 'knobs'];
+        this.mode = 'ribbons'; // 'ribbons', 'theremin', 'pads'
+        this.modes = ['ribbons', 'theremin', 'pads'];
+
+        // Gesture-based mode switching
+        this.gestureDetectionCooldown = 0;
+        this.lastGestureTime = 0;
 
         // Scale system for theremin mode
         this.scales = {
@@ -171,16 +176,20 @@ class VisualSoundMirror {
     }
 
     initKnobs() {
-        const padding = 60;
-        const knobRadius = 80; // Bigger knobs for easier control
-        const knobY = 150;
-        const spacing = 200;
+        // Smaller knobs positioned in top-right corner
+        const knobRadius = 40; // Smaller for global control overlay
+        const padding = 20;
+        const spacing = 100;
+
+        // Position in top-right, leaving room for video feed
+        const startX = padding + knobRadius;
+        const startY = padding + knobRadius;
 
         this.knobs = [
-            { x: padding + knobRadius, y: knobY, radius: knobRadius, value: 0.5, label: 'Filter', param: 'filter', angle: 0 },
-            { x: padding + knobRadius + spacing, y: knobY, radius: knobRadius, value: 0.3, label: 'Reverb', param: 'reverb', angle: 0 },
-            { x: padding + knobRadius + spacing * 2, y: knobY, radius: knobRadius, value: 0.4, label: 'Delay', param: 'delay', angle: 0 },
-            { x: padding + knobRadius + spacing * 3, y: knobY, radius: knobRadius, value: 0.7, label: 'Res', param: 'resonance', angle: 0 }
+            { x: startX, y: startY, radius: knobRadius, value: 0.5, label: 'Filter', param: 'filter', angle: 0 },
+            { x: startX + spacing, y: startY, radius: knobRadius, value: 0.3, label: 'Reverb', param: 'reverb', angle: 0 },
+            { x: startX + spacing * 2, y: startY, radius: knobRadius, value: 0.4, label: 'Delay', param: 'delay', angle: 0 },
+            { x: startX + spacing * 3, y: startY, radius: knobRadius, value: 0.7, label: 'Res', param: 'resonance', angle: 0 }
         ];
     }
 
@@ -246,12 +255,11 @@ class VisualSoundMirror {
             this.playChord(e.clientX, e.clientY);
         });
 
-        // Keyboard controls for mode switching
+        // Keyboard controls for mode switching (debug only)
         document.addEventListener('keydown', (e) => {
             if (e.key === '1') this.switchMode('ribbons');
             if (e.key === '2') this.switchMode('theremin');
             if (e.key === '3') this.switchMode('pads');
-            if (e.key === '4') this.switchMode('knobs');
             if (e.key === 's') this.cycleScale();
         });
 
@@ -324,6 +332,72 @@ class VisualSoundMirror {
         status.textContent = `Scale: ${this.currentScale.toUpperCase()}`;
         status.classList.add('visible');
         setTimeout(() => status.classList.remove('visible'), 1500);
+    }
+
+    // Detect hand gesture for mode switching
+    detectModeGesture() {
+        const now = Date.now();
+
+        // Cooldown check - only detect gestures every 2 seconds
+        if (now - this.lastGestureTime < 2000) {
+            return;
+        }
+
+        // Use right hand for mode gestures
+        if (!this.rightHand || !this.rightHand.landmarks) {
+            return;
+        }
+
+        // Count extended fingers
+        const extendedFingers = this.countExtendedFingers(this.rightHand.landmarks);
+
+        // Map finger count to mode
+        let newMode = null;
+        if (extendedFingers === 1) {
+            newMode = 'ribbons';  // One finger = ribbons
+        } else if (extendedFingers === 2) {
+            newMode = 'theremin'; // Two fingers (peace sign) = theremin
+        } else if (extendedFingers === 5) {
+            newMode = 'pads';     // Open hand (5 fingers) = pads
+        }
+
+        // Switch mode if gesture detected and different from current
+        if (newMode && newMode !== this.mode) {
+            this.switchMode(newMode);
+            this.lastGestureTime = now;
+        }
+    }
+
+    // Count extended fingers on a hand
+    countExtendedFingers(landmarks) {
+        let count = 0;
+
+        // Thumb: check if tip is further from wrist than knuckle
+        const thumbTip = landmarks[4];
+        const thumbKnuckle = landmarks[2];
+        const wrist = landmarks[0];
+        const thumbTipDist = Math.hypot(thumbTip.x - wrist.x, thumbTip.y - wrist.y);
+        const thumbKnuckleDist = Math.hypot(thumbKnuckle.x - wrist.x, thumbKnuckle.y - wrist.y);
+        if (thumbTipDist > thumbKnuckleDist * 1.1) count++;
+
+        // Other fingers: check if tip is higher (lower y) than PIP joint
+        const fingerIndices = [
+            [8, 6],   // Index finger: tip, PIP
+            [12, 10], // Middle finger
+            [16, 14], // Ring finger
+            [20, 18]  // Pinky
+        ];
+
+        for (const [tipIdx, pipIdx] of fingerIndices) {
+            const tip = landmarks[tipIdx];
+            const pip = landmarks[pipIdx];
+            // Extended if tip is higher than PIP (y is inverted in screen coords)
+            if (tip.y < pip.y - 0.03) {
+                count++;
+            }
+        }
+
+        return count;
     }
 
     // Convert MIDI note number to frequency
@@ -1200,6 +1274,10 @@ class VisualSoundMirror {
 
         const now = this.audioContext.currentTime;
 
+        // Global knob controls - always active in all modes
+        this.detectKnobInteractions();
+        this.applyKnobParameters();
+
         // Mode-specific audio behavior
         if (this.mode === 'theremin') {
             // Theremin mode: continuous tone controlled by hand position
@@ -1220,12 +1298,6 @@ class VisualSoundMirror {
         } else if (this.mode === 'pads') {
             // Pads mode: detect fingertip taps on sample pads
             this.detectPadInteractions();
-        } else if (this.mode === 'knobs') {
-            // Knobs mode: detect knob rotation
-            this.detectKnobInteractions();
-
-            // Apply knob values to audio parameters
-            this.applyKnobParameters();
         } else {
             // Ribbons mode: original behavior
 
@@ -1501,12 +1573,13 @@ class VisualSoundMirror {
             this.renderThereminMode();
         } else if (this.mode === 'pads') {
             this.renderPadsMode();
-        } else if (this.mode === 'knobs') {
-            this.renderKnobsMode();
         } else {
             // Ribbons mode: original visualization
             this.renderRibbonsMode();
         }
+
+        // Always draw knobs (global controls in all modes)
+        this.drawKnobs();
 
         // Draw mode indicator
         this.drawModeIndicator();
@@ -1699,18 +1772,18 @@ class VisualSoundMirror {
         this.ctx.textBaseline = 'alphabetic';
     }
 
-    renderKnobsMode() {
-        // Draw virtual knobs
+    drawKnobs() {
+        // Draw virtual knobs (global controls, always visible)
         for (const knob of this.knobs) {
             // Knob background circle
-            this.ctx.fillStyle = 'rgba(50, 50, 60, 0.8)';
+            this.ctx.fillStyle = 'rgba(50, 50, 60, 0.7)';
             this.ctx.beginPath();
             this.ctx.arc(knob.x, knob.y, knob.radius, 0, Math.PI * 2);
             this.ctx.fill();
 
             // Knob ring
-            this.ctx.strokeStyle = 'rgba(100, 150, 200, 0.8)';
-            this.ctx.lineWidth = 3;
+            this.ctx.strokeStyle = 'rgba(100, 150, 200, 0.6)';
+            this.ctx.lineWidth = 2;
             this.ctx.beginPath();
             this.ctx.arc(knob.x, knob.y, knob.radius, 0, Math.PI * 2);
             this.ctx.stroke();
@@ -1719,52 +1792,32 @@ class VisualSoundMirror {
             const startAngle = Math.PI * 0.75; // Start at 135 degrees
             const endAngle = startAngle + (knob.value * Math.PI * 1.5); // 270 degree range
 
-            this.ctx.strokeStyle = 'rgba(100, 200, 255, 1.0)';
-            this.ctx.lineWidth = 6;
+            this.ctx.strokeStyle = 'rgba(100, 200, 255, 0.9)';
+            this.ctx.lineWidth = 4;
             this.ctx.beginPath();
-            this.ctx.arc(knob.x, knob.y, knob.radius - 10, startAngle, endAngle);
+            this.ctx.arc(knob.x, knob.y, knob.radius - 8, startAngle, endAngle);
             this.ctx.stroke();
 
             // Knob pointer
             const pointerAngle = startAngle + (knob.value * Math.PI * 1.5);
-            const pointerX = knob.x + Math.cos(pointerAngle) * (knob.radius - 15);
-            const pointerY = knob.y + Math.sin(pointerAngle) * (knob.radius - 15);
+            const pointerX = knob.x + Math.cos(pointerAngle) * (knob.radius - 10);
+            const pointerY = knob.y + Math.sin(pointerAngle) * (knob.radius - 10);
 
-            this.ctx.strokeStyle = 'rgba(255, 255, 255, 1.0)';
-            this.ctx.lineWidth = 4;
+            this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+            this.ctx.lineWidth = 3;
             this.ctx.lineCap = 'round';
             this.ctx.beginPath();
             this.ctx.moveTo(knob.x, knob.y);
             this.ctx.lineTo(pointerX, pointerY);
             this.ctx.stroke();
 
-            // Knob label
-            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-            this.ctx.font = '16px monospace';
+            // Knob label (smaller for overlay)
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            this.ctx.font = '11px monospace';
             this.ctx.textAlign = 'center';
             this.ctx.textBaseline = 'middle';
-            this.ctx.fillText(knob.label, knob.x, knob.y + knob.radius + 25);
-
-            // Value text
-            const valuePercent = Math.round(knob.value * 100);
-            this.ctx.font = '12px monospace';
-            this.ctx.fillText(`${valuePercent}%`, knob.x, knob.y + knob.radius + 45);
+            this.ctx.fillText(knob.label, knob.x, knob.y + knob.radius + 15);
         }
-
-        // Draw hand fingertips
-        if (this.leftHand) {
-            this.drawFingertipMarkers(this.leftHand);
-        }
-        if (this.rightHand) {
-            this.drawFingertipMarkers(this.rightHand);
-        }
-
-        // Draw instructions
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-        this.ctx.font = '16px monospace';
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'top';
-        this.ctx.fillText('Pinch thumb + index inside knob to rotate', this.canvas.width / 2, 20);
 
         this.ctx.textAlign = 'left';
         this.ctx.textBaseline = 'alphabetic';
@@ -1776,11 +1829,11 @@ class VisualSoundMirror {
         this.ctx.textAlign = 'left';
         this.ctx.textBaseline = 'top';
 
-        const modeText = `Mode: ${this.mode.toUpperCase()} (Press 1-4 to switch)`;
+        const modeText = `Mode: ${this.mode.toUpperCase()}`;
         this.ctx.fillText(modeText, 20, 20);
 
         if (this.mode === 'theremin') {
-            this.ctx.fillText('Press S to cycle scales', 20, 50);
+            this.ctx.fillText(`Scale: ${this.currentScale}`, 20, 50);
         }
 
         this.ctx.textAlign = 'left';
@@ -1947,6 +2000,9 @@ class VisualSoundMirror {
         const deltaTime = timestamp - this.lastTime;
         this.lastTime = timestamp;
         this.time += deltaTime;
+
+        // Detect hand gestures for mode switching
+        this.detectModeGesture();
 
         this.updateAudio();
         this.render();

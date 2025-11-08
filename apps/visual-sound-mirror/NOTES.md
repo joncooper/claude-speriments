@@ -297,8 +297,20 @@ Built during Claude Code session: claude/interactive-art-sound-visuals-011CUvuEd
 - Dynamic color theory with 5 curated schemes
 - Advanced audio chain: Oscillator → Filter → Delay → Reverb → Master
 
+**Version 6.2 Improvements (Hands-Free Edition - ARCHITECTURAL REDESIGN):**
+- **Gesture-based mode switching** - Right hand finger count switches modes (1, 2, or 5 fingers)
+- **Global knob controls** - Knobs now work in ALL modes, not just knobs mode
+- **Removed knobs mode** - Reduced from 4 modes to 3 (ribbons, theremin, pads)
+- **Repositioned knobs** - Smaller knobs in top-left corner, always visible
+- **Finger counting algorithm** - Detects extended fingers to recognize gestures
+- **2-second cooldown** - Prevents rapid mode switching from hand movements
+- **Hands-free interaction** - No keyboard required for normal operation
+- **Updated UI** - Removed knobs mode button, updated tooltips with gesture hints
+- **Pinch gesture for knobs** - Both thumb AND index must be inside knob radius
+- **Improved UX** - Goal achieved: don't touch the keyboard!
+
 **Version 6.0 Improvements (Music Synthesis Edition - MAJOR FEATURE UPDATE):**
-- **Mode system** - Four distinct interaction modes with seamless switching
+- **Mode system** - Three distinct interaction modes with seamless switching
 - **Scale quantization** - Musical note quantization with 7 scales (Pentatonic, Major, Minor, Blues, Dorian, Phrygian, Chromatic)
 - **Theremin mode** - Continuous melodic instrument with scale-quantized pitch
   - X-axis: pitch (quantized to musical scale)
@@ -357,3 +369,7 @@ Technical insights:
 - **Quantization is powerful** - Constraining pitch to scales makes everything sound musical
 - **Synthesis > Samples** - Real-time synthesis gives more control and smaller file size
 - **Gesture vocabulary** - Different gestures for different modes creates intuitive interactions
+- **Global controls architecture** - Controls that affect all modes are better than mode-specific ones
+- **Hands-free is the goal** - Keyboard shortcuts defeat the purpose of a gesture-controlled instrument
+- **Finger counting is reliable** - Using extended finger count for gestures is intuitive and robust
+- **Cooldowns prevent chaos** - 2-second cooldown essential to prevent accidental mode switching
