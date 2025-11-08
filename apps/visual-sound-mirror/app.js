@@ -28,8 +28,18 @@ class VisualSoundMirror {
         this.modes = ['ribbons', 'theremin', 'pads'];
 
         // Gesture-based mode switching
-        this.gestureDetectionCooldown = 0;
-        this.lastGestureTime = 0;
+        this.gestureHoldStartTime = 0;
+        this.currentGestureFingerCount = null;
+        this.gestureHoldRequired = 2500; // 2.5 seconds
+        this.gestureInProgress = false;
+        this.lastModeSwitch = 0;
+
+        // Mode switch animation
+        this.modeSwitchAnimation = {
+            active: false,
+            startTime: 0,
+            duration: 1000
+        };
 
         // Scale system for theremin mode
         this.scales = {
@@ -321,6 +331,40 @@ class VisualSoundMirror {
         setTimeout(() => status.classList.remove('visible'), 2000);
     }
 
+    triggerModeSwitchAnimation() {
+        this.modeSwitchAnimation.active = true;
+        this.modeSwitchAnimation.startTime = Date.now();
+
+        // Play a celebratory sound
+        if (this.audioContext && this.audioEnabled) {
+            this.playModeSwitchSound();
+        }
+    }
+
+    playModeSwitchSound() {
+        const now = this.audioContext.currentTime;
+
+        // Ascending arpeggio
+        const notes = [262, 330, 392, 523]; // C, E, G, high C
+        notes.forEach((freq, i) => {
+            const osc = this.audioContext.createOscillator();
+            const gain = this.audioContext.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+
+            const startTime = now + (i * 0.08);
+            gain.gain.setValueAtTime(0.2, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.2);
+
+            osc.connect(gain);
+            gain.connect(this.masterGain);
+
+            osc.start(startTime);
+            osc.stop(startTime + 0.2);
+        });
+    }
+
     cycleScale() {
         const scaleNames = Object.keys(this.scales);
         const currentIndex = scaleNames.indexOf(this.currentScale);
@@ -334,53 +378,86 @@ class VisualSoundMirror {
         setTimeout(() => status.classList.remove('visible'), 1500);
     }
 
-    // Detect hand gesture for mode switching
+    // Detect hand gesture for mode switching (requires deliberate hold)
     detectModeGesture() {
         const now = Date.now();
 
-        // Cooldown check - only detect gestures every 2 seconds
-        if (now - this.lastGestureTime < 2000) {
-            return;
-        }
-
-        // Use LEFT hand for mode gestures (corrected from right)
+        // Use LEFT hand for mode gestures (which is user's right hand - MediaPipe labels from camera POV)
         if (!this.leftHand || !this.leftHand.landmarks) {
+            // Hand not detected - reset gesture tracking
+            this.currentGestureFingerCount = null;
+            this.gestureHoldStartTime = 0;
+            this.gestureInProgress = false;
             return;
         }
 
-        // Count extended fingers
+        // Count extended fingers with stricter detection
         const extendedFingers = this.countExtendedFingers(this.leftHand.landmarks);
 
-        // Map finger count to mode
-        let newMode = null;
+        // Map finger count to mode (only specific counts)
+        let targetMode = null;
         if (extendedFingers === 1) {
-            newMode = 'ribbons';  // One finger = ribbons
+            targetMode = 'ribbons';  // One finger = ribbons
         } else if (extendedFingers === 2) {
-            newMode = 'theremin'; // Two fingers (peace sign) = theremin
+            targetMode = 'theremin'; // Two fingers (peace sign) = theremin
         } else if (extendedFingers === 5) {
-            newMode = 'pads';     // Open hand (5 fingers) = pads
+            targetMode = 'pads';     // Open hand (5 fingers) = pads
         }
 
-        // Switch mode if gesture detected and different from current
-        if (newMode && newMode !== this.mode) {
-            this.switchMode(newMode);
-            this.lastGestureTime = now;
+        // If no valid gesture detected, reset
+        if (!targetMode) {
+            this.currentGestureFingerCount = null;
+            this.gestureHoldStartTime = 0;
+            this.gestureInProgress = false;
+            return;
+        }
+
+        // If already in this mode, don't do anything
+        if (targetMode === this.mode) {
+            this.currentGestureFingerCount = null;
+            this.gestureHoldStartTime = 0;
+            this.gestureInProgress = false;
+            return;
+        }
+
+        // Check if gesture changed (user changed finger count)
+        if (this.currentGestureFingerCount !== extendedFingers) {
+            // New gesture started - reset timer
+            this.currentGestureFingerCount = extendedFingers;
+            this.gestureHoldStartTime = now;
+            this.gestureInProgress = true;
+            return;
+        }
+
+        // Same gesture is being held - check if held long enough
+        const holdDuration = now - this.gestureHoldStartTime;
+
+        if (holdDuration >= this.gestureHoldRequired) {
+            // Gesture held long enough - switch mode!
+            this.switchMode(targetMode);
+            this.triggerModeSwitchAnimation();
+
+            // Reset gesture tracking
+            this.currentGestureFingerCount = null;
+            this.gestureHoldStartTime = 0;
+            this.gestureInProgress = false;
+            this.lastModeSwitch = now;
         }
     }
 
-    // Count extended fingers on a hand
+    // Count extended fingers on a hand (stricter detection for deliberate gestures)
     countExtendedFingers(landmarks) {
         let count = 0;
 
-        // Thumb: check if tip is further from wrist than knuckle
+        // Thumb: check if tip is significantly further from wrist than knuckle
         const thumbTip = landmarks[4];
         const thumbKnuckle = landmarks[2];
         const wrist = landmarks[0];
         const thumbTipDist = Math.hypot(thumbTip.x - wrist.x, thumbTip.y - wrist.y);
         const thumbKnuckleDist = Math.hypot(thumbKnuckle.x - wrist.x, thumbKnuckle.y - wrist.y);
-        if (thumbTipDist > thumbKnuckleDist * 1.1) count++;
+        if (thumbTipDist > thumbKnuckleDist * 1.3) count++; // Stricter: 1.3 instead of 1.1
 
-        // Other fingers: check if tip is higher (lower y) than PIP joint
+        // Other fingers: check if tip is significantly higher than PIP joint
         const fingerIndices = [
             [8, 6],   // Index finger: tip, PIP
             [12, 10], // Middle finger
@@ -391,8 +468,8 @@ class VisualSoundMirror {
         for (const [tipIdx, pipIdx] of fingerIndices) {
             const tip = landmarks[tipIdx];
             const pip = landmarks[pipIdx];
-            // Extended if tip is higher than PIP (y is inverted in screen coords)
-            if (tip.y < pip.y - 0.03) {
+            // Extended if tip is significantly higher than PIP (stricter threshold)
+            if (tip.y < pip.y - 0.05) { // Stricter: 0.05 instead of 0.03
                 count++;
             }
         }
@@ -1584,6 +1661,16 @@ class VisualSoundMirror {
         // Draw mode indicator
         this.drawModeIndicator();
 
+        // Draw gesture hold progress indicator
+        if (this.gestureInProgress && this.gestureHoldStartTime > 0) {
+            this.drawGestureHoldProgress();
+        }
+
+        // Draw mode switch animation (celebratory visual burst)
+        if (this.modeSwitchAnimation.active) {
+            this.drawModeSwitchAnimation();
+        }
+
         // Debug overlay
         if (this.debugMode && this.handResults && this.handResults.multiHandLandmarks) {
             this.drawDebugSkeleton();
@@ -1834,6 +1921,100 @@ class VisualSoundMirror {
 
         if (this.mode === 'theremin') {
             this.ctx.fillText(`Scale: ${this.currentScale}`, 20, 50);
+        }
+
+        this.ctx.textAlign = 'left';
+        this.ctx.textBaseline = 'alphabetic';
+    }
+
+    drawGestureHoldProgress() {
+        // Show circular progress indicator around hand position
+        if (!this.leftHand || !this.leftHand.palm) return;
+
+        const now = Date.now();
+        const elapsed = now - this.gestureHoldStartTime;
+        const progress = Math.min(elapsed / this.gestureHoldRequired, 1.0);
+
+        const centerX = this.leftHand.palm.x;
+        const centerY = this.leftHand.palm.y;
+        const radius = 80;
+
+        // Background circle
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        this.ctx.lineWidth = 8;
+        this.ctx.beginPath();
+        this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        this.ctx.stroke();
+
+        // Progress arc
+        this.ctx.strokeStyle = `rgba(100, 255, 150, ${0.5 + progress * 0.5})`;
+        this.ctx.lineWidth = 10;
+        this.ctx.lineCap = 'round';
+        this.ctx.beginPath();
+        this.ctx.arc(centerX, centerY, radius, -Math.PI / 2, -Math.PI / 2 + (progress * Math.PI * 2));
+        this.ctx.stroke();
+
+        // Gesture indicator text
+        const gestureNames = { 1: '1 FINGER', 2: 'PEACE', 5: 'OPEN HAND' };
+        const gestureName = gestureNames[this.currentGestureFingerCount] || '';
+
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        this.ctx.font = 'bold 16px monospace';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText(gestureName, centerX, centerY - 5);
+
+        const pct = Math.round(progress * 100);
+        this.ctx.font = '14px monospace';
+        this.ctx.fillText(`${pct}%`, centerX, centerY + 15);
+
+        this.ctx.textAlign = 'left';
+        this.ctx.textBaseline = 'alphabetic';
+    }
+
+    drawModeSwitchAnimation() {
+        const now = Date.now();
+        const elapsed = now - this.modeSwitchAnimation.startTime;
+        const progress = elapsed / this.modeSwitchAnimation.duration;
+
+        if (progress >= 1.0) {
+            this.modeSwitchAnimation.active = false;
+            return;
+        }
+
+        // Burst of colorful particles from center
+        const centerX = this.canvas.width / 2;
+        const centerY = this.canvas.height / 2;
+        const numParticles = 50;
+
+        for (let i = 0; i < numParticles; i++) {
+            const angle = (i / numParticles) * Math.PI * 2;
+            const distance = progress * 400; // Expand outward
+            const x = centerX + Math.cos(angle) * distance;
+            const y = centerY + Math.sin(angle) * distance;
+
+            const hue = (this.baseHue + i * 7) % 360;
+            const alpha = 1 - progress; // Fade out
+
+            this.ctx.fillStyle = `hsla(${hue}, 100%, 60%, ${alpha})`;
+            this.ctx.beginPath();
+            this.ctx.arc(x, y, 8 * (1 - progress * 0.5), 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+
+        // Flash effect
+        const flashAlpha = Math.max(0, 0.3 - progress * 0.6);
+        this.ctx.fillStyle = `rgba(255, 255, 255, ${flashAlpha})`;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Mode text in center
+        if (progress < 0.5) {
+            const textAlpha = (0.5 - progress) * 2;
+            this.ctx.fillStyle = `rgba(255, 255, 255, ${textAlpha})`;
+            this.ctx.font = 'bold 48px monospace';
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.fillText(this.mode.toUpperCase(), centerX, centerY);
         }
 
         this.ctx.textAlign = 'left';

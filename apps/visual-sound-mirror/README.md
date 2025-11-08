@@ -43,9 +43,11 @@ Visual Sound Mirror v6.2 is a completely hands-free musical instrument with gest
 - Visual feedback with arc indicators
 
 ### ✋ **Gesture-Based Mode Switching**
+Hold gesture steady for **2.5 seconds** to switch modes:
 - **1 finger** (right hand) → Ribbons Mode 🎨
 - **2 fingers** (peace sign) → Theremin Mode 🎵
 - **5 fingers** (open hand) → Sample Pads Mode 🥁
+- Circular progress indicator shows hold progress
 - No keyboard required for normal operation!
 
 **Core Features:**
@@ -74,10 +76,12 @@ Visual Sound Mirror v6.2 is a completely hands-free musical instrument with gest
 ## Controls
 
 ### Mode Switching (Gesture-Based)
-Use your **right hand** to switch modes:
+Use your **right hand** to switch modes (hold steady for 2.5 seconds):
 - **1 finger** → Ribbons Mode 🎨
 - **2 fingers** (peace sign) → Theremin Mode 🎵
 - **5 fingers** (open hand) → Sample Pads Mode 🥁
+- **Progress indicator** appears while holding gesture
+- **Celebration burst** plays when mode switches successfully
 
 Mode buttons (bottom center) also work for manual switching.
 
