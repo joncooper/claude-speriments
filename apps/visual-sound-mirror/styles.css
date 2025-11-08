@@ -118,11 +118,53 @@ body {
     left: 50%;
     transform: translateX(-50%);
     display: flex;
+    flex-direction: column;
+    align-items: center;
     gap: 15px;
     z-index: 10;
 }
 
-#controls button {
+.mode-switcher {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(15px);
+    border-radius: 50px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.mode-btn {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    color: white;
+    font-size: 1.6em;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.mode-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: scale(1.1);
+}
+
+.mode-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
+}
+
+.control-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.control-buttons button {
     width: 50px;
     height: 50px;
     border-radius: 50%;
@@ -135,7 +177,7 @@ body {
     transition: all 0.3s;
 }
 
-#controls button:hover {
+.control-buttons button:hover {
     background: rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 255, 255, 0.6);
     transform: scale(1.1);
@@ -162,16 +204,32 @@ body {
 }
 
 .info-content {
-    max-width: 500px;
+    max-width: 600px;
+    max-height: 80vh;
     padding: 40px;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 15px;
     border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow-y: auto;
 }
 
 .info-content h2 {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     color: #667eea;
+}
+
+.info-content h3 {
+    margin-bottom: 20px;
+    color: #888;
+    font-size: 1.2em;
+    font-weight: normal;
+}
+
+.info-content h4 {
+    margin-top: 25px;
+    margin-bottom: 10px;
+    color: #aaa;
+    font-size: 1.1em;
 }
 
 .info-content ul {

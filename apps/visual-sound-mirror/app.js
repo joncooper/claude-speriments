@@ -1,5 +1,5 @@
-// Visual Sound Mirror - v5.0 Silk & Symphony Edition
-// Sophisticated multi-hand interactions with fluid ribbons and rich audio
+// Visual Sound Mirror - v6.0 Music Synthesis Edition
+// Interactive music instrument with gesture-controlled synthesis, theremin mode, sample pads, and virtual knobs
 
 class VisualSoundMirror {
     constructor() {
@@ -22,6 +22,23 @@ class VisualSoundMirror {
         this.prevLeftHand = null;
         this.prevRightHand = null;
 
+        // Mode system
+        this.mode = 'ribbons'; // 'ribbons', 'theremin', 'pads', 'knobs'
+        this.modes = ['ribbons', 'theremin', 'pads', 'knobs'];
+
+        // Scale system for theremin mode
+        this.scales = {
+            chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+            major: [0, 2, 4, 5, 7, 9, 11],
+            minor: [0, 2, 3, 5, 7, 8, 10],
+            pentatonic: [0, 2, 4, 7, 9],
+            blues: [0, 3, 5, 6, 7, 10],
+            dorian: [0, 2, 3, 5, 7, 9, 10],
+            phrygian: [0, 1, 3, 5, 7, 8, 10]
+        };
+        this.currentScale = 'pentatonic';
+        this.rootNote = 60; // Middle C (MIDI note number)
+
         // Fingertip trails - multi-ribbon per finger
         this.fingerTrails = {};
         this.maxTrailLength = 25;
@@ -35,6 +52,22 @@ class VisualSoundMirror {
         this.audioEnabled = false;
         this.isMuted = false;
         this.lastSoundTime = 0;
+
+        // Theremin mode audio
+        this.thereminOsc = null;
+        this.thereminGain = null;
+        this.thereminFilter = null;
+        this.thereminActive = false;
+
+        // Sample pads
+        this.padGrid = { rows: 4, cols: 4 };
+        this.pads = [];
+        this.initPads();
+
+        // Virtual knobs
+        this.knobs = [];
+        this.initKnobs();
+        this.activeKnob = null;
 
         // Debug mode
         this.debugMode = false;
@@ -80,19 +113,102 @@ class VisualSoundMirror {
         this.setupEventListeners();
     }
 
+    initPads() {
+        const padding = 40;
+        const gridWidth = 400;
+        const gridHeight = 400;
+        const startX = this.canvas.width - gridWidth - padding;
+        const startY = (this.canvas.height - gridHeight) / 2;
+        const padSize = (gridWidth - (this.padGrid.cols + 1) * 10) / this.padGrid.cols;
+
+        // Define drum samples for each pad
+        const drumTypes = [
+            'kick', 'snare', 'hihat', 'clap',
+            'tom1', 'tom2', 'rim', 'cowbell',
+            'crash', 'ride', 'perc1', 'perc2',
+            'bass', 'chord1', 'chord2', 'lead'
+        ];
+
+        for (let row = 0; row < this.padGrid.rows; row++) {
+            for (let col = 0; col < this.padGrid.cols; col++) {
+                const idx = row * this.padGrid.cols + col;
+                this.pads.push({
+                    x: startX + col * (padSize + 10) + 10,
+                    y: startY + row * (padSize + 10) + 10,
+                    size: padSize,
+                    type: drumTypes[idx],
+                    triggered: false,
+                    triggerTime: 0,
+                    color: this.getPadColor(drumTypes[idx])
+                });
+            }
+        }
+    }
+
+    initKnobs() {
+        const padding = 40;
+        const knobRadius = 50;
+        const knobY = 100;
+
+        this.knobs = [
+            { x: padding + 70, y: knobY, radius: knobRadius, value: 0.5, label: 'Filter', param: 'filter', angle: 0 },
+            { x: padding + 200, y: knobY, radius: knobRadius, value: 0.3, label: 'Reverb', param: 'reverb', angle: 0 },
+            { x: padding + 330, y: knobY, radius: knobRadius, value: 0.4, label: 'Delay', param: 'delay', angle: 0 },
+            { x: padding + 460, y: knobY, radius: knobRadius, value: 0.7, label: 'Res', param: 'resonance', angle: 0 }
+        ];
+    }
+
+    getPadColor(type) {
+        const colors = {
+            kick: { r: 255, g: 60, b: 60 },
+            snare: { r: 60, g: 150, b: 255 },
+            hihat: { r: 200, g: 200, b: 60 },
+            clap: { r: 255, g: 150, b: 60 },
+            tom1: { r: 180, g: 80, b: 200 },
+            tom2: { r: 150, g: 100, b: 220 },
+            rim: { r: 100, g: 200, b: 150 },
+            cowbell: { r: 220, g: 180, b: 100 },
+            crash: { r: 200, g: 200, b: 200 },
+            ride: { r: 180, g: 180, b: 180 },
+            perc1: { r: 100, g: 255, b: 150 },
+            perc2: { r: 150, g: 100, b: 255 },
+            bass: { r: 80, g: 80, b: 200 },
+            chord1: { r: 200, g: 100, b: 100 },
+            chord2: { r: 100, g: 200, b: 100 },
+            lead: { r: 255, g: 200, b: 100 }
+        };
+        return colors[type] || { r: 150, g: 150, b: 150 };
+    }
+
     resizeCanvas() {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
     }
 
     setupEventListeners() {
-        window.addEventListener('resize', () => this.resizeCanvas());
+        window.addEventListener('resize', () => {
+            this.resizeCanvas();
+            // Reinit pads and knobs on resize
+            if (this.pads.length > 0) {
+                this.pads = [];
+                this.initPads();
+            }
+        });
 
         this.canvas.addEventListener('click', (e) => {
             if (this.audioContext && this.audioContext.state === 'suspended') {
                 this.audioContext.resume();
             }
             this.playChord(e.clientX, e.clientY);
+        });
+
+        // Keyboard controls for mode switching
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '1') this.switchMode('ribbons');
+            if (e.key === '2') this.switchMode('theremin');
+            if (e.key === '3') this.switchMode('pads');
+            if (e.key === '4') this.switchMode('knobs');
+            if (e.key === 's') this.cycleScale();
         });
 
         document.getElementById('startButton').addEventListener('click', () => {
@@ -115,6 +231,89 @@ class VisualSoundMirror {
         document.getElementById('closeInfo').addEventListener('click', () => {
             document.getElementById('info').classList.add('hidden');
         });
+
+        // Mode switcher buttons
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const mode = btn.getAttribute('data-mode');
+                this.switchMode(mode);
+                this.updateModeButtons();
+            });
+        });
+    }
+
+    updateModeButtons() {
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            const mode = btn.getAttribute('data-mode');
+            if (mode === this.mode) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+
+    switchMode(newMode) {
+        this.mode = newMode;
+        console.log(`Switched to ${newMode} mode`);
+
+        // Stop theremin when leaving theremin mode
+        if (newMode !== 'theremin') {
+            this.stopTheremin();
+        }
+
+        // Show status
+        const status = document.getElementById('status');
+        status.textContent = `Mode: ${newMode.toUpperCase()}`;
+        status.classList.add('visible');
+        setTimeout(() => status.classList.remove('visible'), 2000);
+    }
+
+    cycleScale() {
+        const scaleNames = Object.keys(this.scales);
+        const currentIndex = scaleNames.indexOf(this.currentScale);
+        const nextIndex = (currentIndex + 1) % scaleNames.length;
+        this.currentScale = scaleNames[nextIndex];
+
+        console.log(`Scale: ${this.currentScale}`);
+        const status = document.getElementById('status');
+        status.textContent = `Scale: ${this.currentScale.toUpperCase()}`;
+        status.classList.add('visible');
+        setTimeout(() => status.classList.remove('visible'), 1500);
+    }
+
+    // Convert MIDI note number to frequency
+    midiToFreq(midiNote) {
+        return 440 * Math.pow(2, (midiNote - 69) / 12);
+    }
+
+    // Quantize position to nearest note in scale
+    quantizeToScale(normalizedX) {
+        const scale = this.scales[this.currentScale];
+        const octaveRange = 3; // 3 octaves
+        const totalNotes = octaveRange * 12;
+
+        // Map X position to MIDI note range
+        const rawMidiNote = this.rootNote - 12 + (normalizedX * totalNotes);
+
+        // Find nearest note in scale
+        const octave = Math.floor((rawMidiNote - this.rootNote) / 12);
+        const semitone = Math.round(rawMidiNote - this.rootNote - (octave * 12));
+
+        // Find closest scale degree
+        let closestDegree = scale[0];
+        let minDist = Math.abs(semitone - scale[0]);
+
+        for (const degree of scale) {
+            const dist = Math.abs(semitone - degree);
+            if (dist < minDist) {
+                minDist = dist;
+                closestDegree = degree;
+            }
+        }
+
+        const quantizedMidi = this.rootNote + (octave * 12) + closestDegree;
+        return this.midiToFreq(quantizedMidi);
     }
 
     async start() {
@@ -135,6 +334,9 @@ class VisualSoundMirror {
 
             status.textContent = 'Ready! Wave your hands!';
             setTimeout(() => status.classList.remove('visible'), 3000);
+
+            // Initialize mode buttons
+            this.updateModeButtons();
 
             this.isRunning = true;
             this.animate(performance.now());
@@ -230,6 +432,423 @@ class VisualSoundMirror {
 
         convolver.buffer = impulse;
         return convolver;
+    }
+
+    // Theremin mode audio control
+    startTheremin() {
+        if (!this.audioEnabled || this.isMuted || !this.audioContext || this.thereminActive) {
+            return;
+        }
+
+        const now = this.audioContext.currentTime;
+
+        // Create continuous oscillator
+        this.thereminOsc = this.audioContext.createOscillator();
+        this.thereminOsc.type = 'triangle';
+        this.thereminOsc.frequency.value = 440;
+
+        // Theremin-specific filter
+        this.thereminFilter = this.audioContext.createBiquadFilter();
+        this.thereminFilter.type = 'lowpass';
+        this.thereminFilter.frequency.value = 2000;
+        this.thereminFilter.Q.value = 5;
+
+        // Theremin gain with smooth attack
+        this.thereminGain = this.audioContext.createGain();
+        this.thereminGain.gain.setValueAtTime(0, now);
+        this.thereminGain.gain.linearRampToValueAtTime(0.3, now + 0.05);
+
+        // Connect: osc -> filter -> gain -> reverb -> master
+        this.thereminOsc.connect(this.thereminFilter);
+        this.thereminFilter.connect(this.thereminGain);
+        this.thereminGain.connect(this.reverb);
+
+        this.thereminOsc.start(now);
+        this.thereminActive = true;
+        console.log('Theremin started');
+    }
+
+    stopTheremin() {
+        if (!this.thereminActive || !this.thereminOsc) {
+            return;
+        }
+
+        const now = this.audioContext.currentTime;
+
+        // Smooth release
+        this.thereminGain.gain.linearRampToValueAtTime(0, now + 0.2);
+
+        setTimeout(() => {
+            if (this.thereminOsc) {
+                this.thereminOsc.stop();
+                this.thereminOsc = null;
+                this.thereminGain = null;
+                this.thereminFilter = null;
+            }
+            this.thereminActive = false;
+        }, 250);
+
+        console.log('Theremin stopped');
+    }
+
+    updateTheremin(hand) {
+        if (!this.thereminActive || !this.thereminOsc || !hand) {
+            return;
+        }
+
+        const now = this.audioContext.currentTime;
+
+        // X-axis controls pitch (quantized to scale)
+        const normalizedX = hand.palm.x / this.canvas.width;
+        const frequency = this.quantizeToScale(normalizedX);
+        this.thereminOsc.frequency.exponentialRampToValueAtTime(frequency, now + 0.05);
+
+        // Y-axis controls filter cutoff
+        const normalizedY = hand.palm.y / this.canvas.height;
+        const filterFreq = 200 + (1 - normalizedY) * 3800; // Inverted: top = bright
+        this.thereminFilter.frequency.exponentialRampToValueAtTime(Math.max(200, filterFreq), now + 0.05);
+
+        // Finger spread controls vibrato/resonance
+        const spread = Math.max(50, Math.min(250, hand.fingerSpread));
+        const resonance = 1 + ((spread - 50) / 200) * 15; // Q: 1-16
+        this.thereminFilter.Q.linearRampToValueAtTime(resonance, now + 0.05);
+    }
+
+    // Drum synthesis for sample pads
+    playDrumSample(type) {
+        if (!this.audioEnabled || this.isMuted || !this.audioContext) {
+            return;
+        }
+
+        const now = this.audioContext.currentTime;
+
+        try {
+            switch (type) {
+                case 'kick':
+                    this.playKick(now);
+                    break;
+                case 'snare':
+                    this.playSnare(now);
+                    break;
+                case 'hihat':
+                    this.playHihat(now);
+                    break;
+                case 'clap':
+                    this.playClap(now);
+                    break;
+                case 'tom1':
+                    this.playTom(now, 120);
+                    break;
+                case 'tom2':
+                    this.playTom(now, 80);
+                    break;
+                case 'rim':
+                    this.playRim(now);
+                    break;
+                case 'cowbell':
+                    this.playCowbell(now);
+                    break;
+                case 'crash':
+                    this.playCrash(now);
+                    break;
+                case 'ride':
+                    this.playRide(now);
+                    break;
+                case 'perc1':
+                    this.playPerc(now, 800);
+                    break;
+                case 'perc2':
+                    this.playPerc(now, 400);
+                    break;
+                case 'bass':
+                    this.playBass(now);
+                    break;
+                case 'chord1':
+                    this.playChordPad(now, [261.63, 329.63, 392.00]); // C major
+                    break;
+                case 'chord2':
+                    this.playChordPad(now, [293.66, 349.23, 440.00]); // D minor
+                    break;
+                case 'lead':
+                    this.playLead(now);
+                    break;
+            }
+        } catch (error) {
+            console.error('Error playing drum sample:', error);
+        }
+    }
+
+    playKick(now) {
+        const osc = this.audioContext.createOscillator();
+        const gain = this.audioContext.createGain();
+
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.exponentialRampToValueAtTime(40, now + 0.1);
+
+        gain.gain.setValueAtTime(1, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc.start(now);
+        osc.stop(now + 0.5);
+    }
+
+    playSnare(now) {
+        // Tone component
+        const osc = this.audioContext.createOscillator();
+        const oscGain = this.audioContext.createGain();
+        osc.frequency.value = 200;
+        oscGain.gain.setValueAtTime(0.3, now);
+        oscGain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+        osc.connect(oscGain);
+
+        // Noise component
+        const bufferSize = this.audioContext.sampleRate * 0.2;
+        const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = this.audioContext.createBufferSource();
+        noise.buffer = buffer;
+        const noiseGain = this.audioContext.createGain();
+        noiseGain.gain.setValueAtTime(0.5, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+        noise.connect(noiseGain);
+
+        oscGain.connect(this.masterGain);
+        noiseGain.connect(this.masterGain);
+
+        osc.start(now);
+        osc.stop(now + 0.2);
+        noise.start(now);
+    }
+
+    playHihat(now) {
+        const bufferSize = this.audioContext.sampleRate * 0.1;
+        const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = this.audioContext.createBufferSource();
+        noise.buffer = buffer;
+
+        const filter = this.audioContext.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.value = 7000;
+
+        const gain = this.audioContext.createGain();
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+
+        noise.start(now);
+    }
+
+    playClap(now) {
+        for (let i = 0; i < 3; i++) {
+            const delay = i * 0.02;
+            const bufferSize = this.audioContext.sampleRate * 0.1;
+            const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let j = 0; j < bufferSize; j++) {
+                data[j] = Math.random() * 2 - 1;
+            }
+
+            const noise = this.audioContext.createBufferSource();
+            noise.buffer = buffer;
+            const gain = this.audioContext.createGain();
+            gain.gain.setValueAtTime(0.4, now + delay);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + delay + 0.15);
+
+            noise.connect(gain);
+            gain.connect(this.masterGain);
+            noise.start(now + delay);
+        }
+    }
+
+    playTom(now, freq) {
+        const osc = this.audioContext.createOscillator();
+        const gain = this.audioContext.createGain();
+
+        osc.frequency.setValueAtTime(freq, now);
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.5, now + 0.3);
+
+        gain.gain.setValueAtTime(0.7, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc.start(now);
+        osc.stop(now + 0.3);
+    }
+
+    playRim(now) {
+        const osc = this.audioContext.createOscillator();
+        const gain = this.audioContext.createGain();
+        osc.frequency.value = 400;
+        osc.type = 'square';
+
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc.start(now);
+        osc.stop(now + 0.05);
+    }
+
+    playCowbell(now) {
+        const osc1 = this.audioContext.createOscillator();
+        const osc2 = this.audioContext.createOscillator();
+        const gain = this.audioContext.createGain();
+
+        osc1.frequency.value = 540;
+        osc2.frequency.value = 800;
+        osc1.type = 'square';
+        osc2.type = 'square';
+
+        gain.gain.setValueAtTime(0.4, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc1.start(now);
+        osc2.start(now);
+        osc1.stop(now + 0.2);
+        osc2.stop(now + 0.2);
+    }
+
+    playCrash(now) {
+        const bufferSize = this.audioContext.sampleRate * 1.5;
+        const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = this.audioContext.createBufferSource();
+        noise.buffer = buffer;
+
+        const filter = this.audioContext.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.value = 5000;
+
+        const gain = this.audioContext.createGain();
+        gain.gain.setValueAtTime(0.5, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 1.5);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+
+        noise.start(now);
+    }
+
+    playRide(now) {
+        const osc1 = this.audioContext.createOscillator();
+        const osc2 = this.audioContext.createOscillator();
+        const gain = this.audioContext.createGain();
+
+        osc1.frequency.value = 3000;
+        osc2.frequency.value = 4500;
+        osc1.type = 'square';
+        osc2.type = 'square';
+
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc1.start(now);
+        osc2.start(now);
+        osc1.stop(now + 0.5);
+        osc2.stop(now + 0.5);
+    }
+
+    playPerc(now, freq) {
+        const osc = this.audioContext.createOscillator();
+        const gain = this.audioContext.createGain();
+        osc.frequency.value = freq;
+        osc.type = 'sine';
+
+        gain.gain.setValueAtTime(0.4, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc.start(now);
+        osc.stop(now + 0.15);
+    }
+
+    playBass(now) {
+        const osc = this.audioContext.createOscillator();
+        const gain = this.audioContext.createGain();
+        osc.frequency.value = 55; // A1
+        osc.type = 'sawtooth';
+
+        const filter = this.audioContext.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 300;
+
+        gain.gain.setValueAtTime(0.6, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc.start(now);
+        osc.stop(now + 0.4);
+    }
+
+    playChordPad(now, frequencies) {
+        for (let i = 0; i < frequencies.length; i++) {
+            const osc = this.audioContext.createOscillator();
+            const gain = this.audioContext.createGain();
+            osc.frequency.value = frequencies[i];
+            osc.type = 'sawtooth';
+
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 1.5);
+
+            osc.connect(gain);
+            gain.connect(this.filterNode);
+
+            osc.start(now);
+            osc.stop(now + 1.5);
+        }
+    }
+
+    playLead(now) {
+        const osc = this.audioContext.createOscillator();
+        const gain = this.audioContext.createGain();
+        osc.frequency.value = 523.25; // C5
+        osc.type = 'square';
+
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+        osc.connect(gain);
+        gain.connect(this.filterNode);
+
+        osc.start(now);
+        osc.stop(now + 0.3);
     }
 
     async initHandTracking() {
@@ -454,45 +1073,169 @@ class VisualSoundMirror {
 
         const now = this.audioContext.currentTime;
 
-        // Left hand controls filter cutoff and resonance
-        if (this.leftHand) {
-            // Map finger spread (50-250px) to filter frequency (300-3000Hz)
-            const spread = Math.max(50, Math.min(250, this.leftHand.fingerSpread));
-            const filterFreq = 300 + ((spread - 50) / 200) * 2700;
-            const resonance = 1 + ((spread - 50) / 200) * 8; // Q: 1-9
+        // Mode-specific audio behavior
+        if (this.mode === 'theremin') {
+            // Theremin mode: continuous tone controlled by hand position
+            if (this.leftHand || this.rightHand) {
+                const activeHand = this.leftHand || this.rightHand;
 
-            this.filterNode.frequency.linearRampToValueAtTime(filterFreq, now + 0.1);
-            this.filterNode.Q.linearRampToValueAtTime(resonance, now + 0.1);
+                if (!this.thereminActive) {
+                    this.startTheremin();
+                }
+
+                this.updateTheremin(activeHand);
+            } else {
+                // Stop theremin when no hands detected
+                if (this.thereminActive) {
+                    this.stopTheremin();
+                }
+            }
+        } else if (this.mode === 'pads') {
+            // Pads mode: detect fingertip taps on sample pads
+            this.detectPadInteractions();
+        } else if (this.mode === 'knobs') {
+            // Knobs mode: detect knob rotation
+            this.detectKnobInteractions();
+
+            // Apply knob values to audio parameters
+            this.applyKnobParameters();
+        } else {
+            // Ribbons mode: original behavior
+
+            // Left hand controls filter cutoff and resonance
+            if (this.leftHand) {
+                // Map finger spread (50-250px) to filter frequency (300-3000Hz)
+                const spread = Math.max(50, Math.min(250, this.leftHand.fingerSpread));
+                const filterFreq = 300 + ((spread - 50) / 200) * 2700;
+                const resonance = 1 + ((spread - 50) / 200) * 8; // Q: 1-9
+
+                this.filterNode.frequency.linearRampToValueAtTime(filterFreq, now + 0.1);
+                this.filterNode.Q.linearRampToValueAtTime(resonance, now + 0.1);
+            }
+
+            // Right hand controls delay amount
+            if (this.rightHand) {
+                // Map finger spread to delay mix (0-0.6)
+                const spread = Math.max(50, Math.min(250, this.rightHand.fingerSpread));
+                const delayMix = ((spread - 50) / 200) * 0.6;
+
+                this.delayGain.gain.linearRampToValueAtTime(delayMix, now + 0.1);
+            }
+
+            // Play sounds based on hand movements
+            const nowMs = Date.now();
+            if (nowMs - this.lastSoundTime > this.settings.soundInterval) {
+                // Left hand sounds
+                if (this.leftHand && this.prevLeftHand) {
+                    this.playHandSounds(this.leftHand, this.prevLeftHand, 0);
+                }
+
+                // Right hand sounds (slightly different timbre)
+                if (this.rightHand && this.prevRightHand) {
+                    this.playHandSounds(this.rightHand, this.prevRightHand, 50);
+                }
+
+                // Special sound when hands are touching
+                if (this.handsAreTouching && this.touchingFingers.length > 0) {
+                    this.playTouchingSound();
+                }
+
+                this.lastSoundTime = nowMs;
+            }
+        }
+    }
+
+    detectPadInteractions() {
+        if (!this.leftHand && !this.rightHand) return;
+
+        const hands = [];
+        if (this.leftHand) hands.push(this.leftHand);
+        if (this.rightHand) hands.push(this.rightHand);
+
+        for (const hand of hands) {
+            for (const fingertip of hand.fingertips) {
+                for (const pad of this.pads) {
+                    const dx = fingertip.x - (pad.x + pad.size / 2);
+                    const dy = fingertip.y - (pad.y + pad.size / 2);
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < pad.size / 2) {
+                        // Fingertip is over pad
+                        const now = Date.now();
+                        if (!pad.triggered || now - pad.triggerTime > 200) {
+                            pad.triggered = true;
+                            pad.triggerTime = now;
+                            this.playDrumSample(pad.type);
+                            console.log(`Triggered pad: ${pad.type}`);
+                        }
+                    }
+                }
+            }
         }
 
-        // Right hand controls delay amount
-        if (this.rightHand) {
-            // Map finger spread to delay mix (0-0.6)
-            const spread = Math.max(50, Math.min(250, this.rightHand.fingerSpread));
-            const delayMix = ((spread - 50) / 200) * 0.6;
-
-            this.delayGain.gain.linearRampToValueAtTime(delayMix, now + 0.1);
+        // Reset triggered state after timeout
+        const now = Date.now();
+        for (const pad of this.pads) {
+            if (pad.triggered && now - pad.triggerTime > 100) {
+                pad.triggered = false;
+            }
         }
+    }
 
-        // Play sounds based on hand movements
-        const nowMs = Date.now();
-        if (nowMs - this.lastSoundTime > this.settings.soundInterval) {
-            // Left hand sounds
-            if (this.leftHand && this.prevLeftHand) {
-                this.playHandSounds(this.leftHand, this.prevLeftHand, 0);
+    detectKnobInteractions() {
+        if (!this.leftHand && !this.rightHand) return;
+
+        const hands = [];
+        if (this.leftHand) hands.push(this.leftHand);
+        if (this.rightHand) hands.push(this.rightHand);
+
+        for (const hand of hands) {
+            // Use index finger for knob control
+            const indexFinger = hand.fingertips[1]; // Index is finger 1
+
+            for (const knob of this.knobs) {
+                const dx = indexFinger.x - knob.x;
+                const dy = indexFinger.y - knob.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < knob.radius * 1.5) {
+                    // Finger is over knob - calculate rotation angle
+                    const angle = Math.atan2(dy, dx);
+                    knob.angle = angle;
+
+                    // Map angle to value (0-1)
+                    // Angle ranges from -π to π, map to 0-1
+                    const normalizedAngle = (angle + Math.PI) / (2 * Math.PI);
+                    knob.value = normalizedAngle;
+
+                    this.activeKnob = knob;
+                    break;
+                }
             }
+        }
+    }
 
-            // Right hand sounds (slightly different timbre)
-            if (this.rightHand && this.prevRightHand) {
-                this.playHandSounds(this.rightHand, this.prevRightHand, 50);
+    applyKnobParameters() {
+        const now = this.audioContext.currentTime;
+
+        for (const knob of this.knobs) {
+            switch (knob.param) {
+                case 'filter':
+                    const filterFreq = 200 + knob.value * 3800;
+                    this.filterNode.frequency.linearRampToValueAtTime(filterFreq, now + 0.1);
+                    break;
+                case 'reverb':
+                    // Can't easily change reverb, but could implement dry/wet mix
+                    break;
+                case 'delay':
+                    const delayMix = knob.value * 0.7;
+                    this.delayGain.gain.linearRampToValueAtTime(delayMix, now + 0.1);
+                    break;
+                case 'resonance':
+                    const resonance = 0.1 + knob.value * 19.9; // Q: 0.1-20
+                    this.filterNode.Q.linearRampToValueAtTime(resonance, now + 0.1);
+                    break;
             }
-
-            // Special sound when hands are touching
-            if (this.handsAreTouching && this.touchingFingers.length > 0) {
-                this.playTouchingSound();
-            }
-
-            this.lastSoundTime = nowMs;
         }
     }
 
@@ -588,6 +1331,28 @@ class VisualSoundMirror {
         // Update color phase
         this.baseHue = (this.baseHue + 0.1) % 360;
 
+        // Mode-specific rendering
+        if (this.mode === 'theremin') {
+            this.renderThereminMode();
+        } else if (this.mode === 'pads') {
+            this.renderPadsMode();
+        } else if (this.mode === 'knobs') {
+            this.renderKnobsMode();
+        } else {
+            // Ribbons mode: original visualization
+            this.renderRibbonsMode();
+        }
+
+        // Draw mode indicator
+        this.drawModeIndicator();
+
+        // Debug overlay
+        if (this.debugMode && this.handResults && this.handResults.multiHandLandmarks) {
+            this.drawDebugSkeleton();
+        }
+    }
+
+    renderRibbonsMode() {
         // Draw special effect when hands are touching
         if (this.handsAreTouching && this.touchingFingers.length > 0) {
             this.drawTouchingEffect();
@@ -613,11 +1378,202 @@ class VisualSoundMirror {
         if (this.rightHand) {
             this.drawFingertipMarkers(this.rightHand);
         }
+    }
 
-        // Debug overlay
-        if (this.debugMode && this.handResults && this.handResults.multiHandLandmarks) {
-            this.drawDebugSkeleton();
+    renderThereminMode() {
+        const hand = this.leftHand || this.rightHand;
+
+        if (!hand) return;
+
+        // Draw pitch indicator (vertical lines showing scale notes)
+        this.drawScaleGuide();
+
+        // Draw hand position with frequency visualization
+        const normalizedX = hand.palm.x / this.canvas.width;
+        const normalizedY = hand.palm.y / this.canvas.height;
+
+        // Draw horizontal line showing pitch
+        this.ctx.strokeStyle = 'rgba(100, 200, 255, 0.7)';
+        this.ctx.lineWidth = 3;
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, hand.palm.y);
+        this.ctx.lineTo(this.canvas.width, hand.palm.y);
+        this.ctx.stroke();
+
+        // Draw vertical line showing filter
+        this.ctx.strokeStyle = 'rgba(255, 200, 100, 0.7)';
+        this.ctx.lineWidth = 3;
+        this.ctx.beginPath();
+        this.ctx.moveTo(hand.palm.x, 0);
+        this.ctx.lineTo(hand.palm.x, this.canvas.height);
+        this.ctx.stroke();
+
+        // Draw glow at palm center
+        const gradient = this.ctx.createRadialGradient(
+            hand.palm.x, hand.palm.y, 0,
+            hand.palm.x, hand.palm.y, 100
+        );
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+        gradient.addColorStop(0.5, 'rgba(100, 200, 255, 0.4)');
+        gradient.addColorStop(1, 'rgba(100, 200, 255, 0)');
+
+        this.ctx.fillStyle = gradient;
+        this.ctx.beginPath();
+        this.ctx.arc(hand.palm.x, hand.palm.y, 100, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Draw fingertips
+        this.drawFingertipMarkers(hand);
+
+        // Show current note and frequency
+        const freq = this.quantizeToScale(normalizedX);
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        this.ctx.font = '24px monospace';
+        this.ctx.fillText(`${freq.toFixed(1)} Hz`, hand.palm.x + 20, hand.palm.y - 20);
+        this.ctx.fillText(`Scale: ${this.currentScale.toUpperCase()}`, 20, this.canvas.height - 40);
+    }
+
+    drawScaleGuide() {
+        const scale = this.scales[this.currentScale];
+        const octaveRange = 3;
+
+        for (let octave = -1; octave <= octaveRange - 1; octave++) {
+            for (const degree of scale) {
+                const midiNote = this.rootNote + (octave * 12) + degree;
+                const freq = this.midiToFreq(midiNote);
+
+                // Map frequency to X position (approximately)
+                const minFreq = this.midiToFreq(this.rootNote - 12);
+                const maxFreq = this.midiToFreq(this.rootNote - 12 + (octaveRange * 12));
+                const x = ((freq - minFreq) / (maxFreq - minFreq)) * this.canvas.width;
+
+                // Draw vertical line for scale note
+                this.ctx.strokeStyle = 'rgba(100, 100, 150, 0.2)';
+                this.ctx.lineWidth = 1;
+                this.ctx.beginPath();
+                this.ctx.moveTo(x, 0);
+                this.ctx.lineTo(x, this.canvas.height);
+                this.ctx.stroke();
+            }
         }
+    }
+
+    renderPadsMode() {
+        // Draw sample pad grid
+        for (const pad of this.pads) {
+            const alpha = pad.triggered ? 1.0 : 0.6;
+            const size = pad.triggered ? pad.size * 1.1 : pad.size;
+            const x = pad.triggered ? pad.x - (size - pad.size) / 2 : pad.x;
+            const y = pad.triggered ? pad.y - (size - pad.size) / 2 : pad.y;
+
+            // Pad background
+            this.ctx.fillStyle = `rgba(${pad.color.r}, ${pad.color.g}, ${pad.color.b}, ${alpha * 0.4})`;
+            this.ctx.fillRect(x, y, size, size);
+
+            // Pad border
+            this.ctx.strokeStyle = `rgba(${pad.color.r}, ${pad.color.g}, ${pad.color.b}, ${alpha})`;
+            this.ctx.lineWidth = 2;
+            this.ctx.strokeRect(x, y, size, size);
+
+            // Pad label
+            this.ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+            this.ctx.font = '14px monospace';
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.fillText(pad.type, x + size / 2, y + size / 2);
+        }
+
+        // Draw hand fingertips
+        if (this.leftHand) {
+            this.drawFingertipMarkers(this.leftHand);
+        }
+        if (this.rightHand) {
+            this.drawFingertipMarkers(this.rightHand);
+        }
+
+        this.ctx.textAlign = 'left';
+        this.ctx.textBaseline = 'alphabetic';
+    }
+
+    renderKnobsMode() {
+        // Draw virtual knobs
+        for (const knob of this.knobs) {
+            // Knob background circle
+            this.ctx.fillStyle = 'rgba(50, 50, 60, 0.8)';
+            this.ctx.beginPath();
+            this.ctx.arc(knob.x, knob.y, knob.radius, 0, Math.PI * 2);
+            this.ctx.fill();
+
+            // Knob ring
+            this.ctx.strokeStyle = 'rgba(100, 150, 200, 0.8)';
+            this.ctx.lineWidth = 3;
+            this.ctx.beginPath();
+            this.ctx.arc(knob.x, knob.y, knob.radius, 0, Math.PI * 2);
+            this.ctx.stroke();
+
+            // Value indicator (arc from bottom)
+            const startAngle = Math.PI * 0.75; // Start at 135 degrees
+            const endAngle = startAngle + (knob.value * Math.PI * 1.5); // 270 degree range
+
+            this.ctx.strokeStyle = 'rgba(100, 200, 255, 1.0)';
+            this.ctx.lineWidth = 6;
+            this.ctx.beginPath();
+            this.ctx.arc(knob.x, knob.y, knob.radius - 10, startAngle, endAngle);
+            this.ctx.stroke();
+
+            // Knob pointer
+            const pointerAngle = startAngle + (knob.value * Math.PI * 1.5);
+            const pointerX = knob.x + Math.cos(pointerAngle) * (knob.radius - 15);
+            const pointerY = knob.y + Math.sin(pointerAngle) * (knob.radius - 15);
+
+            this.ctx.strokeStyle = 'rgba(255, 255, 255, 1.0)';
+            this.ctx.lineWidth = 4;
+            this.ctx.lineCap = 'round';
+            this.ctx.beginPath();
+            this.ctx.moveTo(knob.x, knob.y);
+            this.ctx.lineTo(pointerX, pointerY);
+            this.ctx.stroke();
+
+            // Knob label
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            this.ctx.font = '16px monospace';
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.fillText(knob.label, knob.x, knob.y + knob.radius + 25);
+
+            // Value text
+            const valuePercent = Math.round(knob.value * 100);
+            this.ctx.font = '12px monospace';
+            this.ctx.fillText(`${valuePercent}%`, knob.x, knob.y + knob.radius + 45);
+        }
+
+        // Draw hand fingertips
+        if (this.leftHand) {
+            this.drawFingertipMarkers(this.leftHand);
+        }
+        if (this.rightHand) {
+            this.drawFingertipMarkers(this.rightHand);
+        }
+
+        this.ctx.textAlign = 'left';
+        this.ctx.textBaseline = 'alphabetic';
+    }
+
+    drawModeIndicator() {
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        this.ctx.font = '18px monospace';
+        this.ctx.textAlign = 'left';
+        this.ctx.textBaseline = 'top';
+
+        const modeText = `Mode: ${this.mode.toUpperCase()} (Press 1-4 to switch)`;
+        this.ctx.fillText(modeText, 20, 20);
+
+        if (this.mode === 'theremin') {
+            this.ctx.fillText('Press S to cycle scales', 20, 50);
+        }
+
+        this.ctx.textAlign = 'left';
+        this.ctx.textBaseline = 'alphabetic';
     }
 
     drawFluidRibbon(trail, fingerIndex, handedness) {
