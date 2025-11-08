@@ -8,45 +8,9 @@ This repository contains various experiments and implementations based on resear
 
 ## Experiments
 
-### 🎲 [Verbalized Sampling](./skills/verbalized-sampling/)
+### Applications
 
-Implementation of the **Verbalized Sampling** technique from the research paper ["Verbalized Sampling: How to Mitigate Mode Collapse and Unlock LLM Diversity"](https://arxiv.org/abs/2510.01171) (arXiv:2510.01171v3).
-
-**What it does:** 12 Claude Code slash commands that dramatically improve output diversity without sacrificing quality.
-
-**Key results:**
-- 1.6-2.1x diversity improvement
-- 25.7% quality improvement in human evaluations
-- Training-free, works via prompting alone
-
-**Commands include:** `/vs`, `/brainstorm`, `/creative-diverse`, `/multi-perspective`, `/dialogue-sim`, `/code-diverse`, and more.
-
-**Status:** ✅ Complete
-
----
-
-### 🧠 [Cialdini Persuasion Techniques](./skills/cialdini-persuasion/)
-
-Application of **Dr. Robert Cialdini's 7 principles of persuasion** to improve AI agent instruction adherence and task completion.
-
-**What it does:** 10 Claude Code slash commands that apply proven psychological principles to get better results from AI agents.
-
-**Key principles:**
-- Reciprocity - agents reciprocate effort with thorough work
-- Commitment - early commitments lead to consistent follow-through
-- Social Proof - best practices guide agent behavior
-- Authority - official sources increase compliance
-- Liking - acknowledgment improves cooperation
-- Scarcity - urgency focuses attention
-- Unity - shared goals create stronger commitment
-
-**Commands include:** `/cialdini-reciprocity`, `/cialdini-commitment`, `/cialdini-authority`, `/cialdini-persuade`, `/cialdini-all`, and more.
-
-**Status:** ✅ Complete
-
----
-
-### 🐦 [Twitter Data Analyzer](./apps/twitter-data-analyzer/)
+#### 🐦 [Twitter Data Analyzer](./apps/twitter-data-analyzer/)
 
 A **command-line utility** to download, store, and analyze your Twitter/X data using DuckDB and Google Gemini AI.
 
@@ -67,7 +31,33 @@ A **command-line utility** to download, store, and analyze your Twitter/X data u
 
 ---
 
-### 🔨 [AuctionNinja Nearby Finder](./apps/auction-ninja-app/)
+#### 📊 [Analyst Workspace](./apps/analyst-workspace/)
+
+**Claude Code-powered tools for equity research analysts** - Give analysts superpowers to do better, deeper, more thorough research.
+
+**What it does:** Autonomous agents and workflows that help equity research analysts systematically research companies, build investment theses, and compound knowledge over time.
+
+**Key features:**
+- **`/deep-dive TICKER`** - Autonomous agent performs 30-60 min comprehensive company research
+- Saves 4-6 hours of manual research time
+- Git-based knowledge management (version control for thinking)
+- Systematic analysis frameworks (business model, financials, competition, risks)
+- Pattern recognition across companies
+- Thesis evolution tracking
+
+**Architecture:**
+- Agentic workflows with human checkpoints
+- MCP servers for data access (SEC filings, market data)
+- Git-first storage (all research version controlled)
+- Local-first execution (analyst's machine is source of truth)
+
+**v1.0 Focus:** One workflow that saves 4+ hours of analyst time
+
+**Status:** 🚧 In Development (Planning complete, ready for implementation)
+
+---
+
+#### 🔨 [AuctionNinja Nearby Finder](./apps/auction-ninja-app/)
 
 A **full-stack web application** to find nearby auctions on AuctionNinja.com that are ending soon.
 
@@ -83,6 +73,76 @@ A **full-stack web application** to find nearby auctions on AuctionNinja.com tha
 - **Smart caching** - 5-minute cache for better performance
 
 **Tech stack:** React + Vite, Node.js + Express, Puppeteer, Tailwind CSS
+
+**Status:** ✅ Complete
+
+---
+
+### Agents
+
+#### 🔍 [Forensic Accounting Agent](./agents/forensic-accounting/)
+
+**Professional-grade forensic accounting analysis** - Detect aggressive accounting practices and potential earnings manipulation in publicly-traded companies.
+
+**What it does:** Acts as a senior forensic accountant to analyze companies for accounting red flags, calculate the Beneish M-Score, and generate comprehensive reports suitable for equity research analysts.
+
+**Key features:**
+- **Beneish M-Score Analysis** - Detects earnings manipulation with ~76% accuracy using 8 financial ratios
+- **Comprehensive Red Flag Detection** - Identifies issues across revenue quality, earnings quality, working capital, assets, and leverage
+- **Trend Analysis** - Shows if accounting policies are becoming more or less aggressive over time
+- **Professional Reports** - Generates detailed markdown reports with executive summaries, findings, and recommendations
+- **MCP Integration** - Uses SEC EDGAR MCP server for robust financial data fetching
+- **5 Years of Analysis** - Examines historical patterns across multiple fiscal years
+
+**Red flags detected:**
+- Days Sales Outstanding (DSO) trends
+- Revenue vs. accounts receivable divergence
+- Operating cash flow vs. net income gaps
+- Inventory buildup and liquidity deterioration
+- Soft asset growth and capitalization issues
+- Margin deterioration and leverage increases
+
+**Command:** `/forensic-analyze TICKER:AAPL`
+
+**Status:** ✅ Complete
+
+---
+
+### Skills
+
+#### 🎲 [Verbalized Sampling](./skills/verbalized-sampling/)
+
+Implementation of the **Verbalized Sampling** technique from the research paper ["Verbalized Sampling: How to Mitigate Mode Collapse and Unlock LLM Diversity"](https://arxiv.org/abs/2510.01171) (arXiv:2510.01171v3).
+
+**What it does:** 12 Claude Code slash commands that dramatically improve output diversity without sacrificing quality.
+
+**Key results:**
+- 1.6-2.1x diversity improvement
+- 25.7% quality improvement in human evaluations
+- Training-free, works via prompting alone
+
+**Commands include:** `/vs`, `/brainstorm`, `/creative-diverse`, `/multi-perspective`, `/dialogue-sim`, `/code-diverse`, and more.
+
+**Status:** ✅ Complete
+
+---
+
+#### 🧠 [Cialdini Persuasion Techniques](./skills/cialdini-persuasion/)
+
+Application of **Dr. Robert Cialdini's 7 principles of persuasion** to improve AI agent instruction adherence and task completion.
+
+**What it does:** 10 Claude Code slash commands that apply proven psychological principles to get better results from AI agents.
+
+**Key principles:**
+- Reciprocity - agents reciprocate effort with thorough work
+- Commitment - early commitments lead to consistent follow-through
+- Social Proof - best practices guide agent behavior
+- Authority - official sources increase compliance
+- Liking - acknowledgment improves cooperation
+- Scarcity - urgency focuses attention
+- Unity - shared goals create stronger commitment
+
+**Commands include:** `/cialdini-reciprocity`, `/cialdini-commitment`, `/cialdini-authority`, `/cialdini-persuade`, `/cialdini-all`, and more.
 
 **Status:** ✅ Complete
 
@@ -109,17 +169,34 @@ claude-speriments/
 ├── README.md                    # This file
 ├── CLAUDE.md                    # Repository guide for Claude Code
 ├── apps/                        # Collaborative applications built with Claude
-│   ├── auction-ninja-app/       # AuctionNinja Nearby Finder
+│   ├── twitter-data-analyzer/   # Twitter Data Analyzer
 │   │   ├── README.md            # Usage guide
-│   │   ├── backend/             # Express + Puppeteer API server
-│   │   ├── frontend/            # React + Vite + Tailwind UI
-│   │   └── package.json         # Root scripts
-│   └── twitter-data-analyzer/   # Twitter Data Analyzer
+│   │   ├── NOTES.md             # Implementation notes
+│   │   ├── src/twitter_analyzer/ # Python package
+│   │   ├── requirements.txt     # Dependencies
+│   │   └── setup.py             # Package setup
+│   ├── analyst-workspace/       # Analyst Workspace (equity research tools)
+│   │   ├── README.md            # Project overview
+│   │   ├── STRUCTURE.md         # Repository organization
+│   │   ├── .claude/             # Commands, agents, MCP servers
+│   │   ├── coverage/            # Per-company research
+│   │   ├── patterns/            # Cross-company insights
+│   │   └── notes/               # Design documentation
+│   └── auction-ninja-app/       # AuctionNinja Nearby Finder
 │       ├── README.md            # Usage guide
 │       ├── NOTES.md             # Implementation notes
-│       ├── src/twitter_analyzer/ # Python package
-│       ├── requirements.txt     # Dependencies
-│       └── setup.py             # Package setup
+│       ├── ICEBOX.md            # Future enhancements
+│       ├── backend/             # Express + Puppeteer API server
+│       ├── frontend/            # React + Vite + Tailwind UI
+│       └── package.json         # Root scripts
+├── agents/                      # Agent configurations and workflows
+│   └── forensic-accounting/     # Forensic Accounting Agent
+│       ├── README.md            # Usage guide and installation
+│       ├── TESTING.md           # Testing instructions
+│       ├── commands/            # Slash command
+│       ├── lib/                 # Analysis library (Beneish, red flags, etc.)
+│       ├── data/                # MCP-gathered SEC data
+│       └── reports/             # Generated analysis reports
 ├── skills/                      # Slash commands and skills
 │   ├── verbalized-sampling/     # Verbalized Sampling skill
 │   │   ├── README.md            # Usage guide
@@ -132,16 +209,17 @@ claude-speriments/
 │       ├── test-plan.md         # Testing methodology
 │       ├── NOTES.md             # Implementation notes
 │       └── commands/            # 10 slash commands
-└── [future directories]/        # agents/, hooks/, mcp/, etc. as needed
+└── [future directories]/        # hooks/, mcp/, etc. as needed
 ```
 
 ## Organization
 
 This repository is organized to support various types of Claude Code experiments:
 
-- **`apps/`** - Collaborative applications built with Claude (e.g., Twitter Data Analyzer, AuctionNinja Nearby Finder)
+- **`apps/`** - Collaborative applications built with Claude (e.g., Twitter Data Analyzer, Analyst Workspace, AuctionNinja Nearby Finder)
+- **`agents/`** - Agent configurations and workflows (e.g., Forensic Accounting Agent)
 - **`skills/`** - Slash commands and skills for Claude Code (e.g., Verbalized Sampling, Cialdini Persuasion)
-- **Future directories** - As the repository grows, we'll add `agents/`, `hooks/`, `mcp/`, and other directories for different types of Claude Code experiments
+- **Future directories** - As the repository grows, we'll add more specialized directories (hooks/, mcp/, etc.)
 
 See [CLAUDE.md](./CLAUDE.md) for detailed guidance on working with this repository in Claude Code.
 
