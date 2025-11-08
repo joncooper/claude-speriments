@@ -67,6 +67,27 @@ A **command-line utility** to download, store, and analyze your Twitter/X data u
 
 ---
 
+### 🔨 [AuctionNinja Nearby Finder](./apps/auction-ninja-app/)
+
+A **full-stack web application** to find nearby auctions on AuctionNinja.com that are ending soon.
+
+**What it does:** Search for auctions within a specified radius of your ZIP code that end within a configurable time window, with advanced filtering and sorting.
+
+**Key features:**
+- **Location-based filtering** - Find auctions within X miles of any ZIP code
+- **Time-based filtering** - Show only auctions ending within specified hours
+- **Headless browser scraping** - Uses Puppeteer to fetch real auction data
+- **Beautiful, responsive UI** - Modern React interface with Tailwind CSS
+- **Advanced search** - Filter by keyword, category, distance, or time
+- **Mobile-optimized** - Works seamlessly on phones and tablets
+- **Smart caching** - 5-minute cache for better performance
+
+**Tech stack:** React + Vite, Node.js + Express, Puppeteer, Tailwind CSS
+
+**Status:** ✅ Complete
+
+---
+
 ## Installation
 
 Each experiment has its own installation instructions in its README. Generally:
@@ -88,6 +109,11 @@ claude-speriments/
 ├── README.md                    # This file
 ├── CLAUDE.md                    # Repository guide for Claude Code
 ├── apps/                        # Collaborative applications built with Claude
+│   ├── auction-ninja-app/       # AuctionNinja Nearby Finder
+│   │   ├── README.md            # Usage guide
+│   │   ├── backend/             # Express + Puppeteer API server
+│   │   ├── frontend/            # React + Vite + Tailwind UI
+│   │   └── package.json         # Root scripts
 │   └── twitter-data-analyzer/   # Twitter Data Analyzer
 │       ├── README.md            # Usage guide
 │       ├── NOTES.md             # Implementation notes
@@ -113,7 +139,7 @@ claude-speriments/
 
 This repository is organized to support various types of Claude Code experiments:
 
-- **`apps/`** - Collaborative applications built with Claude (e.g., Twitter Data Analyzer)
+- **`apps/`** - Collaborative applications built with Claude (e.g., Twitter Data Analyzer, AuctionNinja Nearby Finder)
 - **`skills/`** - Slash commands and skills for Claude Code (e.g., Verbalized Sampling, Cialdini Persuasion)
 - **Future directories** - As the repository grows, we'll add `agents/`, `hooks/`, `mcp/`, and other directories for different types of Claude Code experiments
 
