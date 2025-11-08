@@ -16,16 +16,26 @@ The Visual Sound Mirror is built as a single-page web application using vanilla 
 
 ### Motion Detection
 
-Uses a simple but effective pixel difference algorithm:
-- Capture current frame from webcam
-- Compare with previous frame pixel-by-pixel
-- Calculate motion intensity and position
-- Use motion data to drive visuals and sound
+**Version 2.0 - MediaPipe Hand Tracking:**
 
-Optimizations:
-- Scale down video for faster processing (320x240)
-- Sample every nth pixel for performance
-- Use threshold to filter out noise
+The app now uses Google's MediaPipe Hands ML model for precise hand tracking:
+- Detects up to 2 hands in real-time
+- Tracks 21 3D landmarks per hand (fingertips, knuckles, palm, wrist)
+- Palm center (landmark 9) and 5 fingertips become particle sources
+- Movement calculated from position delta between frames
+- Much more responsive and accurate than pixel difference
+
+Key improvements:
+- Particles spawn directly from fingertips - obvious visual connection
+- Each finger can create its own particle stream
+- Hand position circles show exactly where tracking is working
+- Debug mode displays full hand skeleton for verification
+
+Audio responsiveness:
+- Horizontal hand position (X) maps to pitch (200-800Hz)
+- Motion intensity maps to volume
+- Multiple sounds play polyphonically for multiple detected points
+- Sound generation throttled to 100ms intervals for musicality
 
 ### Particle System
 
@@ -42,17 +52,28 @@ Rendering:
 
 ### Audio Synthesis
 
+**CRITICAL FIX - Audio Context Resume:**
+
+Browsers (especially Safari/iOS) suspend the AudioContext by default until user interaction. The app now:
+1. Initializes AudioContext immediately on start
+2. Sets up event listeners for click/touch/keydown to resume audio
+3. Checks and resumes audio context state before playing each sound
+4. Logs audio state to console for debugging
+
 Web Audio graph:
-- Multiple oscillator nodes (sine, triangle)
-- Bandpass filters for bloopy character
-- Gain envelopes for smooth attack/release
-- Reverb for ambient space
+- Sine oscillators with frequency glide (400ms envelope)
+- Lowpass filters (Q=3) for warm, bloopy character
+- Gain envelopes with quick attack (30ms) and smooth release (400ms)
+- Reverb (2.5s decay) for ambient space
+- Master gain set to 0.2 (comfortable volume)
 
 Sound mapping:
-- Motion intensity → Volume + Filter frequency
-- Motion position X → Pitch
-- Motion position Y → Timbre/waveform blend
-- Overall activity → Reverb amount
+- Hand position X → Pitch (200-800Hz range)
+- Motion intensity → Volume (0.1-0.25 range)
+- Multiple hands/fingers → Polyphonic bloops with 50ms stagger
+- Throttled to 100ms minimum between sound bursts
+
+Debug mode shows audio context state (running/suspended/muted)
 
 ## Design Decisions
 
@@ -63,12 +84,20 @@ Sound mapping:
 - Easy to share and remix
 - Access to powerful browser APIs
 
-### Why No Dependencies?
+### Dependencies
 
-- Faster loading
-- Easier to understand and modify
-- No build process needed
-- Better for learning and experimentation
+**MediaPipe Hands** (loaded from CDN):
+- Google's production-ready hand tracking ML model
+- ~2MB download, cached by browser
+- Runs efficiently on CPU (no GPU required)
+- 60fps performance on modern hardware
+
+Why MediaPipe over pixel difference:
+- Much more accurate and responsive
+- Works in varied lighting conditions
+- Provides precise fingertip locations
+- Natural interaction model (point with fingers)
+- Industry-standard solution used in production apps
 
 ### Performance Considerations
 
@@ -79,6 +108,31 @@ Optimizations:
 - Web Workers for heavy computation (future enhancement)
 - Particle pooling to avoid GC pressure
 - Efficient canvas operations (transform/restore)
+
+## Debug Mode
+
+Press the 🔍 button to toggle debug mode, which shows:
+
+**Debug Panel (top-left):**
+- Motion Intensity: Current movement level (0-1)
+- Position: Average hand position as percentage
+- Particles: Current particle count
+- Audio: AudioContext state (running/suspended) and mute status
+- Hands Detected: Number of hands currently tracked (0-2)
+
+**Visual Debugging:**
+- Hand skeleton overlay with all 21 landmarks
+- Connection lines showing hand structure
+- Red dots at each landmark point
+- Yellow circles at palm centers
+- Blue circles at fingertips
+
+Use debug mode to:
+- Verify hand tracking is working
+- See exactly where particles are spawning
+- Troubleshoot audio issues (check if "running")
+- Understand how the system responds to movement
+- Fine-tune sensitivity settings
 
 ## Customization Guide
 
@@ -146,8 +200,27 @@ const MOTION_SMOOTHING = 0.7; // 0-1, higher = smoother
 
 Built during Claude Code session: claude/interactive-art-sound-visuals-011CUvuEddjAfeBTuyfHDNat
 
+**Version 1.0 Issues:**
+- Audio didn't work due to AudioContext suspension
+- Motion detection (pixel diff) was too subtle
+- No obvious connection between movement and effects
+- Difficult to debug what was happening
+
+**Version 2.0 Improvements:**
+- Fixed AudioContext resume issues with proper event listeners
+- Switched to MediaPipe Hands for precise tracking
+- Added visual indicators (circles) at hand positions
+- Particles spawn directly from fingertips
+- Added comprehensive debug mode
+- Console logging for audio troubleshooting
+- Much more responsive and obvious interaction
+
 Key insights:
-- Simple motion detection is surprisingly effective
+- Browser audio restrictions require careful handling
+- MediaPipe provides much better UX than pixel difference
+- Visual feedback is critical for interactive experiences
+- Debug mode is essential for understanding behavior
 - Web Audio API is powerful but requires careful gain management
 - Canvas trail effects create mesmerizing visuals with minimal code
 - User experience is greatly enhanced by smooth audio/visual transitions
+- Testing with actual hands in frame is critical (not just moving around)

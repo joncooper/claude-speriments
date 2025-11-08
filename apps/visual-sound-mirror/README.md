@@ -13,10 +13,12 @@ Perfect for meditation, creative expression, or just zoning out with some mesmer
 
 ## Features
 
-- **Real-time motion detection** using your webcam
+- **AI-powered hand tracking** using Google MediaPipe (tracks up to 2 hands with 21 landmarks each)
+- **Real-time motion detection** from your webcam
 - **Generative particle system** with physics-based animation
-- **Web Audio synthesis** for organic, bloopy sounds
-- **Zero dependencies** - pure HTML5, Canvas, and Web Audio API
+- **Web Audio synthesis** for organic, bloopy sounds with reverb
+- **Debug mode** to see hand tracking in action
+- **Visual feedback** - circles show where your hands are detected
 - **Privacy-first** - all processing happens locally in your browser
 
 ## Quick Start
@@ -27,18 +29,23 @@ Perfect for meditation, creative expression, or just zoning out with some mesmer
 
 ## Controls
 
-- **Click anywhere** to add a burst of particles
-- **Wave your hands** for gentle ripples
+- **Wave your hands** to create particles and sounds at your fingertips
 - **Move quickly** for intense visual and audio effects
+- **Click anywhere** to add a burst of particles
+- **🔊 button** - Toggle audio on/off
+- **🔍 button** - Toggle debug mode (shows hand tracking skeleton and stats)
+- **ℹ️ button** - Show help information
 - **Stay still** to let the art settle into ambient mode
 
 ## Technical Details
 
 - **Camera:** Uses MediaDevices API for webcam access
-- **Motion Detection:** Pixel difference analysis between frames
-- **Visuals:** HTML5 Canvas with particle system
-- **Audio:** Web Audio API with oscillators and filters
+- **Hand Tracking:** Google MediaPipe Hands ML model (tracks 21 hand landmarks per hand)
+- **Motion Detection:** AI-powered hand tracking with position and movement analysis
+- **Visuals:** HTML5 Canvas with particle system and real-time hand position indicators
+- **Audio:** Web Audio API with oscillators, filters, and reverb
 - **Performance:** Optimized for smooth 60fps experience
+- **Dependencies:** MediaPipe Hands library (loaded from CDN)
 
 ## Browser Support
 

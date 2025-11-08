@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visual Sound Mirror</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- MediaPipe for hand tracking -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
 </head>
 <body>
     <div id="container">
@@ -22,17 +27,30 @@
 
         <div id="controls">
             <button id="muteButton" title="Toggle Audio">🔊</button>
+            <button id="debugButton" title="Toggle Debug">🔍</button>
             <button id="infoButton" title="Info">ℹ️</button>
+        </div>
+
+        <div id="debug" class="hidden">
+            <div class="debug-panel">
+                <h3>Debug Info</h3>
+                <p>Motion Intensity: <span id="debugMotion">0</span></p>
+                <p>Position: <span id="debugPosition">0, 0</span></p>
+                <p>Particles: <span id="debugParticles">0</span></p>
+                <p>Audio: <span id="debugAudio">Initializing...</span></p>
+                <p>Hands Detected: <span id="debugHands">0</span></p>
+            </div>
         </div>
 
         <div id="info" class="hidden">
             <div class="info-content">
                 <h2>How to Use</h2>
                 <ul>
-                    <li>Move in front of your camera to create visuals and sound</li>
-                    <li>Wave your hands for gentle ripples</li>
-                    <li>Move quickly for intense effects</li>
+                    <li>Wave your hands to create particles at your fingertips</li>
+                    <li>Move your hands horizontally to change pitch</li>
+                    <li>Move quickly for intense effects and louder sounds</li>
                     <li>Click anywhere to add particle bursts</li>
+                    <li>Press 🔍 for debug mode (shows hand tracking)</li>
                     <li>Stay still for ambient mode</li>
                 </ul>
                 <p class="privacy">🔒 All processing happens locally - no data is recorded or transmitted</p>
