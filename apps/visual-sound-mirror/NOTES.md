@@ -289,7 +289,56 @@ Built during Claude Code session: claude/interactive-art-sound-visuals-011CUvuEd
 - **Used performance.now()** - Better timing for smoother animation
 - **Gradient ribbons** - Trails fade from transparent to vibrant
 
-Key insights:
+**Version 5.0 Improvements (Silk & Symphony Edition):**
+- Left hand controls filter cutoff and resonance via finger spread
+- Right hand controls delay/echo amount via finger spread
+- Two-hand gesture detection (touching fingertips, pulling apart)
+- Multi-ribbon system (3 parallel ribbons per finger)
+- Dynamic color theory with 5 curated schemes
+- Advanced audio chain: Oscillator → Filter → Delay → Reverb → Master
+
+**Version 6.0 Improvements (Music Synthesis Edition - MAJOR FEATURE UPDATE):**
+- **Mode system** - Four distinct interaction modes with seamless switching
+- **Scale quantization** - Musical note quantization with 7 scales (Pentatonic, Major, Minor, Blues, Dorian, Phrygian, Chromatic)
+- **Theremin mode** - Continuous melodic instrument with scale-quantized pitch
+  - X-axis: pitch (quantized to musical scale)
+  - Y-axis: filter brightness (200-4000Hz)
+  - Finger spread: resonance/vibrato (Q: 1-16)
+  - Visual scale guide showing note positions
+  - Smooth frequency transitions with exponentialRampToValueAtTime
+- **Sample Pads mode** - 4x4 grid of gesture-triggered drum samples
+  - 16 synthesized drum sounds (kick, snare, hi-hat, clap, toms, etc.)
+  - Real-time synthesis (no audio files)
+  - Tap detection with 200ms debounce
+  - Visual feedback on trigger
+- **Knobs mode** - Virtual rotary controls
+  - 4 knobs: Filter, Reverb, Delay, Resonance
+  - Angle-based rotation detection
+  - Visual arc indicators showing value
+  - Real-time parameter application
+- **Enhanced UI**
+  - Mode switcher buttons with active state highlighting
+  - Keyboard shortcuts (1-4 for modes, S for scales)
+  - Mode indicator overlay
+  - Improved info panel with detailed instructions
+- **Audio architecture**
+  - MIDI note to frequency conversion
+  - Scale quantization algorithm
+  - Theremin continuous oscillator system
+  - 16 synthesized drum/percussion sounds
+  - Parameter mapping for knobs
+
+Key synthesis implementations:
+- **Kick**: Frequency sweep from 150Hz to 40Hz with envelope
+- **Snare**: Tone (200Hz) + filtered noise
+- **Hi-hat**: High-pass filtered noise (7000Hz cutoff)
+- **Clap**: Triple-layered noise bursts
+- **Toms**: Frequency sweep with octave drop
+- **Cowbell**: Dual square waves (540Hz + 800Hz)
+- **Crash/Ride**: Long-decay filtered noise
+- **Bass/Chords**: Sawtooth waves through lowpass filter
+
+Technical insights:
 - Browser audio restrictions require careful handling
 - MediaPipe provides much better UX than pixel difference
 - Visual feedback is critical for interactive experiences
@@ -304,3 +353,7 @@ Key insights:
 - **Quick fadeout essential** - blank screen signals "ready for input"
 - **Velocity matters** - movement speed should affect visual intensity
 - **Performance** - using performance.now() and reducing particle count improves framerate significantly
+- **Mode-based architecture** - Clean separation of concerns for different interaction models
+- **Quantization is powerful** - Constraining pitch to scales makes everything sound musical
+- **Synthesis > Samples** - Real-time synthesis gives more control and smaller file size
+- **Gesture vocabulary** - Different gestures for different modes creates intuitive interactions
