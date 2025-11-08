@@ -5,9 +5,9 @@ An interactive art piece that creates mesmerizing visuals and soothing bloopy so
 ## Overview
 
 Visual Sound Mirror transforms you into a living instrument. As you move in front of your camera, the application tracks your motion and translates it into:
-- **Fluid, mesmerizing particle effects** that flow and pulse with your movements
+- **Swirly, flowing bubble effects** that float and breathe with your movements
 - **Soothing, bloopy sounds** that respond to motion intensity and position
-- **Calming color gradients** that shift based on activity
+- **Long, dreamy trails** that create mesmerizing patterns as bubbles drift and swirl
 
 Perfect for meditation, creative expression, or just zoning out with some mesmerizing audio-visual feedback.
 

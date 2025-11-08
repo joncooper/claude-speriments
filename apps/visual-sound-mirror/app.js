@@ -56,12 +56,15 @@ class VisualSoundMirror {
         // Settings
         this.settings = {
             motionThreshold: 5,  // Much lower threshold
-            particleLifespan: 120,
+            particleLifespan: 200,  // Longer life for more trails
             soundEnabled: true,
-            trailAlpha: 0.15,
+            trailAlpha: 0.05,  // Much lower for longer trails
             motionSmoothing: 0.5,
             soundInterval: 100  // Minimum ms between sounds
         };
+
+        // Swirl/flow parameters
+        this.time = 0;
 
         // Animation
         this.lastTime = 0;
@@ -268,18 +271,18 @@ class VisualSoundMirror {
                     landmarks[20]   // Pinky
                 ];
 
-                // Add palm
+                // Add palm - MIRROR X coordinate for natural mapping
                 this.handPositions.push({
-                    x: palm.x * this.canvas.width,
+                    x: (1 - palm.x) * this.canvas.width,
                     y: palm.y * this.canvas.height,
                     z: palm.z,
                     isPalm: true
                 });
 
-                // Add fingertips
+                // Add fingertips - MIRROR X coordinate
                 for (const tip of fingertips) {
                     this.handPositions.push({
-                        x: tip.x * this.canvas.width,
+                        x: (1 - tip.x) * this.canvas.width,
                         y: tip.y * this.canvas.height,
                         z: tip.z,
                         isPalm: false
@@ -333,15 +336,19 @@ class VisualSoundMirror {
     }
 
     updateParticles(deltaTime) {
+        // Increment time for swirl effects
+        this.time += deltaTime * 0.001;
+
         // Create particles from hand positions
         if (this.handPositions.length > 0 && this.particles.length < this.maxParticles) {
             for (const handPos of this.handPositions) {
                 // More particles for faster movement
-                if (Math.random() < this.motionData.intensity * 0.5 + 0.1) {
+                if (Math.random() < this.motionData.intensity * 0.5 + 0.15) {
                     this.createParticle(
                         handPos.x,
                         handPos.y,
-                        this.motionData.intensity * 0.5 + 0.3
+                        this.motionData.intensity * 0.5 + 0.3,
+                        handPos.isPalm
                     );
                 }
             }
@@ -354,26 +361,52 @@ class VisualSoundMirror {
                 this.createParticle(
                     this.motionData.x * this.canvas.width,
                     this.motionData.y * this.canvas.height,
-                    this.motionData.intensity
+                    this.motionData.intensity,
+                    false
                 );
             }
         }
 
-        // Update existing particles
+        // Update existing particles with swirly, bubbly motion
         for (let i = this.particles.length - 1; i >= 0; i--) {
             const p = this.particles[i];
+
+            // Add swirling force based on particle age and position
+            const age = 1 - (p.life / this.settings.particleLifespan);
+            const swirl = Math.sin(this.time * 2 + p.swirlOffset) * 0.3;
+            const rise = Math.cos(this.time * 1.5 + p.swirlOffset) * 0.15;
+
+            // Swirling motion
+            p.ax = swirl;
+            p.ay = -0.08 + rise;  // Gentle upward float with wave
 
             // Update physics
             p.vx += p.ax;
             p.vy += p.ay;
-            p.vx *= 0.97;  // Friction
-            p.vy *= 0.97;
+            p.vx *= 0.98;  // Less friction for more flow
+            p.vy *= 0.98;
+
+            // Add orbital motion around origin point
+            const dx = p.originX - p.x;
+            const dy = p.originY - p.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist > 5) {
+                const pull = 0.002;  // Weak attraction to origin
+                p.vx += dx * pull;
+                p.vy += dy * pull;
+            }
+
             p.x += p.vx;
             p.y += p.vy;
 
+            // Grow and shrink like a bubble
+            const breathe = Math.sin(age * Math.PI) * 0.3;
+            p.currentSize = p.baseSize * (1 + breathe);
+
             // Update life
             p.life--;
-            p.alpha = p.life / this.settings.particleLifespan;
+            p.alpha = Math.sin((p.life / this.settings.particleLifespan) * Math.PI);  // Smooth fade in/out
 
             // Remove dead particles
             if (p.life <= 0) {
@@ -382,41 +415,56 @@ class VisualSoundMirror {
         }
     }
 
-    createParticle(x, y, intensity) {
+    createParticle(x, y, intensity, isPalm = false) {
         const color = this.colors[Math.floor(Math.random() * this.colors.length)];
         const angle = Math.random() * Math.PI * 2;
-        const speed = intensity * 4 + Math.random() * 3;
+        const speed = intensity * 2 + Math.random() * 1.5;  // Slower initial speed
+
+        // Bigger bubbles from palm
+        const baseSize = isPalm ?
+            Math.random() * 15 + 10 :  // Palm: 10-25px bubbles
+            Math.random() * 10 + 5;     // Fingers: 5-15px bubbles
 
         this.particles.push({
-            x: x + (Math.random() - 0.5) * 30,
-            y: y + (Math.random() - 0.5) * 30,
+            x: x + (Math.random() - 0.5) * 20,
+            y: y + (Math.random() - 0.5) * 20,
+            originX: x,  // Remember origin for orbital motion
+            originY: y,
             vx: Math.cos(angle) * speed,
             vy: Math.sin(angle) * speed,
             ax: 0,
-            ay: 0.03,  // Slight gravity
-            size: Math.random() * 5 + 2,
+            ay: -0.05,  // Gentle upward float
+            baseSize: baseSize,
+            currentSize: baseSize,
+            swirlOffset: Math.random() * Math.PI * 2,  // Random phase for swirl
             color: color,
-            alpha: 1,
+            alpha: 0,  // Start invisible
             life: this.settings.particleLifespan
         });
     }
 
     createParticleBurst(x, y) {
-        for (let i = 0; i < 40; i++) {
-            const angle = (Math.PI * 2 * i) / 40;
-            const speed = Math.random() * 6 + 3;
+        // Gentler, more organic burst
+        for (let i = 0; i < 20; i++) {
+            const angle = Math.random() * Math.PI * 2;  // Random angles instead of uniform
+            const speed = Math.random() * 3 + 1;  // Slower, gentler
             const color = this.colors[Math.floor(Math.random() * this.colors.length)];
+            const baseSize = Math.random() * 12 + 8;  // Bigger bubbles
 
             this.particles.push({
                 x: x,
                 y: y,
+                originX: x,
+                originY: y,
                 vx: Math.cos(angle) * speed,
                 vy: Math.sin(angle) * speed,
                 ax: 0,
-                ay: 0.02,
-                size: Math.random() * 6 + 3,
+                ay: -0.05,
+                baseSize: baseSize,
+                currentSize: baseSize,
+                swirlOffset: Math.random() * Math.PI * 2,
                 color: color,
-                alpha: 1,
+                alpha: 0,
                 life: this.settings.particleLifespan * 1.5
             });
         }
@@ -441,6 +489,7 @@ class VisualSoundMirror {
                 // Play a sound for each hand/finger detected
                 for (let i = 0; i < Math.min(this.handPositions.length, 3); i++) {
                     const pos = this.handPositions[i];
+                    // X is already mirrored in handPositions, so this maps correctly
                     const freq = 200 + (pos.x / this.canvas.width) * 600;
                     const volume = 0.1 + this.motionData.intensity * 0.15;
 
@@ -531,9 +580,10 @@ class VisualSoundMirror {
                     const startPoint = landmarks[start];
                     const endPoint = landmarks[end];
 
+                    // Mirror X coordinates to match visual positions
                     this.ctx.beginPath();
-                    this.ctx.moveTo(startPoint.x * this.canvas.width, startPoint.y * this.canvas.height);
-                    this.ctx.lineTo(endPoint.x * this.canvas.width, endPoint.y * this.canvas.height);
+                    this.ctx.moveTo((1 - startPoint.x) * this.canvas.width, startPoint.y * this.canvas.height);
+                    this.ctx.lineTo((1 - endPoint.x) * this.canvas.width, endPoint.y * this.canvas.height);
                     this.ctx.stroke();
                 }
 
@@ -542,7 +592,7 @@ class VisualSoundMirror {
                     this.ctx.fillStyle = 'rgba(255, 100, 100, 0.5)';
                     this.ctx.beginPath();
                     this.ctx.arc(
-                        landmark.x * this.canvas.width,
+                        (1 - landmark.x) * this.canvas.width,
                         landmark.y * this.canvas.height,
                         5, 0, Math.PI * 2
                     );
@@ -551,19 +601,44 @@ class VisualSoundMirror {
             }
         }
 
-        // Draw particles
+        // Draw particles as bubble-like spheres
         for (const p of this.particles) {
             this.ctx.save();
 
-            // Glow effect
-            this.ctx.shadowBlur = 25;
-            this.ctx.shadowColor = `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${p.alpha})`;
+            // Soft glow effect
+            this.ctx.shadowBlur = 30;
+            this.ctx.shadowColor = `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${p.alpha * 0.5})`;
 
-            // Draw particle
-            this.ctx.fillStyle = `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${p.alpha * 0.9})`;
+            // Main bubble body - more transparent
+            this.ctx.fillStyle = `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${p.alpha * 0.3})`;
             this.ctx.beginPath();
-            this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            this.ctx.arc(p.x, p.y, p.currentSize, 0, Math.PI * 2);
             this.ctx.fill();
+
+            // Bubble highlight (top-left shine)
+            const gradient = this.ctx.createRadialGradient(
+                p.x - p.currentSize * 0.3,
+                p.y - p.currentSize * 0.3,
+                0,
+                p.x - p.currentSize * 0.3,
+                p.y - p.currentSize * 0.3,
+                p.currentSize * 0.6
+            );
+            gradient.addColorStop(0, `rgba(255, 255, 255, ${p.alpha * 0.6})`);
+            gradient.addColorStop(0.5, `rgba(255, 255, 255, ${p.alpha * 0.2})`);
+            gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+            this.ctx.fillStyle = gradient;
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, p.currentSize, 0, Math.PI * 2);
+            this.ctx.fill();
+
+            // Subtle rim outline for bubble effect
+            this.ctx.strokeStyle = `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${p.alpha * 0.6})`;
+            this.ctx.lineWidth = 1.5;
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, p.currentSize, 0, Math.PI * 2);
+            this.ctx.stroke();
 
             this.ctx.restore();
         }
