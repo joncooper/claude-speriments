@@ -19,7 +19,7 @@
         <div id="overlay" class="active">
             <div id="welcome">
                 <h1>Visual Sound Mirror</h1>
-                <p>An interactive art piece that transforms your movements into mesmerizing visuals and soothing sounds</p>
+                <p>A hands-free interactive music instrument. Use hand gestures to switch modes and control sound - no keyboard required!</p>
                 <button id="startButton">Begin Experience</button>
                 <p class="hint">Camera and audio permissions required</p>
             </div>
@@ -27,10 +27,9 @@
 
         <div id="controls">
             <div class="mode-switcher">
-                <button class="mode-btn" data-mode="ribbons" title="Ribbons Mode (Press 1)">🎨</button>
-                <button class="mode-btn" data-mode="theremin" title="Theremin Mode (Press 2)">🎵</button>
-                <button class="mode-btn" data-mode="pads" title="Sample Pads Mode (Press 3)">🥁</button>
-                <button class="mode-btn" data-mode="knobs" title="Knobs Mode (Press 4)">🎛️</button>
+                <button class="mode-btn" data-mode="ribbons" title="Ribbons Mode (Show 1 finger)">🎨</button>
+                <button class="mode-btn" data-mode="theremin" title="Theremin Mode (Show 2 fingers)">🎵</button>
+                <button class="mode-btn" data-mode="pads" title="Sample Pads Mode (Show 5 fingers)">🥁</button>
             </div>
             <div class="control-buttons">
                 <button id="muteButton" title="Toggle Audio">🔊</button>
@@ -52,30 +51,35 @@
 
         <div id="info" class="hidden">
             <div class="info-content">
-                <h2>Visual Sound Mirror - v6.0</h2>
-                <h3>Music Synthesis Edition</h3>
+                <h2>Visual Sound Mirror - v6.2</h2>
+                <h3>Hands-Free Edition</h3>
 
-                <h4>Modes (Press 1-4 to switch)</h4>
+                <h4>Mode Switching (Right Hand Gestures)</h4>
                 <ul>
-                    <li><strong>🎨 Ribbons (1):</strong> Flowing silk ribbons from your fingertips. Left hand controls filter, right hand controls delay/echo.</li>
-                    <li><strong>🎵 Theremin (2):</strong> Play melodies with hand position. X-axis = pitch (quantized to scale), Y-axis = filter brightness. Press S to cycle scales.</li>
-                    <li><strong>🥁 Sample Pads (3):</strong> Tap the 4x4 grid with your fingertips to trigger drum samples, synths, and percussion.</li>
-                    <li><strong>🎛️ Knobs (4):</strong> Control audio parameters by rotating virtual knobs with your index finger.</li>
+                    <li><strong>1 finger:</strong> Ribbons Mode 🎨</li>
+                    <li><strong>2 fingers (peace sign):</strong> Theremin Mode 🎵</li>
+                    <li><strong>5 fingers (open hand):</strong> Sample Pads Mode 🥁</li>
                 </ul>
 
-                <h4>Controls</h4>
+                <h4>Modes</h4>
                 <ul>
-                    <li><strong>1-4 keys:</strong> Switch between modes</li>
-                    <li><strong>S key:</strong> Cycle musical scales (Theremin mode)</li>
+                    <li><strong>🎨 Ribbons:</strong> Flowing silk ribbons from your fingertips. Tap pads with each finger for different sounds.</li>
+                    <li><strong>🎵 Theremin:</strong> Play melodies with hand position. X-axis = pitch (quantized to scale), Y-axis = filter brightness.</li>
+                    <li><strong>🥁 Sample Pads:</strong> Tap the arc-based pads with your fingertips - 5 pads per finger, 25 total sounds.</li>
+                </ul>
+
+                <h4>Global Controls (Always Active)</h4>
+                <ul>
+                    <li><strong>Knobs (top-left):</strong> Pinch thumb + index inside any knob to rotate. Controls Filter, Reverb, Delay, Resonance.</li>
                     <li><strong>🔊 button:</strong> Toggle audio on/off</li>
                     <li><strong>🔍 button:</strong> Toggle debug mode (shows hand tracking)</li>
                 </ul>
 
                 <h4>Gestures</h4>
                 <ul>
-                    <li>Pinch/spread fingers to modulate sound</li>
-                    <li>Touch fingertips together for harmonic chords</li>
-                    <li>Two hands close = special pulsing effect</li>
+                    <li><strong>Tap:</strong> Move finger forward (toward camera) to trigger pads</li>
+                    <li><strong>Pinch:</strong> Thumb + index to control knobs</li>
+                    <li><strong>Touch fingertips:</strong> Create harmonic chords (Ribbons mode)</li>
                 </ul>
 
                 <p class="privacy">🔒 All processing happens locally - no data is recorded or transmitted</p>

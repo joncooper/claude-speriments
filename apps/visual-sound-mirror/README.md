@@ -1,10 +1,10 @@
-# Visual Sound Mirror - v6.0 Music Synthesis Edition
+# Visual Sound Mirror - v6.2 Hands-Free Edition
 
-An interactive music instrument that transforms your gestures into sound and visuals. Features four distinct modes: flowing ribbons, theremin synthesis, drum pads, and parameter knobs - all controlled through webcam hand tracking.
+An interactive music instrument that transforms your gestures into sound and visuals. Features three distinct modes (ribbons, theremin, drum pads) with gesture-based mode switching and global audio controls - all controlled through webcam hand tracking. **No keyboard required!**
 
 ## Overview
 
-Visual Sound Mirror v6.0 transforms you into a multi-mode musical instrument with gesture-controlled synthesis:
+Visual Sound Mirror v6.2 is a completely hands-free musical instrument with gesture-controlled synthesis:
 
 ### 🎨 **Ribbons Mode** (Default)
 - Each fingertip creates 3 parallel flowing silk ribbons
@@ -33,18 +33,26 @@ Visual Sound Mirror v6.0 transforms you into a multi-mode musical instrument wit
 - **Percussion**: Various percussive sounds
 - Real-time synthesis - no audio files needed
 
-### 🎛️ **Knobs Mode**
-- Virtual rotary knobs controlled by index finger rotation
+### 🎛️ **Global Audio Controls** (Always Active)
+- Virtual rotary knobs in top-left corner - active in ALL modes
+- Pinch thumb + index finger inside knob to rotate
 - **Filter**: Cutoff frequency (200-4000Hz)
 - **Delay**: Echo/delay mix amount
 - **Resonance**: Filter Q factor (0.1-20)
-- **Reverb**: Reverb amount (coming soon)
+- **Reverb**: Reverb amount
 - Visual feedback with arc indicators
+
+### ✋ **Gesture-Based Mode Switching**
+- **1 finger** (right hand) → Ribbons Mode 🎨
+- **2 fingers** (peace sign) → Theremin Mode 🎵
+- **5 fingers** (open hand) → Sample Pads Mode 🥁
+- No keyboard required for normal operation!
 
 **Core Features:**
 - AI-powered hand tracking (up to 2 hands, 21 landmarks each)
 - Sophisticated Web Audio synthesis engine
 - Real-time visual feedback for all interactions
+- Completely hands-free interaction (gesture-based mode switching)
 - Privacy-first: all processing happens locally in browser
 
 ## Features
@@ -65,24 +73,25 @@ Visual Sound Mirror v6.0 transforms you into a multi-mode musical instrument wit
 
 ## Controls
 
-### Mode Switching
-- **🎨 button** or **Press 1** - Ribbons Mode (flowing silk ribbons)
-- **🎵 button** or **Press 2** - Theremin Mode (melodic instrument)
-- **🥁 button** or **Press 3** - Sample Pads Mode (drum machine)
-- **🎛️ button** or **Press 4** - Knobs Mode (parameter control)
+### Mode Switching (Gesture-Based)
+Use your **right hand** to switch modes:
+- **1 finger** → Ribbons Mode 🎨
+- **2 fingers** (peace sign) → Theremin Mode 🎵
+- **5 fingers** (open hand) → Sample Pads Mode 🥁
+
+Mode buttons (bottom center) also work for manual switching.
 
 ### General Controls
 - **🔊 button** - Toggle audio on/off
 - **🔍 button** - Toggle debug mode (shows hand tracking skeleton)
 - **ℹ️ button** - Show detailed help information
-- **S key** - Cycle through musical scales (Theremin mode only)
-- **Click anywhere** - Play a chord (Ribbons mode only)
+- **S key** - Cycle through musical scales (Theremin mode only - optional)
 
 ### Gestures
-- **Pinch/spread fingers** - Modulate sound parameters
+- **Mode switching** - Show 1, 2, or 5 fingers on right hand
+- **Knob control** - Pinch thumb + index inside knob to rotate (always active)
+- **Tap pads** - Move finger forward (toward camera) to trigger (Pads mode)
 - **Touch fingertips together** - Trigger harmonic chords (Ribbons mode)
-- **Tap pads with fingertips** - Trigger drum samples (Pads mode)
-- **Circle index finger around knob** - Rotate parameter value (Knobs mode)
 - **Move hand across screen** - Control pitch/filter (Theremin mode)
 
 ## Technical Details
