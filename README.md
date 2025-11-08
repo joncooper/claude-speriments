@@ -78,6 +78,29 @@ A **full-stack web application** to find nearby auctions on AuctionNinja.com tha
 
 ---
 
+#### 🎨 [Visual Sound Mirror](./apps/visual-sound-mirror/)
+
+An **interactive art piece** that transforms your movements into mesmerizing visuals and soothing bloopy sounds.
+
+**What it does:** Uses your webcam to detect motion and creates real-time generative art with responsive audio synthesis.
+
+**Key features:**
+- Real-time motion detection from webcam
+- Physics-based particle system with dreamy colors
+- Web Audio synthesis for organic, bloopy sounds
+- Privacy-first: all processing happens locally in your browser
+- Zero dependencies: pure HTML5, Canvas, and Web Audio API
+- Click anywhere for particle bursts
+- Responsive to motion intensity and position
+
+**Perfect for:** Meditation, creative expression, zoning out, or just enjoying mesmerizing audio-visual feedback.
+
+**Usage:** Simply open `index.html` in a modern browser and grant camera permissions.
+
+**Status:** ✅ Complete
+
+---
+
 ### Agents
 
 #### 🔍 [Forensic Accounting Agent](./agents/forensic-accounting/)
@@ -209,13 +232,20 @@ claude-speriments/
 │   │   ├── coverage/            # Per-company research
 │   │   ├── patterns/            # Cross-company insights
 │   │   └── notes/               # Design documentation
-│   └── auction-ninja-app/       # AuctionNinja Nearby Finder
+│   ├── auction-ninja-app/       # AuctionNinja Nearby Finder
+│   │   ├── README.md            # Usage guide
+│   │   ├── NOTES.md             # Implementation notes
+│   │   ├── ICEBOX.md            # Future enhancements
+│   │   ├── backend/             # Express + Puppeteer API server
+│   │   ├── frontend/            # React + Vite + Tailwind UI
+│   │   └── package.json         # Root scripts
+│   └── visual-sound-mirror/     # Interactive art piece with camera and audio
 │       ├── README.md            # Usage guide
 │       ├── NOTES.md             # Implementation notes
 │       ├── ICEBOX.md            # Future enhancements
-│       ├── backend/             # Express + Puppeteer API server
-│       ├── frontend/            # React + Vite + Tailwind UI
-│       └── package.json         # Root scripts
+│       ├── index.html           # Main application
+│       ├── app.js               # Application logic
+│       └── styles.css           # Styling
 ├── agents/                      # Agent configurations and workflows
 │   ├── forensic-accounting/     # Forensic Accounting Agent
 │   │   ├── README.md            # Usage guide and installation
@@ -250,7 +280,7 @@ claude-speriments/
 
 This repository is organized to support various types of Claude Code experiments:
 
-- **`apps/`** - Collaborative applications built with Claude (e.g., Twitter Data Analyzer, Analyst Workspace, AuctionNinja Nearby Finder)
+- **`apps/`** - Collaborative applications built with Claude (e.g., Twitter Data Analyzer, Analyst Workspace, AuctionNinja Nearby Finder, Visual Sound Mirror)
 - **`agents/`** - Agent configurations and workflows (e.g., Forensic Accounting Agent)
 - **`skills/`** - Slash commands and skills for Claude Code (e.g., Verbalized Sampling, Cialdini Persuasion)
 - **Future directories** - As the repository grows, we'll add more specialized directories (hooks/, mcp/, etc.)
