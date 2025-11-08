@@ -57,6 +57,27 @@ A **command-line utility** to download, store, and analyze your Twitter/X data u
 
 ---
 
+#### 🔨 [AuctionNinja Nearby Finder](./apps/auction-ninja-app/)
+
+A **full-stack web application** to find nearby auctions on AuctionNinja.com that are ending soon.
+
+**What it does:** Search for auctions within a specified radius of your ZIP code that end within a configurable time window, with advanced filtering and sorting.
+
+**Key features:**
+- **Location-based filtering** - Find auctions within X miles of any ZIP code
+- **Time-based filtering** - Show only auctions ending within specified hours
+- **Headless browser scraping** - Uses Puppeteer to fetch real auction data
+- **Beautiful, responsive UI** - Modern React interface with Tailwind CSS
+- **Advanced search** - Filter by keyword, category, distance, or time
+- **Mobile-optimized** - Works seamlessly on phones and tablets
+- **Smart caching** - 5-minute cache for better performance
+
+**Tech stack:** React + Vite, Node.js + Express, Puppeteer, Tailwind CSS
+
+**Status:** ✅ Complete
+
+---
+
 ### Agents
 
 #### 🔍 [Forensic Accounting Agent](./agents/forensic-accounting/)
@@ -154,13 +175,20 @@ claude-speriments/
 │   │   ├── src/twitter_analyzer/ # Python package
 │   │   ├── requirements.txt     # Dependencies
 │   │   └── setup.py             # Package setup
-│   └── analyst-workspace/       # Analyst Workspace (equity research tools)
-│       ├── README.md            # Project overview
-│       ├── STRUCTURE.md         # Repository organization
-│       ├── .claude/             # Commands, agents, MCP servers
-│       ├── coverage/            # Per-company research
-│       ├── patterns/            # Cross-company insights
-│       └── notes/               # Design documentation
+│   ├── analyst-workspace/       # Analyst Workspace (equity research tools)
+│   │   ├── README.md            # Project overview
+│   │   ├── STRUCTURE.md         # Repository organization
+│   │   ├── .claude/             # Commands, agents, MCP servers
+│   │   ├── coverage/            # Per-company research
+│   │   ├── patterns/            # Cross-company insights
+│   │   └── notes/               # Design documentation
+│   └── auction-ninja-app/       # AuctionNinja Nearby Finder
+│       ├── README.md            # Usage guide
+│       ├── NOTES.md             # Implementation notes
+│       ├── ICEBOX.md            # Future enhancements
+│       ├── backend/             # Express + Puppeteer API server
+│       ├── frontend/            # React + Vite + Tailwind UI
+│       └── package.json         # Root scripts
 ├── agents/                      # Agent configurations and workflows
 │   └── forensic-accounting/     # Forensic Accounting Agent
 │       ├── README.md            # Usage guide and installation
@@ -188,7 +216,7 @@ claude-speriments/
 
 This repository is organized to support various types of Claude Code experiments:
 
-- **`apps/`** - Collaborative applications built with Claude (e.g., Twitter Data Analyzer, Analyst Workspace)
+- **`apps/`** - Collaborative applications built with Claude (e.g., Twitter Data Analyzer, Analyst Workspace, AuctionNinja Nearby Finder)
 - **`agents/`** - Agent configurations and workflows (e.g., Forensic Accounting Agent)
 - **`skills/`** - Slash commands and skills for Claude Code (e.g., Verbalized Sampling, Cialdini Persuasion)
 - **Future directories** - As the repository grows, we'll add more specialized directories (hooks/, mcp/, etc.)
