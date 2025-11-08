@@ -309,6 +309,22 @@ Built during Claude Code session: claude/interactive-art-sound-visuals-011CUvuEd
 - **Pinch gesture for knobs** - Both thumb AND index must be inside knob radius
 - **Improved UX** - Goal achieved: don't touch the keyboard!
 
+**Version 6.2.3 Hand-Calibrated Pad System:**
+- **Automatic calibration on mode entry** - Captures hand geometry when entering pads mode with 5 fingers spread
+- **Dynamic pad positioning** - Pads positioned relative to actual fingertip locations
+- **Adaptive spacing** - Calculates scale factor based on average finger-to-finger distance
+  - Baseline: 100px expected distance between adjacent fingers
+  - Actual distance measured between all 4 adjacent finger pairs
+  - Scale factor applied to pad size (40-70px range) and spacing (60-80px+ range)
+- **Natural pad layout** - Each finger gets 5 pads extending radially away from palm center
+  - Direction calculated from palm position to each fingertip
+  - Pads placed at 0.5x, 1.5x, 2.5x, 3.5x, 4.5x spacing intervals
+  - First pad starts 0.5 spacing units from fingertip
+- **Camera-agnostic** - Works with different FOVs and hand distances from camera
+- **Fallback mode** - Uses static arc layout if calibration data unavailable
+- **Console logging** - Shows scale factor and hand center coordinates for debugging
+- **Key insight** - Using 5-finger spread gesture as calibration moment is perfect timing
+
 **Version 6.2.2 Deliberate Gesture Hold System:**
 - **Gesture hold requirement** - Must hold gesture steady for 2.5 seconds to switch modes
 - **Stricter finger detection** - Increased thresholds (1.3x for thumb, 0.05 for fingers) for more deliberate gestures

@@ -77,6 +77,13 @@ class VisualSoundMirror {
         // Sample pads
         this.padGrid = { rows: 4, cols: 4 };
         this.pads = [];
+        this.padCalibration = {
+            calibrated: false,
+            fingertipPositions: [],
+            fingertipDistances: [],
+            handCenter: null,
+            scale: 1.0
+        };
         this.initPads();
 
         // Virtual knobs
@@ -130,11 +137,7 @@ class VisualSoundMirror {
 
     initPads() {
         // Arc-based layout - 5 arcs (one per finger), 5 pads per arc
-        // Positioned ergonomically for natural finger sweeping motion
-        const centerX = this.canvas.width / 2;
-        const centerY = this.canvas.height * 0.7; // Lower on screen
-        const arcRadius = 200; // Base radius for arcs
-        const padSize = 50;
+        // Positioned based on actual hand geometry if calibrated
         const padsPerFinger = 5;
 
         // Define sounds for each finger's arc (5 fingers × 5 pads = 25 sounds)
@@ -153,34 +156,78 @@ class VisualSoundMirror {
 
         this.pads = [];
 
-        for (let finger = 0; finger < 5; finger++) {
-            // Angle spread for this finger's arc (fan out from center)
-            const baseAngle = -Math.PI / 2; // Start from top
-            const angleSpread = Math.PI * 0.6; // 108 degrees total spread
-            const startAngle = baseAngle - angleSpread / 2 + (finger * angleSpread / 4);
+        if (this.padCalibration.calibrated && this.padCalibration.fingertipPositions.length === 5) {
+            // Use calibrated hand geometry
+            console.log('Using calibrated pad layout');
+            const scale = this.padCalibration.scale;
+            const padSize = Math.max(40, Math.min(70, 50 * scale)); // Scale pad size, min 40px, max 70px
+            const padSpacing = Math.max(60, 80 * scale); // Scale spacing between pads
 
-            for (let padIdx = 0; padIdx < padsPerFinger; padIdx++) {
-                // Position pads in an arc, closer pads = closer to hand
-                const angle = startAngle + (padIdx / (padsPerFinger - 1)) * (angleSpread / 5);
-                const radius = arcRadius + (finger * 35); // Stack arcs outward
-                const distance = radius - (padIdx * 30); // Closer pads are nearer
+            for (let finger = 0; finger < 5; finger++) {
+                const fingertip = this.padCalibration.fingertipPositions[finger];
+                const handCenter = this.padCalibration.handCenter;
 
-                const x = centerX + Math.cos(angle) * distance;
-                const y = centerY + Math.sin(angle) * distance;
+                // Calculate direction from hand center to fingertip
+                const dx = fingertip.x - handCenter.x;
+                const dy = fingertip.y - handCenter.y;
+                const angle = Math.atan2(dy, dx);
 
-                this.pads.push({
-                    x: x - padSize / 2,
-                    y: y - padSize / 2,
-                    size: padSize,
-                    centerX: x,
-                    centerY: y,
-                    type: fingerSounds[finger][padIdx],
-                    fingerIndex: finger,
-                    triggered: false,
-                    triggerTime: 0,
-                    lastZ: null, // For tap detection
-                    color: this.getPadColor(fingerSounds[finger][padIdx])
-                });
+                // Place pads along a line extending from fingertip away from hand center
+                for (let padIdx = 0; padIdx < padsPerFinger; padIdx++) {
+                    const distance = padSpacing * (padIdx + 0.5); // Start 0.5 spacing away from fingertip
+                    const x = fingertip.x + Math.cos(angle) * distance;
+                    const y = fingertip.y + Math.sin(angle) * distance;
+
+                    this.pads.push({
+                        x: x - padSize / 2,
+                        y: y - padSize / 2,
+                        size: padSize,
+                        centerX: x,
+                        centerY: y,
+                        type: fingerSounds[finger][padIdx],
+                        fingerIndex: finger,
+                        triggered: false,
+                        triggerTime: 0,
+                        lastZ: null,
+                        color: this.getPadColor(fingerSounds[finger][padIdx])
+                    });
+                }
+            }
+        } else {
+            // Use default static layout (fallback)
+            console.log('Using default pad layout (not calibrated)');
+            const centerX = this.canvas.width / 2;
+            const centerY = this.canvas.height * 0.7;
+            const arcRadius = 200;
+            const padSize = 50;
+
+            for (let finger = 0; finger < 5; finger++) {
+                const baseAngle = -Math.PI / 2;
+                const angleSpread = Math.PI * 0.6;
+                const startAngle = baseAngle - angleSpread / 2 + (finger * angleSpread / 4);
+
+                for (let padIdx = 0; padIdx < padsPerFinger; padIdx++) {
+                    const angle = startAngle + (padIdx / (padsPerFinger - 1)) * (angleSpread / 5);
+                    const radius = arcRadius + (finger * 35);
+                    const distance = radius - (padIdx * 30);
+
+                    const x = centerX + Math.cos(angle) * distance;
+                    const y = centerY + Math.sin(angle) * distance;
+
+                    this.pads.push({
+                        x: x - padSize / 2,
+                        y: y - padSize / 2,
+                        size: padSize,
+                        centerX: x,
+                        centerY: y,
+                        type: fingerSounds[finger][padIdx],
+                        fingerIndex: finger,
+                        triggered: false,
+                        triggerTime: 0,
+                        lastZ: null,
+                        color: this.getPadColor(fingerSounds[finger][padIdx])
+                    });
+                }
             }
         }
     }
@@ -324,11 +371,59 @@ class VisualSoundMirror {
             this.stopTheremin();
         }
 
+        // Calibrate pads from hand geometry when entering pads mode
+        if (newMode === 'pads' && this.leftHand && this.leftHand.fingertips.length === 5) {
+            this.calibratePadsFromHand(this.leftHand);
+            this.initPads(); // Reinitialize pads with calibration
+        }
+
         // Show status
         const status = document.getElementById('status');
         status.textContent = `Mode: ${newMode.toUpperCase()}`;
         status.classList.add('visible');
         setTimeout(() => status.classList.remove('visible'), 2000);
+    }
+
+    calibratePadsFromHand(hand) {
+        // Capture hand geometry at moment of entering pads mode (5 fingers spread)
+        if (!hand || !hand.fingertips || hand.fingertips.length !== 5) {
+            console.log('Cannot calibrate: need all 5 fingertips');
+            return;
+        }
+
+        // Store fingertip positions
+        this.padCalibration.fingertipPositions = hand.fingertips.map(ft => ({
+            x: ft.x,
+            y: ft.y,
+            fingerIndex: ft.fingerIndex
+        }));
+
+        // Calculate distances between adjacent fingers
+        this.padCalibration.fingertipDistances = [];
+        for (let i = 0; i < 4; i++) {
+            const ft1 = hand.fingertips[i];
+            const ft2 = hand.fingertips[i + 1];
+            const dist = Math.hypot(ft2.x - ft1.x, ft2.y - ft1.y);
+            this.padCalibration.fingertipDistances.push(dist);
+        }
+
+        // Calculate hand center (palm position or average of fingertips)
+        if (hand.palm) {
+            this.padCalibration.handCenter = { x: hand.palm.x, y: hand.palm.y };
+        } else {
+            const avgX = hand.fingertips.reduce((sum, ft) => sum + ft.x, 0) / 5;
+            const avgY = hand.fingertips.reduce((sum, ft) => sum + ft.y, 0) / 5;
+            this.padCalibration.handCenter = { x: avgX, y: avgY };
+        }
+
+        // Calculate scale factor (average finger spacing compared to baseline)
+        const avgDistance = this.padCalibration.fingertipDistances.reduce((a, b) => a + b, 0) / 4;
+        const baselineDistance = 100; // Expected distance for "normal" hand size
+        this.padCalibration.scale = avgDistance / baselineDistance;
+
+        this.padCalibration.calibrated = true;
+
+        console.log(`Pads calibrated! Scale: ${this.padCalibration.scale.toFixed(2)}x, Hand center: (${Math.round(this.padCalibration.handCenter.x)}, ${Math.round(this.padCalibration.handCenter.y)})`);
     }
 
     triggerModeSwitchAnimation() {
