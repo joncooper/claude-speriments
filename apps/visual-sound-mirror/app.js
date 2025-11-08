@@ -1094,19 +1094,19 @@ class VisualSoundMirror {
                 const landmarks = results.multiHandLandmarks[handIndex];
                 const handedness = results.multiHandedness[handIndex].label; // "Left" or "Right"
 
-                // Get fingertips (no mirroring - use true camera coordinates)
+                // Get fingertips (mirror X for canvas mapping to match user perspective)
                 const fingertipIndices = [4, 8, 12, 16, 20];
                 const fingertips = fingertipIndices.map((idx, i) => ({
-                    x: landmarks[idx].x * this.canvas.width,
+                    x: (1 - landmarks[idx].x) * this.canvas.width,
                     y: landmarks[idx].y * this.canvas.height,
                     z: landmarks[idx].z,
                     fingerIndex: i,
                     fingerId: `${handedness}_finger${i}`
                 }));
 
-                // Calculate palm position (no mirroring)
+                // Calculate palm position (mirror X for canvas mapping)
                 const palm = {
-                    x: landmarks[9].x * this.canvas.width,
+                    x: (1 - landmarks[9].x) * this.canvas.width,
                     y: landmarks[9].y * this.canvas.height,
                     z: landmarks[9].z
                 };
@@ -1987,8 +1987,8 @@ class VisualSoundMirror {
                 const endPoint = landmarks[end];
 
                 this.ctx.beginPath();
-                this.ctx.moveTo(startPoint.x * this.canvas.width, startPoint.y * this.canvas.height);
-                this.ctx.lineTo(endPoint.x * this.canvas.width, endPoint.y * this.canvas.height);
+                this.ctx.moveTo((1 - startPoint.x) * this.canvas.width, startPoint.y * this.canvas.height);
+                this.ctx.lineTo((1 - endPoint.x) * this.canvas.width, endPoint.y * this.canvas.height);
                 this.ctx.stroke();
             }
         }
