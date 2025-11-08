@@ -25,12 +25,16 @@ Visual Sound Mirror v6.2 is a completely hands-free musical instrument with gest
 - Continuous oscillator with smooth portamento
 
 ### 🥁 **Sample Pads Mode**
-- 4x4 grid of gesture-triggered samples (16 pads total)
-- Tap with any fingertip to trigger sounds
-- **Drums**: Kick, Snare, Hi-hat, Clap, Toms, Rim, Cowbell
-- **Cymbals**: Crash, Ride
-- **Synths**: Bass, Chord pads (Major/Minor), Lead
-- **Percussion**: Various percussive sounds
+- **Auto-calibrates to your hand** - Pads positioned dynamically when entering mode
+- 5 pads per finger extending away from palm (25 total pads)
+- **Tap detection** - Move finger forward (toward camera) over pad to trigger
+- **Adaptive spacing** - Automatically adjusts for hand size and camera distance
+- Each finger controls different sounds:
+  - **Thumb**: Bass & Kicks (kick, bass1-3, subkick)
+  - **Index**: Snares (snare, rimshot, clap, snap, sidestick)
+  - **Middle**: Cymbals (hihat, hihat_open, crash, ride, splash)
+  - **Ring**: Toms (tom1-3, conga, bongo)
+  - **Pinky**: Synths (chord1-2, lead, fx1-2)
 - Real-time synthesis - no audio files needed
 
 ### 🎛️ **Global Audio Controls** (Always Active)
