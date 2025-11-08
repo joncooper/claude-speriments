@@ -1,5 +1,5 @@
-// Visual Sound Mirror - v4.0 Flowing Ribbons Edition
-// Ultra-responsive, ephemeral, musical visualization
+// Visual Sound Mirror - v5.0 Silk & Symphony Edition
+// Sophisticated multi-hand interactions with fluid ribbons and rich audio
 
 class VisualSoundMirror {
     constructor() {
@@ -16,28 +16,22 @@ class VisualSoundMirror {
         this.handResults = null;
         this.camera = null;
 
-        // Hand positions for tracking
-        this.handPositions = [];
-        this.prevHandPositions = [];
+        // Hand data
+        this.leftHand = null;   // { landmarks, fingertips, palm, fingerSpread }
+        this.rightHand = null;  // { landmarks, fingertips, palm, fingerSpread }
+        this.prevLeftHand = null;
+        this.prevRightHand = null;
 
-        // Motion data
-        this.motionData = {
-            intensity: 0,
-            x: 0.5,
-            y: 0.5
-        };
-
-        // Fingertip trails - each finger gets its own trail
-        this.fingerTrails = {};  // key: finger index, value: array of trail points
-        this.maxTrailLength = 20;  // Keep trails short and responsive
-
-        // Particles - minimal, velocity-based
-        this.particles = [];
-        this.maxParticles = 200;  // Much fewer particles
+        // Fingertip trails - multi-ribbon per finger
+        this.fingerTrails = {};
+        this.maxTrailLength = 25;
 
         // Audio setup
         this.audioContext = null;
         this.masterGain = null;
+        this.filterNode = null;
+        this.delayNode = null;
+        this.delayGain = null;
         this.audioEnabled = false;
         this.isMuted = false;
         this.lastSoundTime = 0;
@@ -49,29 +43,39 @@ class VisualSoundMirror {
         this.noHandsTime = 0;
         this.fadeoutStarted = false;
 
-        // Color palette
-        this.colors = [
-            { r: 147, g: 197, b: 253 }, // Soft blue
-            { r: 196, g: 181, b: 253 }, // Lavender
-            { r: 252, g: 211, b: 77 },  // Soft yellow
-            { r: 134, g: 239, b: 172 }, // Mint green
-            { r: 251, g: 146, b: 195 }, // Pink
-            { r: 165, g: 180, b: 252 }  // Periwinkle
-        ];
+        // Color palette - dynamic and intentional
+        this.time = 0;
+        this.colorPhase = 0;
+        this.baseHue = 220; // Start with blue
+
+        // Color palettes based on color theory
+        this.colorSchemes = {
+            aurora: { base: 220, type: 'analogous' },    // Blues to greens
+            sunset: { base: 30, type: 'analogous' },     // Oranges to purples
+            ocean: { base: 200, type: 'monochromatic' }, // Deep blues
+            forest: { base: 140, type: 'analogous' },    // Greens
+            cosmic: { base: 280, type: 'triadic' }       // Purples, oranges, greens
+        };
+        this.currentScheme = 'aurora';
+
+        // Two-hand gesture detection
+        this.handsDistance = 0;
+        this.handsAreTouching = false;
+        this.touchingFingers = [];
 
         // Settings
         this.settings = {
-            particleLifespan: 40,  // Much shorter - ephemeral!
-            trailAlpha: 0.15,      // More aggressive clearing
-            soundInterval: 80,      // More frequent sounds
-            connectionDistance: 120, // Distance to draw lines between fingers
-            minVelocityForParticles: 2  // Only spawn particles when moving
+            trailAlpha: 0.12,
+            soundInterval: 70,
+            minVelocityForSound: 1,
+            ribbonWidth: 2.5,
+            ribbonOffsets: 3, // Number of parallel ribbons per finger
+            ribbonSpacing: 8  // Spacing between parallel ribbons
         };
 
         // Animation
         this.lastTime = 0;
         this.isRunning = false;
-        this.time = 0;
 
         this.setupEventListeners();
     }
@@ -85,11 +89,10 @@ class VisualSoundMirror {
         window.addEventListener('resize', () => this.resizeCanvas());
 
         this.canvas.addEventListener('click', (e) => {
-            this.createParticleBurst(e.clientX, e.clientY);
             if (this.audioContext && this.audioContext.state === 'suspended') {
                 this.audioContext.resume();
             }
-            this.playBloop(400 + Math.random() * 400, 0.3);
+            this.playChord(e.clientX, e.clientY);
         });
 
         document.getElementById('startButton').addEventListener('click', () => {
@@ -174,27 +177,54 @@ class VisualSoundMirror {
         document.body.addEventListener('touchstart', resumeAudio, { once: true });
         document.body.addEventListener('keydown', resumeAudio, { once: true });
 
+        // Master gain
         this.masterGain = this.audioContext.createGain();
-        this.masterGain.gain.value = 0.2;
+        this.masterGain.gain.value = 0.25;
+
+        // Global filter (controlled by left hand finger spread)
+        this.filterNode = this.audioContext.createBiquadFilter();
+        this.filterNode.type = 'lowpass';
+        this.filterNode.frequency.value = 2000;
+        this.filterNode.Q.value = 1;
+
+        // Delay effect (controlled by right hand finger spread)
+        this.delayNode = this.audioContext.createDelay(1.0);
+        this.delayNode.delayTime.value = 0.3;
+
+        this.delayGain = this.audioContext.createGain();
+        this.delayGain.gain.value = 0;
+
+        this.delayFeedback = this.audioContext.createGain();
+        this.delayFeedback.gain.value = 0.4;
+
+        // Connect delay feedback loop
+        this.delayNode.connect(this.delayFeedback);
+        this.delayFeedback.connect(this.delayNode);
+        this.delayNode.connect(this.delayGain);
+
+        // Create reverb
+        this.reverb = this.createReverb();
+
+        // Audio chain: filter -> delay -> reverb -> master
+        this.filterNode.connect(this.reverb);
+        this.delayGain.connect(this.reverb);
+        this.reverb.connect(this.masterGain);
         this.masterGain.connect(this.audioContext.destination);
 
-        this.reverb = this.createReverb();
-        this.reverb.connect(this.masterGain);
-
         this.audioEnabled = true;
-        console.log('Audio initialized. State:', this.audioContext.state);
+        console.log('Audio initialized with advanced routing');
     }
 
     createReverb() {
         const convolver = this.audioContext.createConvolver();
         const rate = this.audioContext.sampleRate;
-        const length = rate * 2.5;
+        const length = rate * 3;
         const impulse = this.audioContext.createBuffer(2, length, rate);
 
         for (let channel = 0; channel < 2; channel++) {
             const channelData = impulse.getChannelData(channel);
             for (let i = 0; i < length; i++) {
-                channelData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2);
+                channelData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2.5);
             }
         }
 
@@ -212,8 +242,8 @@ class VisualSoundMirror {
         this.hands.setOptions({
             maxNumHands: 2,
             modelComplexity: 1,
-            minDetectionConfidence: 0.5,
-            minTrackingConfidence: 0.5
+            minDetectionConfidence: 0.6,
+            minTrackingConfidence: 0.6
         });
 
         this.hands.onResults((results) => this.onHandResults(results));
@@ -231,196 +261,186 @@ class VisualSoundMirror {
 
     onHandResults(results) {
         this.handResults = results;
-        this.prevHandPositions = [...this.handPositions];
-        this.handPositions = [];
+        this.prevLeftHand = this.leftHand;
+        this.prevRightHand = this.rightHand;
+        this.leftHand = null;
+        this.rightHand = null;
 
         if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-            // Reset no hands timer
             this.noHandsTime = 0;
             this.fadeoutStarted = false;
 
             for (let handIndex = 0; handIndex < results.multiHandLandmarks.length; handIndex++) {
                 const landmarks = results.multiHandLandmarks[handIndex];
+                const handedness = results.multiHandedness[handIndex].label; // "Left" or "Right"
 
-                // Get fingertips only - more focused
-                const fingertipIndices = [4, 8, 12, 16, 20];  // Thumb, Index, Middle, Ring, Pinky
+                // Get fingertips
+                const fingertipIndices = [4, 8, 12, 16, 20];
+                const fingertips = fingertipIndices.map((idx, i) => ({
+                    x: (1 - landmarks[idx].x) * this.canvas.width,
+                    y: landmarks[idx].y * this.canvas.height,
+                    z: landmarks[idx].z,
+                    fingerIndex: i,
+                    fingerId: `${handedness}_finger${i}`
+                }));
 
-                for (let i = 0; i < fingertipIndices.length; i++) {
-                    const tip = landmarks[fingertipIndices[i]];
-                    const fingerId = `hand${handIndex}_finger${i}`;
-
-                    const pos = {
-                        x: (1 - tip.x) * this.canvas.width,
-                        y: tip.y * this.canvas.height,
-                        z: tip.z,
-                        fingerId: fingerId,
-                        fingerIndex: i,
-                        handIndex: handIndex
-                    };
-
-                    this.handPositions.push(pos);
-
-                    // Update trail for this finger
-                    if (!this.fingerTrails[fingerId]) {
-                        this.fingerTrails[fingerId] = [];
-                    }
-
-                    this.fingerTrails[fingerId].push({
-                        x: pos.x,
-                        y: pos.y,
-                        time: this.time,
-                        color: this.colors[i % this.colors.length]
-                    });
-
-                    // Keep trails short
-                    if (this.fingerTrails[fingerId].length > this.maxTrailLength) {
-                        this.fingerTrails[fingerId].shift();
-                    }
-                }
-
-                // Calculate palm position for motion intensity
-                const palm = landmarks[9];
-                const palmPos = {
-                    x: (1 - palm.x) * this.canvas.width,
-                    y: palm.y * this.canvas.height
+                // Calculate palm position
+                const palm = {
+                    x: (1 - landmarks[9].x) * this.canvas.width,
+                    y: landmarks[9].y * this.canvas.height,
+                    z: landmarks[9].z
                 };
 
-                // Calculate movement for this palm
-                const avgX = palmPos.x / this.canvas.width;
-                const avgY = palmPos.y / this.canvas.height;
+                // Calculate finger spread (thumb to pinky distance)
+                const thumb = fingertips[0];
+                const pinky = fingertips[4];
+                const fingerSpread = Math.sqrt(
+                    Math.pow(pinky.x - thumb.x, 2) +
+                    Math.pow(pinky.y - thumb.y, 2)
+                );
 
-                if (this.prevHandPositions.length > 0) {
-                    // Find closest previous position
-                    let minDist = Infinity;
-                    let closestPrev = null;
+                const handData = {
+                    landmarks: landmarks,
+                    fingertips: fingertips,
+                    palm: palm,
+                    fingerSpread: fingerSpread,
+                    handedness: handedness
+                };
 
-                    for (const prev of this.prevHandPositions) {
-                        const dist = Math.sqrt(
-                            Math.pow(palmPos.x - prev.x, 2) +
-                            Math.pow(palmPos.y - prev.y, 2)
-                        );
-                        if (dist < minDist) {
-                            minDist = dist;
-                            closestPrev = prev;
-                        }
-                    }
-
-                    if (closestPrev) {
-                        const dx = palmPos.x - closestPrev.x;
-                        const dy = palmPos.y - closestPrev.y;
-                        const movement = Math.sqrt(dx * dx + dy * dy);
-                        this.motionData.intensity = Math.min(movement / 20, 1);
-                    }
+                // Assign to left or right
+                if (handedness === 'Left') {
+                    this.leftHand = handData;
+                } else {
+                    this.rightHand = handData;
                 }
 
-                this.motionData.x = avgX;
-                this.motionData.y = avgY;
+                // Update trails for each finger
+                for (const tip of fingertips) {
+                    if (!this.fingerTrails[tip.fingerId]) {
+                        this.fingerTrails[tip.fingerId] = [];
+                    }
+
+                    this.fingerTrails[tip.fingerId].push({
+                        x: tip.x,
+                        y: tip.y,
+                        time: this.time
+                    });
+
+                    if (this.fingerTrails[tip.fingerId].length > this.maxTrailLength) {
+                        this.fingerTrails[tip.fingerId].shift();
+                    }
+                }
             }
+
+            // Detect two-hand gestures
+            if (this.leftHand && this.rightHand) {
+                this.detectTwoHandGestures();
+            } else {
+                this.handsAreTouching = false;
+                this.touchingFingers = [];
+            }
+
         } else {
-            // No hands detected - start fadeout timer
-            this.noHandsTime += 16; // ~16ms per frame
-            if (this.noHandsTime > 1000) {  // 1 second
+            // No hands detected
+            this.noHandsTime += 16;
+            if (this.noHandsTime > 1000) {
                 this.fadeoutStarted = true;
-                // Clear trails
                 this.fingerTrails = {};
-                this.particles = [];
             }
         }
 
         this.updateDebug();
     }
 
+    detectTwoHandGestures() {
+        // Calculate distance between palms
+        const palmDist = Math.sqrt(
+            Math.pow(this.rightHand.palm.x - this.leftHand.palm.x, 2) +
+            Math.pow(this.rightHand.palm.y - this.leftHand.palm.y, 2)
+        );
+
+        this.handsDistance = palmDist;
+        this.handsAreTouching = palmDist < 100;
+
+        // Detect touching fingertips
+        this.touchingFingers = [];
+        for (const leftFinger of this.leftHand.fingertips) {
+            for (const rightFinger of this.rightHand.fingertips) {
+                const dist = Math.sqrt(
+                    Math.pow(rightFinger.x - leftFinger.x, 2) +
+                    Math.pow(rightFinger.y - leftFinger.y, 2)
+                );
+
+                if (dist < 40) {
+                    this.touchingFingers.push({
+                        left: leftFinger,
+                        right: rightFinger,
+                        distance: dist
+                    });
+                }
+            }
+        }
+    }
+
     updateDebug() {
         if (!this.debugMode) return;
 
-        document.getElementById('debugMotion').textContent = this.motionData.intensity.toFixed(3);
+        const leftSpread = this.leftHand ? this.leftHand.fingerSpread.toFixed(0) : 'N/A';
+        const rightSpread = this.rightHand ? this.rightHand.fingerSpread.toFixed(0) : 'N/A';
+
+        document.getElementById('debugMotion').textContent =
+            `L: ${leftSpread}px, R: ${rightSpread}px`;
         document.getElementById('debugPosition').textContent =
-            `${(this.motionData.x * 100).toFixed(1)}%, ${(this.motionData.y * 100).toFixed(1)}%`;
-        document.getElementById('debugParticles').textContent = this.particles.length;
+            `Hands touching: ${this.handsAreTouching ? 'YES' : 'NO'}`;
+        document.getElementById('debugParticles').textContent =
+            `Touching fingers: ${this.touchingFingers.length}`;
         document.getElementById('debugAudio').textContent =
             this.audioContext ? `${this.audioContext.state} (${this.isMuted ? 'muted' : 'active'})` : 'Not initialized';
         document.getElementById('debugHands').textContent =
-            this.handResults && this.handResults.multiHandLandmarks ?
-            this.handResults.multiHandLandmarks.length : 0;
+            (this.leftHand ? 1 : 0) + (this.rightHand ? 1 : 0);
     }
 
-    updateParticles(deltaTime) {
-        this.time += deltaTime;
+    getColorForFinger(fingerIndex, handedness, t = 0) {
+        // Dynamic color based on color theory
+        const scheme = this.colorSchemes[this.currentScheme];
+        let hue = (this.baseHue + t * 20) % 360;
 
-        // Only spawn particles when hands are moving
-        if (this.handPositions.length > 0 && this.motionData.intensity > 0.1) {
-            for (const pos of this.handPositions) {
-                // Calculate velocity
-                let velocity = { x: 0, y: 0 };
-                for (const prev of this.prevHandPositions) {
-                    if (prev.fingerId === pos.fingerId) {
-                        velocity.x = pos.x - prev.x;
-                        velocity.y = pos.y - prev.y;
-                        break;
-                    }
-                }
-
-                const speed = Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
-
-                // Only spawn if moving fast enough
-                if (speed > this.settings.minVelocityForParticles && Math.random() < 0.3) {
-                    this.createVelocityParticle(pos, velocity, speed);
-                }
-            }
+        if (scheme.type === 'analogous') {
+            // Spread across 60 degrees
+            hue += (fingerIndex * 12) - 24;
+        } else if (scheme.type === 'triadic') {
+            // 120 degree separation
+            hue += fingerIndex * 24;
+        } else if (scheme.type === 'monochromatic') {
+            // Same hue, vary saturation/lightness
+            hue += fingerIndex * 5;
         }
 
-        // Update existing particles
-        for (let i = this.particles.length - 1; i >= 0; i--) {
-            const p = this.particles[i];
-
-            p.vx *= 0.95;
-            p.vy *= 0.95;
-            p.x += p.vx;
-            p.y += p.vy;
-
-            p.life--;
-            p.alpha = p.life / this.settings.particleLifespan;
-
-            if (p.life <= 0) {
-                this.particles.splice(i, 1);
-            }
+        // Left hand slightly cooler, right hand slightly warmer
+        if (handedness === 'Left') {
+            hue -= 10;
+        } else {
+            hue += 10;
         }
+
+        hue = hue % 360;
+        const saturation = 70 + Math.sin(t * 0.5) * 15;
+        const lightness = 55 + Math.sin(t * 0.3 + fingerIndex) * 10;
+
+        return this.hslToRgb(hue, saturation, lightness);
     }
 
-    createVelocityParticle(pos, velocity, speed) {
-        if (this.particles.length >= this.maxParticles) return;
-
-        const color = this.colors[pos.fingerIndex % this.colors.length];
-
-        this.particles.push({
-            x: pos.x,
-            y: pos.y,
-            vx: velocity.x * 0.5,
-            vy: velocity.y * 0.5,
-            size: Math.min(speed * 0.5, 8) + 2,
-            color: color,
-            alpha: 1,
-            life: this.settings.particleLifespan
-        });
-    }
-
-    createParticleBurst(x, y) {
-        for (let i = 0; i < 15; i++) {
-            const angle = Math.random() * Math.PI * 2;
-            const speed = Math.random() * 4 + 2;
-            const color = this.colors[Math.floor(Math.random() * this.colors.length)];
-
-            this.particles.push({
-                x: x,
-                y: y,
-                vx: Math.cos(angle) * speed,
-                vy: Math.sin(angle) * speed,
-                size: Math.random() * 6 + 3,
-                color: color,
-                alpha: 1,
-                life: this.settings.particleLifespan * 1.5
-            });
-        }
+    hslToRgb(h, s, l) {
+        s /= 100;
+        l /= 100;
+        const k = n => (n + h / 30) % 12;
+        const a = s * Math.min(l, 1 - l);
+        const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+        return {
+            r: Math.round(255 * f(0)),
+            g: Math.round(255 * f(8)),
+            b: Math.round(255 * f(4))
+        };
     }
 
     updateAudio() {
@@ -432,23 +452,82 @@ class VisualSoundMirror {
             this.audioContext.resume();
         }
 
-        const now = Date.now();
+        const now = this.audioContext.currentTime;
 
-        if (this.handPositions.length > 0 && this.motionData.intensity > 0.05) {
-            if (now - this.lastSoundTime > this.settings.soundInterval) {
-                // Play sounds for up to 3 fingers
-                for (let i = 0; i < Math.min(this.handPositions.length, 3); i++) {
-                    const pos = this.handPositions[i];
-                    const freq = 200 + (pos.x / this.canvas.width) * 600;
-                    const volume = 0.08 + this.motionData.intensity * 0.12;
+        // Left hand controls filter cutoff and resonance
+        if (this.leftHand) {
+            // Map finger spread (50-250px) to filter frequency (300-3000Hz)
+            const spread = Math.max(50, Math.min(250, this.leftHand.fingerSpread));
+            const filterFreq = 300 + ((spread - 50) / 200) * 2700;
+            const resonance = 1 + ((spread - 50) / 200) * 8; // Q: 1-9
+
+            this.filterNode.frequency.linearRampToValueAtTime(filterFreq, now + 0.1);
+            this.filterNode.Q.linearRampToValueAtTime(resonance, now + 0.1);
+        }
+
+        // Right hand controls delay amount
+        if (this.rightHand) {
+            // Map finger spread to delay mix (0-0.6)
+            const spread = Math.max(50, Math.min(250, this.rightHand.fingerSpread));
+            const delayMix = ((spread - 50) / 200) * 0.6;
+
+            this.delayGain.gain.linearRampToValueAtTime(delayMix, now + 0.1);
+        }
+
+        // Play sounds based on hand movements
+        const nowMs = Date.now();
+        if (nowMs - this.lastSoundTime > this.settings.soundInterval) {
+            // Left hand sounds
+            if (this.leftHand && this.prevLeftHand) {
+                this.playHandSounds(this.leftHand, this.prevLeftHand, 0);
+            }
+
+            // Right hand sounds (slightly different timbre)
+            if (this.rightHand && this.prevRightHand) {
+                this.playHandSounds(this.rightHand, this.prevRightHand, 50);
+            }
+
+            // Special sound when hands are touching
+            if (this.handsAreTouching && this.touchingFingers.length > 0) {
+                this.playTouchingSound();
+            }
+
+            this.lastSoundTime = nowMs;
+        }
+    }
+
+    playHandSounds(hand, prevHand, delay) {
+        for (let i = 0; i < hand.fingertips.length; i++) {
+            const curr = hand.fingertips[i];
+            const prev = prevHand.fingertips.find(f => f.fingerIndex === i);
+
+            if (prev) {
+                const dx = curr.x - prev.x;
+                const dy = curr.y - prev.y;
+                const velocity = Math.sqrt(dx * dx + dy * dy);
+
+                if (velocity > this.settings.minVelocityForSound) {
+                    const freq = 200 + (curr.x / this.canvas.width) * 600;
+                    const volume = Math.min(0.15, velocity / 100);
 
                     setTimeout(() => {
                         this.playBloop(freq, volume);
-                    }, i * 40);
+                    }, delay + i * 30);
                 }
-
-                this.lastSoundTime = now;
             }
+        }
+    }
+
+    playTouchingSound() {
+        // Harmonic chord when fingers are touching
+        const baseFreq = 300 + (this.handsDistance / 200) * 200;
+        const volumes = [0.12, 0.08, 0.06];
+        const harmonics = [1, 1.5, 2]; // Root, fifth, octave
+
+        for (let i = 0; i < harmonics.length; i++) {
+            setTimeout(() => {
+                this.playBloop(baseFreq * harmonics[i], volumes[i]);
+            }, i * 20);
         }
     }
 
@@ -467,179 +546,230 @@ class VisualSoundMirror {
         try {
             const osc = this.audioContext.createOscillator();
             const gain = this.audioContext.createGain();
-            const filter = this.audioContext.createBiquadFilter();
 
             osc.type = 'sine';
             osc.frequency.setValueAtTime(frequency, now);
-            osc.frequency.exponentialRampToValueAtTime(frequency * 0.6, now + 0.4);
-
-            filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(frequency * 2, now);
-            filter.Q.setValueAtTime(3, now);
+            osc.frequency.exponentialRampToValueAtTime(frequency * 0.7, now + 0.5);
 
             gain.gain.setValueAtTime(0, now);
-            gain.gain.linearRampToValueAtTime(volume, now + 0.03);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+            gain.gain.linearRampToValueAtTime(volume, now + 0.04);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
 
-            osc.connect(filter);
-            filter.connect(gain);
-            gain.connect(this.reverb);
+            osc.connect(gain);
+            gain.connect(this.filterNode);
 
             osc.start(now);
-            osc.stop(now + 0.4);
+            osc.stop(now + 0.5);
         } catch (error) {
             console.error('Error playing sound:', error);
         }
     }
 
+    playChord(x, y) {
+        const baseFreq = 200 + (x / this.canvas.width) * 400;
+        const chord = [1, 1.25, 1.5]; // Major chord
+
+        for (let i = 0; i < chord.length; i++) {
+            setTimeout(() => {
+                this.playBloop(baseFreq * chord[i], 0.2);
+            }, i * 50);
+        }
+    }
+
     render() {
-        // Aggressive clearing when no hands, gentle trails when hands present
-        if (this.fadeoutStarted || this.handPositions.length === 0) {
-            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';  // Quick fadeout
+        // Gentle clearing
+        if (this.fadeoutStarted || (!this.leftHand && !this.rightHand)) {
+            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
         } else {
             this.ctx.fillStyle = `rgba(0, 0, 0, ${this.settings.trailAlpha})`;
         }
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Draw constellation lines between nearby fingers
-        if (this.handPositions.length > 1) {
-            for (let i = 0; i < this.handPositions.length; i++) {
-                for (let j = i + 1; j < this.handPositions.length; j++) {
-                    const pos1 = this.handPositions[i];
-                    const pos2 = this.handPositions[j];
+        // Update color phase
+        this.baseHue = (this.baseHue + 0.1) % 360;
 
-                    const dist = Math.sqrt(
-                        Math.pow(pos2.x - pos1.x, 2) +
-                        Math.pow(pos2.y - pos1.y, 2)
-                    );
-
-                    if (dist < this.settings.connectionDistance) {
-                        const alpha = 1 - (dist / this.settings.connectionDistance);
-
-                        const gradient = this.ctx.createLinearGradient(pos1.x, pos1.y, pos2.x, pos2.y);
-                        const color1 = this.colors[pos1.fingerIndex % this.colors.length];
-                        const color2 = this.colors[pos2.fingerIndex % this.colors.length];
-
-                        gradient.addColorStop(0, `rgba(${color1.r}, ${color1.g}, ${color1.b}, ${alpha * 0.6})`);
-                        gradient.addColorStop(1, `rgba(${color2.r}, ${color2.g}, ${color2.b}, ${alpha * 0.6})`);
-
-                        this.ctx.strokeStyle = gradient;
-                        this.ctx.lineWidth = 2 + alpha * 2;
-                        this.ctx.shadowBlur = 15;
-                        this.ctx.shadowColor = `rgba(255, 255, 255, ${alpha * 0.5})`;
-                        this.ctx.beginPath();
-                        this.ctx.moveTo(pos1.x, pos1.y);
-                        this.ctx.lineTo(pos2.x, pos2.y);
-                        this.ctx.stroke();
-                        this.ctx.shadowBlur = 0;
-                    }
-                }
-            }
+        // Draw special effect when hands are touching
+        if (this.handsAreTouching && this.touchingFingers.length > 0) {
+            this.drawTouchingEffect();
         }
 
-        // Draw flowing ribbon trails for each finger
+        // Draw fluid silk ribbons for each finger
         for (const fingerId in this.fingerTrails) {
             const trail = this.fingerTrails[fingerId];
+            if (trail.length < 3) continue;
 
-            if (trail.length < 2) continue;
+            // Determine color based on finger ID
+            const parts = fingerId.split('_');
+            const handedness = parts[0];
+            const fingerIndex = parseInt(parts[1].replace('finger', ''));
 
-            // Draw as smooth curve
-            this.ctx.beginPath();
-            this.ctx.moveTo(trail[0].x, trail[0].y);
-
-            for (let i = 1; i < trail.length; i++) {
-                const point = trail[i];
-                const prevPoint = trail[i - 1];
-
-                // Smooth curve
-                const cpx = (prevPoint.x + point.x) / 2;
-                const cpy = (prevPoint.y + point.y) / 2;
-                this.ctx.quadraticCurveTo(prevPoint.x, prevPoint.y, cpx, cpy);
-            }
-
-            // Gradient along trail
-            const lastPoint = trail[trail.length - 1];
-            const firstPoint = trail[0];
-            const gradient = this.ctx.createLinearGradient(
-                firstPoint.x, firstPoint.y,
-                lastPoint.x, lastPoint.y
-            );
-
-            const color = lastPoint.color;
-            gradient.addColorStop(0, `rgba(${color.r}, ${color.g}, ${color.b}, 0.1)`);
-            gradient.addColorStop(1, `rgba(${color.r}, ${color.g}, ${color.b}, 0.8)`);
-
-            this.ctx.strokeStyle = gradient;
-            this.ctx.lineWidth = 3 + this.motionData.intensity * 4;
-            this.ctx.shadowBlur = 20;
-            this.ctx.shadowColor = `rgba(${color.r}, ${color.g}, ${color.b}, 0.6)`;
-            this.ctx.stroke();
-            this.ctx.shadowBlur = 0;
+            this.drawFluidRibbon(trail, fingerIndex, handedness);
         }
 
-        // Draw particles
-        for (const p of this.particles) {
-            this.ctx.save();
-
-            this.ctx.shadowBlur = 15;
-            this.ctx.shadowColor = `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${p.alpha})`;
-
-            this.ctx.fillStyle = `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${p.alpha * 0.8})`;
-            this.ctx.beginPath();
-            this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-            this.ctx.fill();
-
-            this.ctx.restore();
+        // Draw fingertip markers
+        if (this.leftHand) {
+            this.drawFingertipMarkers(this.leftHand);
         }
-
-        // Draw fingertip positions as glowing dots
-        for (const pos of this.handPositions) {
-            const color = this.colors[pos.fingerIndex % this.colors.length];
-            const intensity = this.motionData.intensity;
-
-            this.ctx.save();
-            this.ctx.shadowBlur = 25 + intensity * 20;
-            this.ctx.shadowColor = `rgba(${color.r}, ${color.g}, ${color.b}, 0.8)`;
-
-            this.ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 0.9)`;
-            this.ctx.beginPath();
-            this.ctx.arc(pos.x, pos.y, 4 + intensity * 4, 0, Math.PI * 2);
-            this.ctx.fill();
-
-            // Outer ring
-            this.ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 0.5)`;
-            this.ctx.lineWidth = 2;
-            this.ctx.beginPath();
-            this.ctx.arc(pos.x, pos.y, 8 + intensity * 6, 0, Math.PI * 2);
-            this.ctx.stroke();
-
-            this.ctx.restore();
+        if (this.rightHand) {
+            this.drawFingertipMarkers(this.rightHand);
         }
 
         // Debug overlay
         if (this.debugMode && this.handResults && this.handResults.multiHandLandmarks) {
-            for (const landmarks of this.handResults.multiHandLandmarks) {
-                const connections = [
-                    [0, 1], [1, 2], [2, 3], [3, 4],
-                    [0, 5], [5, 6], [6, 7], [7, 8],
-                    [0, 9], [9, 10], [10, 11], [11, 12],
-                    [0, 13], [13, 14], [14, 15], [15, 16],
-                    [0, 17], [17, 18], [18, 19], [19, 20],
-                    [5, 9], [9, 13], [13, 17]
-                ];
+            this.drawDebugSkeleton();
+        }
+    }
 
-                this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-                this.ctx.lineWidth = 2;
+    drawFluidRibbon(trail, fingerIndex, handedness) {
+        // Draw multiple parallel ribbons with varying width for silk effect
+        const numRibbons = this.settings.ribbonOffsets;
 
-                for (const [start, end] of connections) {
-                    const startPoint = landmarks[start];
-                    const endPoint = landmarks[end];
+        for (let r = 0; r < numRibbons; r++) {
+            const offset = (r - Math.floor(numRibbons / 2)) * this.settings.ribbonSpacing;
+            const alpha = 1 - (Math.abs(offset) / (numRibbons * this.settings.ribbonSpacing)) * 0.7;
 
-                    this.ctx.beginPath();
-                    this.ctx.moveTo((1 - startPoint.x) * this.canvas.width, startPoint.y * this.canvas.height);
-                    this.ctx.lineTo((1 - endPoint.x) * this.canvas.width, endPoint.y * this.canvas.height);
-                    this.ctx.stroke();
+            this.ctx.save();
+            this.ctx.globalAlpha = alpha * 0.6;
+
+            // Create smooth curve with varying width
+            this.ctx.beginPath();
+
+            for (let i = 0; i < trail.length; i++) {
+                const point = trail[i];
+                const t = i / trail.length;
+
+                // Get perpendicular offset direction
+                let perpX = 0, perpY = 0;
+                if (i < trail.length - 1) {
+                    const next = trail[i + 1];
+                    const dx = next.x - point.x;
+                    const dy = next.y - point.y;
+                    const len = Math.sqrt(dx * dx + dy * dy);
+                    if (len > 0) {
+                        perpX = -dy / len * offset;
+                        perpY = dx / len * offset;
+                    }
                 }
+
+                const x = point.x + perpX;
+                const y = point.y + perpY;
+
+                if (i === 0) {
+                    this.ctx.moveTo(x, y);
+                } else {
+                    const prev = trail[i - 1];
+                    const prevPerpX = perpX;
+                    const prevPerpY = perpY;
+                    const cpx = (prev.x + prevPerpX + x) / 2;
+                    const cpy = (prev.y + prevPerpY + y) / 2;
+                    this.ctx.quadraticCurveTo(prev.x + prevPerpX, prev.y + prevPerpY, cpx, cpy);
+                }
+            }
+
+            // Get color
+            const color = this.getColorForFinger(fingerIndex, handedness, this.time * 0.001);
+
+            // Gradient from transparent to solid
+            const gradient = this.ctx.createLinearGradient(
+                trail[0].x, trail[0].y,
+                trail[trail.length - 1].x, trail[trail.length - 1].y
+            );
+
+            gradient.addColorStop(0, `rgba(${color.r}, ${color.g}, ${color.b}, 0.05)`);
+            gradient.addColorStop(0.5, `rgba(${color.r}, ${color.g}, ${color.b}, 0.5)`);
+            gradient.addColorStop(1, `rgba(${color.r}, ${color.g}, ${color.b}, 0.9)`);
+
+            // Varying width based on position in trail
+            let widthMultiplier = 1;
+            if (this.leftHand && handedness === 'Left') {
+                widthMultiplier = 1 + (this.leftHand.fingerSpread / 200);
+            } else if (this.rightHand && handedness === 'Right') {
+                widthMultiplier = 1 + (this.rightHand.fingerSpread / 200);
+            }
+
+            this.ctx.strokeStyle = gradient;
+            this.ctx.lineWidth = this.settings.ribbonWidth * widthMultiplier;
+            this.ctx.lineCap = 'round';
+            this.ctx.lineJoin = 'round';
+            this.ctx.shadowBlur = 15;
+            this.ctx.shadowColor = `rgba(${color.r}, ${color.g}, ${color.b}, 0.6)`;
+            this.ctx.stroke();
+
+            this.ctx.restore();
+        }
+    }
+
+    drawTouchingEffect() {
+        // Draw pulsing glow between touching fingers
+        for (const touch of this.touchingFingers) {
+            const midX = (touch.left.x + touch.right.x) / 2;
+            const midY = (touch.left.y + touch.right.y) / 2;
+
+            const pulse = Math.sin(this.time * 0.005) * 0.3 + 0.7;
+            const radius = 30 * pulse;
+
+            const gradient = this.ctx.createRadialGradient(midX, midY, 0, midX, midY, radius);
+            gradient.addColorStop(0, 'rgba(255, 255, 200, 0.8)');
+            gradient.addColorStop(0.5, 'rgba(200, 150, 255, 0.4)');
+            gradient.addColorStop(1, 'rgba(100, 200, 255, 0)');
+
+            this.ctx.fillStyle = gradient;
+            this.ctx.beginPath();
+            this.ctx.arc(midX, midY, radius, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+    }
+
+    drawFingertipMarkers(hand) {
+        for (const tip of hand.fingertips) {
+            const color = this.getColorForFinger(tip.fingerIndex, hand.handedness, this.time * 0.001);
+            const spread = hand.fingerSpread;
+            const size = 3 + (spread / 200) * 3;
+
+            this.ctx.save();
+
+            // Inner glow
+            this.ctx.shadowBlur = 20;
+            this.ctx.shadowColor = `rgba(${color.r}, ${color.g}, ${color.b}, 0.8)`;
+
+            this.ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 0.9)`;
+            this.ctx.beginPath();
+            this.ctx.arc(tip.x, tip.y, size, 0, Math.PI * 2);
+            this.ctx.fill();
+
+            // Outer ring
+            this.ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 0.4)`;
+            this.ctx.lineWidth = 1.5;
+            this.ctx.beginPath();
+            this.ctx.arc(tip.x, tip.y, size + 4, 0, Math.PI * 2);
+            this.ctx.stroke();
+
+            this.ctx.restore();
+        }
+    }
+
+    drawDebugSkeleton() {
+        for (const landmarks of this.handResults.multiHandLandmarks) {
+            const connections = [
+                [0, 1], [1, 2], [2, 3], [3, 4],
+                [0, 5], [5, 6], [6, 7], [7, 8],
+                [0, 9], [9, 10], [10, 11], [11, 12],
+                [0, 13], [13, 14], [14, 15], [15, 16],
+                [0, 17], [17, 18], [18, 19], [19, 20],
+                [5, 9], [9, 13], [13, 17]
+            ];
+
+            this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            this.ctx.lineWidth = 1.5;
+
+            for (const [start, end] of connections) {
+                const startPoint = landmarks[start];
+                const endPoint = landmarks[end];
+
+                this.ctx.beginPath();
+                this.ctx.moveTo((1 - startPoint.x) * this.canvas.width, startPoint.y * this.canvas.height);
+                this.ctx.lineTo((1 - endPoint.x) * this.canvas.width, endPoint.y * this.canvas.height);
+                this.ctx.stroke();
             }
         }
     }
@@ -649,8 +779,8 @@ class VisualSoundMirror {
 
         const deltaTime = timestamp - this.lastTime;
         this.lastTime = timestamp;
+        this.time += deltaTime;
 
-        this.updateParticles(deltaTime);
         this.updateAudio();
         this.render();
 
@@ -669,7 +799,7 @@ class VisualSoundMirror {
         if (this.masterGain && this.audioContext) {
             const now = this.audioContext.currentTime;
             this.masterGain.gain.linearRampToValueAtTime(
-                this.isMuted ? 0 : 0.2,
+                this.isMuted ? 0 : 0.25,
                 now + 0.1
             );
         }

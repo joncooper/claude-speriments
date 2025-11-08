@@ -4,13 +4,28 @@ An interactive art piece that creates mesmerizing visuals and soothing bloopy so
 
 ## Overview
 
-Visual Sound Mirror transforms you into a living instrument. As you move in front of your camera, the application tracks your motion and translates it into:
-- **Flowing ribbon trails** from each fingertip that create silk-like patterns
-- **Constellation lines** connecting nearby fingers like a living web
-- **Velocity-based particles** that only appear when you're moving
-- **Soothing, bloopy sounds** that respond to hand position and movement
-- **Instant response** - every effect is tied directly to your fingertips
-- **Quick fadeout** - screen clears to black within 1 second when hands leave frame
+Visual Sound Mirror transforms you into a living instrument with sophisticated multi-hand interactions:
+
+**Fluid Silk Ribbons:**
+- Each fingertip creates 3 parallel flowing ribbons
+- Width responds to finger spread
+- Dynamic colors based on color theory (aurora, sunset, ocean schemes)
+- Smooth, organic motion - no hyperactive particles
+
+**Sophisticated Audio:**
+- **Left hand**: Pinch/spread fingers to control filter cutoff and resonance (300-3000Hz)
+- **Right hand**: Pinch/spread fingers to control delay/echo amount
+- Horizontal position controls pitch (200-800Hz)
+- Movement velocity controls volume
+
+**Two-Hand Gestures:**
+- Touch fingertips together → harmonic chords
+- Bring hands close → special pulsing glow effect
+- Stretch hands apart like pulling dough → dynamic audio modulation
+
+**Responsive & Ephemeral:**
+- Every effect tied directly to your fingertips
+- Screen clears to black within 1 second when hands leave
 
 Perfect for meditation, creative expression, or just zoning out with some mesmerizing audio-visual feedback.
 
