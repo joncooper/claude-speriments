@@ -1,0 +1,78 @@
+# Infrastructure cache (regenerable)
+.infrastructure/cache/
+
+# Logs (too verbose for git)
+.infrastructure/logs/
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints
+
+# Environment variables
+.env
+.env.local
+
+# API keys and secrets
+secrets.yaml
+credentials.json
+*.key
+*.pem
+
+# Large data files (cache these locally, don't commit)
+*.parquet
+*.feather
+*.pkl
+*.pickle
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Keep these empty directories in git
+!.infrastructure/cache/.gitkeep
+!.infrastructure/logs/.gitkeep
+!coverage/.gitkeep
+!patterns/.gitkeep
+!meta/.gitkeep
+!shared/.gitkeep
