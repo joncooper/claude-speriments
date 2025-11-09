@@ -374,32 +374,47 @@ class VisualSoundMirror {
 
         // Keyboard controls
         document.addEventListener('keydown', (e) => {
+            // Don't handle keys if typing in an input field
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+
             // Visualization modes (1-6)
             if (e.key >= '1' && e.key <= '6') {
-                this.visualizationMode = parseInt(e.key);
-                console.log(`Visualization Mode ${this.visualizationMode}`);
+                e.preventDefault();
+                const newMode = parseInt(e.key);
+                this.visualizationMode = newMode;
+                console.log(`[KEYBOARD] Switched to Visualization Mode ${newMode}`);
+
                 // Reset state when switching modes
-                if (this.visualizationMode === 1) {
+                if (newMode === 1) {
                     this.particles = [];
-                } else if (this.visualizationMode === 6) {
+                } else if (newMode === 6) {
                     this.handHistory = [];
                 }
             }
 
             // Toggle visualization debug panel
             if (e.key === 'v' || e.key === 'V') {
+                e.preventDefault();
                 this.vizDebugVisible = !this.vizDebugVisible;
                 document.getElementById('vizDebugPanel').classList.toggle('hidden');
+                console.log(`[KEYBOARD] Viz debug panel: ${this.vizDebugVisible ? 'OPEN' : 'CLOSED'}`);
             }
 
             // Toggle pad debug panel
             if (e.key === 'p' || e.key === 'P') {
+                e.preventDefault();
                 this.debugPanelVisible = !this.debugPanelVisible;
                 document.getElementById('padDebugPanel').classList.toggle('hidden');
+                console.log(`[KEYBOARD] Pad debug panel: ${this.debugPanelVisible ? 'OPEN' : 'CLOSED'}`);
             }
 
             // Scale cycling
-            if (e.key === 's') this.cycleScale();
+            if (e.key === 's') {
+                e.preventDefault();
+                this.cycleScale();
+            }
         });
 
         document.getElementById('startButton').addEventListener('click', () => {
@@ -856,7 +871,7 @@ class VisualSoundMirror {
 
     // Count extended fingers on a hand (stricter detection for deliberate gestures)
     countExtendedFingers(landmarks) {
-        // Check each finger individually
+        // Check each finger individually with VERY strict requirements
         const wrist = landmarks[0];
 
         // Thumb: check if tip is significantly further from wrist than knuckle
@@ -864,33 +879,44 @@ class VisualSoundMirror {
         const thumbKnuckle = landmarks[2];
         const thumbTipDist = Math.hypot(thumbTip.x - wrist.x, thumbTip.y - wrist.y);
         const thumbKnuckleDist = Math.hypot(thumbKnuckle.x - wrist.x, thumbKnuckle.y - wrist.y);
-        const thumbExtended = thumbTipDist > thumbKnuckleDist * 1.3;
+        const thumbExtended = thumbTipDist > thumbKnuckleDist * 1.4; // Even stricter: 1.4
 
-        // Other fingers: check if tip is significantly higher than PIP joint
+        // Index finger
         const indexTip = landmarks[8];
         const indexPip = landmarks[6];
-        const indexExtended = indexTip.y < indexPip.y - 0.05;
+        const indexMcp = landmarks[5]; // Knuckle
+        const indexExtended = indexTip.y < indexPip.y - 0.06 && indexTip.y < indexMcp.y - 0.08;
 
+        // Middle finger
         const middleTip = landmarks[12];
         const middlePip = landmarks[10];
-        const middleExtended = middleTip.y < middlePip.y - 0.05;
+        const middleMcp = landmarks[9];
+        const middleExtended = middleTip.y < middlePip.y - 0.06 && middleTip.y < middleMcp.y - 0.08;
 
+        // Ring finger - check it's CURLED when should be down
         const ringTip = landmarks[16];
         const ringPip = landmarks[14];
-        const ringExtended = ringTip.y < ringPip.y - 0.05;
+        const ringMcp = landmarks[13];
+        const ringExtended = ringTip.y < ringPip.y - 0.06 && ringTip.y < ringMcp.y - 0.08;
+        const ringCurled = ringTip.y > ringPip.y; // Tip below PIP = curled
 
+        // Pinky - check it's CURLED when should be down
         const pinkyTip = landmarks[20];
         const pinkyPip = landmarks[18];
-        const pinkyExtended = pinkyTip.y < pinkyPip.y - 0.05;
+        const pinkyMcp = landmarks[17];
+        const pinkyExtended = pinkyTip.y < pinkyPip.y - 0.06 && pinkyTip.y < pinkyMcp.y - 0.08;
+        const pinkyCurled = pinkyTip.y > pinkyPip.y;
 
         // STRICT GESTURE DETECTION:
-        // 1 finger = ONLY index extended
-        if (indexExtended && !middleExtended && !ringExtended && !pinkyExtended && !thumbExtended) {
+        // 1 finger = ONLY index extended, others must be actively curled
+        if (indexExtended && !middleExtended && !ringExtended && !pinkyExtended &&
+            !thumbExtended && ringCurled && pinkyCurled) {
             return 1;
         }
 
-        // 2 fingers (peace sign) = ONLY index + middle extended
-        if (indexExtended && middleExtended && !ringExtended && !pinkyExtended && !thumbExtended) {
+        // 2 fingers (peace sign) = ONLY index + middle extended, others actively curled
+        if (indexExtended && middleExtended && !ringExtended && !pinkyExtended &&
+            !thumbExtended && ringCurled && pinkyCurled) {
             return 2;
         }
 
