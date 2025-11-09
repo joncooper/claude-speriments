@@ -133,6 +133,20 @@ class VisualSoundMirror {
             audioReactive: true        // React to audio
         };
 
+        // Temporal Echoes System (#6)
+        this.handHistory = [];
+        this.maxHistoryLength = 60; // Store up to 60 frames of history
+        this.echoSettings = {
+            trailLength: 30,           // Number of echoes to show (5-60)
+            fadeSpeed: 0.03,           // How fast echoes fade (0.01-0.1)
+            chromaticAberration: 3,    // RGB separation in pixels (0-10)
+            motionBlur: true,          // Connect echoes with lines
+            glowIntensity: 15,         // Glow blur amount (0-30)
+            echoSpacing: 2,            // Frames between echoes (1-5)
+            showPalm: true,            // Show palm echoes
+            showFingers: true          // Show finger echoes
+        };
+
         // No hands timer
         this.noHandsTime = 0;
         this.fadeoutStarted = false;
@@ -2130,8 +2144,11 @@ class VisualSoundMirror {
         if (this.visualizationMode === 1) {
             this.updateParticles();
             this.renderParticles();
+        } else if (this.visualizationMode === 6) {
+            this.updateHandHistory();
+            this.renderTemporalEchoes();
         }
-        // TODO: Add modes 2-6 here
+        // TODO: Add modes 2-5 here
 
         // Mode-specific rendering
         if (this.mode === 'theremin') {
@@ -2771,6 +2788,182 @@ class VisualSoundMirror {
 
     // ============================================================
     // END PARTICLE SYSTEM
+    // ============================================================
+
+    // ============================================================
+    // TEMPORAL ECHOES SYSTEM (#6) - Ghost Images / Motion Blur
+    // ============================================================
+
+    updateHandHistory() {
+        // Capture current hand state
+        if (this.leftHand || this.rightHand) {
+            const snapshot = {
+                timestamp: Date.now(),
+                leftHand: this.leftHand ? this.copyHandState(this.leftHand) : null,
+                rightHand: this.rightHand ? this.copyHandState(this.rightHand) : null
+            };
+
+            this.handHistory.push(snapshot);
+
+            // Limit history length
+            if (this.handHistory.length > this.maxHistoryLength) {
+                this.handHistory.shift();
+            }
+        }
+    }
+
+    copyHandState(hand) {
+        return {
+            palm: { x: hand.palm.x, y: hand.palm.y },
+            fingertips: hand.fingertips.map(ft => ({
+                x: ft.x,
+                y: ft.y,
+                fingerIndex: ft.fingerIndex
+            }))
+        };
+    }
+
+    renderTemporalEchoes() {
+        if (this.handHistory.length < 2) return;
+
+        const now = Date.now();
+        const spacing = this.echoSettings.echoSpacing;
+        const trailLength = Math.min(this.echoSettings.trailLength, this.handHistory.length);
+
+        // Enable glow effect
+        if (this.echoSettings.glowIntensity > 0) {
+            this.ctx.shadowBlur = this.echoSettings.glowIntensity;
+        }
+
+        // Draw echoes from oldest to newest (so newest is on top)
+        for (let i = 0; i < trailLength; i += spacing) {
+            const historyIndex = this.handHistory.length - 1 - i;
+            if (historyIndex < 0) break;
+
+            const snapshot = this.handHistory[historyIndex];
+            const age = i / trailLength; // 0 = newest, 1 = oldest
+            const alpha = (1 - age) * (1 - this.echoSettings.fadeSpeed * i);
+
+            if (alpha <= 0) continue;
+
+            // Draw chromatic aberration (RGB separation for dreamy effect)
+            const aberration = this.echoSettings.chromaticAberration;
+
+            // Red channel (shifted right/down)
+            if (aberration > 0) {
+                this.drawHandEcho(snapshot, alpha * 0.6, aberration, 0, 'rgba(255, 100, 100, ');
+            }
+
+            // Green channel (center)
+            this.drawHandEcho(snapshot, alpha, 0, 0, null);
+
+            // Blue channel (shifted left/up)
+            if (aberration > 0) {
+                this.drawHandEcho(snapshot, alpha * 0.6, -aberration, 0, 'rgba(100, 100, 255, ');
+            }
+
+            // Draw motion blur connections
+            if (this.echoSettings.motionBlur && i < trailLength - spacing && historyIndex > 0) {
+                const prevSnapshot = this.handHistory[historyIndex - spacing];
+                if (prevSnapshot) {
+                    this.drawMotionBlurConnections(snapshot, prevSnapshot, alpha * 0.3);
+                }
+            }
+        }
+
+        // Reset shadow
+        this.ctx.shadowBlur = 0;
+    }
+
+    drawHandEcho(snapshot, alpha, offsetX, offsetY, colorOverride) {
+        // Draw left hand echo
+        if (snapshot.leftHand && this.echoSettings.showFingers) {
+            this.drawHandGhost(snapshot.leftHand, alpha, offsetX, offsetY, colorOverride, 'left');
+        }
+
+        // Draw right hand echo
+        if (snapshot.rightHand && this.echoSettings.showFingers) {
+            this.drawHandGhost(snapshot.rightHand, alpha, offsetX, offsetY, colorOverride, 'right');
+        }
+    }
+
+    drawHandGhost(hand, alpha, offsetX, offsetY, colorOverride, handedness) {
+        if (alpha <= 0) return;
+
+        // Draw palm if enabled
+        if (this.echoSettings.showPalm && hand.palm) {
+            const palmX = hand.palm.x + offsetX;
+            const palmY = hand.palm.y + offsetY;
+
+            const palmHue = handedness === 'left' ? this.baseHue - 20 : this.baseHue + 20;
+            const color = colorOverride || `hsla(${palmHue}, 70%, 60%, `;
+
+            this.ctx.shadowColor = color.replace('(', '(').replace(', ', ', 80%, 60%)');
+            this.ctx.fillStyle = color + alpha + ')';
+            this.ctx.beginPath();
+            this.ctx.arc(palmX, palmY, 20, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+
+        // Draw fingertips
+        if (this.echoSettings.showFingers && hand.fingertips) {
+            for (const fingertip of hand.fingertips) {
+                const x = fingertip.x + offsetX;
+                const y = fingertip.y + offsetY;
+
+                const hue = (this.baseHue + fingertip.fingerIndex * 30) % 360;
+                const color = colorOverride || `hsla(${hue}, 80%, 60%, `;
+
+                this.ctx.shadowColor = color.replace('(', '(').replace(', ', ', 90%, 70%)');
+                this.ctx.fillStyle = color + alpha + ')';
+                this.ctx.beginPath();
+                this.ctx.arc(x, y, 12, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+        }
+    }
+
+    drawMotionBlurConnections(snapshot1, snapshot2, alpha) {
+        if (alpha <= 0) return;
+
+        this.ctx.lineWidth = 2;
+        this.ctx.lineCap = 'round';
+
+        // Connect left hand fingertips
+        if (snapshot1.leftHand && snapshot2.leftHand) {
+            for (let i = 0; i < snapshot1.leftHand.fingertips.length; i++) {
+                const ft1 = snapshot1.leftHand.fingertips[i];
+                const ft2 = snapshot2.leftHand.fingertips[i];
+
+                const hue = (this.baseHue + i * 30) % 360;
+                this.ctx.strokeStyle = `hsla(${hue}, 80%, 60%, ${alpha})`;
+
+                this.ctx.beginPath();
+                this.ctx.moveTo(ft1.x, ft1.y);
+                this.ctx.lineTo(ft2.x, ft2.y);
+                this.ctx.stroke();
+            }
+        }
+
+        // Connect right hand fingertips
+        if (snapshot1.rightHand && snapshot2.rightHand) {
+            for (let i = 0; i < snapshot1.rightHand.fingertips.length; i++) {
+                const ft1 = snapshot1.rightHand.fingertips[i];
+                const ft2 = snapshot2.rightHand.fingertips[i];
+
+                const hue = (this.baseHue + i * 30) % 360;
+                this.ctx.strokeStyle = `hsla(${hue}, 80%, 60%, ${alpha})`;
+
+                this.ctx.beginPath();
+                this.ctx.moveTo(ft1.x, ft1.y);
+                this.ctx.lineTo(ft2.x, ft2.y);
+                this.ctx.stroke();
+            }
+        }
+    }
+
+    // ============================================================
+    // END TEMPORAL ECHOES SYSTEM
     // ============================================================
 
     drawFluidRibbon(trail, fingerIndex, handedness) {
