@@ -16,6 +16,7 @@ class VisualSoundMirror {
         this.hands = null;
         this.handResults = null;
         this.camera = null;
+        this.gestureDetectionEnabled = false; // Default to OFF
 
         // Hand data
         this.leftHand = null;   // { landmarks, fingertips, palm, fingerSpread }
@@ -479,6 +480,10 @@ class VisualSoundMirror {
 
         document.getElementById('startButton').addEventListener('click', () => {
             this.start();
+        });
+
+        document.getElementById('gestureButton').addEventListener('click', () => {
+            this.toggleGestureDetection();
         });
 
         document.getElementById('muteButton').addEventListener('click', () => {
@@ -4397,8 +4402,10 @@ class VisualSoundMirror {
         this.lastTime = timestamp;
         this.time += deltaTime;
 
-        // Detect hand gestures for mode switching
-        this.detectModeGesture();
+        // Detect hand gestures for mode switching (only if gesture detection is enabled)
+        if (this.gestureDetectionEnabled) {
+            this.detectModeGesture();
+        }
 
         this.updateAudio();
         this.render();
@@ -4420,6 +4427,19 @@ class VisualSoundMirror {
                 this.isMuted ? 0 : 0.25,
                 now + 0.1
             );
+        }
+    }
+
+    toggleGestureDetection() {
+        this.gestureDetectionEnabled = !this.gestureDetectionEnabled;
+        const button = document.getElementById('gestureButton');
+
+        if (this.gestureDetectionEnabled) {
+            button.classList.remove('inactive');
+            button.title = 'Gesture Detection ON (Click to disable)';
+        } else {
+            button.classList.add('inactive');
+            button.title = 'Gesture Detection OFF (Click to enable)';
         }
     }
 }
