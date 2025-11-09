@@ -1,10 +1,10 @@
-# Visual Sound Mirror - v6.2 Hands-Free Edition
+# Visual Sound Mirror - v6.6.0 Hands-Free Edition
 
-An interactive music instrument that transforms your gestures into sound and visuals. Features three distinct modes (ribbons, theremin, drum pads) with gesture-based mode switching and global audio controls - all controlled through webcam hand tracking. **No keyboard required!**
+An interactive music instrument that transforms your gestures into sound and visuals. Features three distinct modes (ribbons, theremin, drum pads) with gesture-based mode switching and global audio controls - all controlled through webcam hand tracking. **No keyboard required!** Includes 6 dynamic visualization modes with extensive customization options.
 
 ## Overview
 
-Visual Sound Mirror v6.2 is a completely hands-free musical instrument with gesture-controlled synthesis:
+Visual Sound Mirror v6.6.0 is a completely hands-free musical instrument with gesture-controlled synthesis and enhanced visual effects:
 
 ### 🎨 **Ribbons Mode** (Default)
 - Each fingertip creates 3 parallel flowing silk ribbons

@@ -1,4 +1,4 @@
-// Visual Sound Mirror - v6.2 Hands-Free Edition
+// Visual Sound Mirror - v6.6.0 Hands-Free Edition
 // Interactive music instrument with gesture-controlled mode switching and global audio controls
 // No keyboard required - switch modes with hand gestures (1, 2, or 5 fingers)
 
@@ -136,10 +136,53 @@ class VisualSoundMirror {
         // Audio Bloom Pulses System (#2)
         this.blooms = [];
         this.lastBloomTime = 0;
+        this.bloomSettings = {
+            velocityThreshold: 5,      // Min velocity to trigger bloom (1-20)
+            bloomInterval: 100,        // Min ms between blooms (50-500)
+            lifetime: 2000,            // Bloom lifetime in ms (500-5000)
+            maxRadius: 300,            // Max expansion radius (100-500)
+            ringCount: 3,              // Number of concentric rings (1-8)
+            ringSpacing: 30,           // Space between rings (10-60)
+            pulseSpeed: 1.0,           // Animation speed multiplier (0.5-3.0)
+            glowIntensity: 20,         // Glow blur amount (0-40)
+            colorShift: true           // Shift color over lifetime
+        };
+
+        // Fluid Dynamics System (#3)
+        this.fluidSettings = {
+            tendrilCount: 8,           // Tendrils per fingertip (3-15)
+            tendrilRadius: 25,         // Distance from center (10-60)
+            flowSpeed: 0.002,          // Rotation speed (0.0005-0.01)
+            pulseAmount: 10,           // Radius pulsing (0-30)
+            gradientSize: 40,          // Gradient radius (20-80)
+            opacity: 0.5,              // Base opacity (0.2-0.8)
+            trailPersistence: 0.92,    // How long trails last (0.8-0.98)
+            velocityInfluence: 2.0     // How much movement affects flow (0-5)
+        };
+
+        // Gravitational Orbits System (#4)
+        this.orbitSettings = {
+            orbiterCount: 8,           // Particles per fingertip (4-20)
+            orbitRadius: 45,           // Orbit distance (20-100)
+            orbitSpeed: 0.003,         // Rotation speed (0.001-0.01)
+            orbiterSize: 5,            // Particle size (2-12)
+            sunSize: 14,               // Central sun size (8-30)
+            trailLength: 0.15,         // Orbital trail length (0-0.5)
+            wobble: 5,                 // Orbit wobble amount (0-20)
+            glowIntensity: 18          // Glow blur (0-40)
+        };
 
         // Kaleidoscope Symmetry System (#5)
-        this.kaleidoscopeSymmetry = 6; // 6-fold symmetry
-        this.kaleidoscopeTrails = [];
+        this.kaleidoscopeSettings = {
+            symmetryCount: 6,          // Fold count (3-12)
+            fingerSize: 18,            // Reflected finger size (8-40)
+            lineOpacity: 0.4,          // Line to center opacity (0-1)
+            rotationSpeed: 0,          // Auto-rotation (0-0.01)
+            trailPersistence: 0.85,    // Trail fade (0.7-0.95)
+            glowIntensity: 25,         // Glow blur (0-50)
+            pulseWithAudio: false,     // React to audio
+            showCenter: true           // Show center point
+        };
 
         // Temporal Echoes System (#6)
         this.handHistory = [];
@@ -152,7 +195,9 @@ class VisualSoundMirror {
             glowIntensity: 15,         // Glow blur amount (0-30)
             echoSpacing: 2,            // Frames between echoes (1-5)
             showPalm: true,            // Show palm echoes
-            showFingers: true          // Show finger echoes
+            showFingers: true,         // Show finger echoes
+            fingerSize: 12,            // Echo finger size (6-24)
+            palmSize: 20               // Echo palm size (10-40)
         };
 
         // No hands timer
@@ -397,9 +442,14 @@ class VisualSoundMirror {
                 // Reset state when switching modes
                 if (newMode === 1) {
                     this.particles = [];
+                } else if (newMode === 2) {
+                    this.blooms = [];
                 } else if (newMode === 6) {
                     this.handHistory = [];
                 }
+
+                // Update debug panel to show controls for this mode
+                this.populateVizDebugPanel();
             }
 
             // Toggle visualization debug panel
@@ -686,6 +736,642 @@ class VisualSoundMirror {
         document.getElementById('audioReactive').checked = true;
 
         console.log('Reset visualization settings to defaults');
+    }
+
+    populateVizDebugPanel() {
+        // Dynamically populate viz debug panel based on current visualization mode
+        const container = document.querySelector('.viz-debug-content');
+        if (!container) return;
+
+        // Build HTML based on mode
+        let html = `
+            <h3>Visualization Tuning (Press 'V' to toggle)</h3>
+            <p class="viz-mode-indicator">Mode <span id="currentVizMode">${this.visualizationMode}</span>: ${this.getVisualizationModeName(this.visualizationMode)} | Press 1-6 to switch modes</p>
+        `;
+
+        // Mode-specific controls
+        if (this.visualizationMode === 1) {
+            // Particle Fountain
+            html += this.getParticleControls();
+        } else if (this.visualizationMode === 2) {
+            // Audio Bloom Pulses
+            html += this.getBloomControls();
+        } else if (this.visualizationMode === 3) {
+            // Fluid Dynamics
+            html += this.getFluidControls();
+        } else if (this.visualizationMode === 4) {
+            // Gravitational Orbits
+            html += this.getOrbitControls();
+        } else if (this.visualizationMode === 5) {
+            // Kaleidoscope Symmetry
+            html += this.getKaleidoscopeControls();
+        } else if (this.visualizationMode === 6) {
+            // Temporal Echoes
+            html += this.getEchoControls();
+        }
+
+        container.innerHTML = html;
+
+        // Attach event listeners for the new controls
+        this.attachVizDebugListeners();
+    }
+
+    getParticleControls() {
+        const s = this.particleSettings;
+        return `
+            <div class="control-group">
+                <label>Emission Rate: <span id="emissionRateValue">${s.emissionRate}</span>/sec</label>
+                <input type="range" id="emissionRate" min="10" max="200" value="${s.emissionRate}" step="5">
+            </div>
+            <div class="control-group">
+                <label>Lifetime: <span id="lifetimeValue">${s.lifetime}</span>ms</label>
+                <input type="range" id="lifetime" min="500" max="8000" value="${s.lifetime}" step="100">
+            </div>
+            <div class="control-group">
+                <label>Initial Velocity: <span id="initialVelocityValue">${s.initialVelocity}</span>x</label>
+                <input type="range" id="initialVelocity" min="0.01" max="2.0" value="${s.initialVelocity}" step="0.01">
+            </div>
+            <div class="control-group">
+                <label>Gravity: <span id="gravityValue">${s.gravity}</span></label>
+                <input type="range" id="gravity" min="0" max="0.5" value="${s.gravity}" step="0.01">
+            </div>
+            <div class="control-group">
+                <label>Drag: <span id="dragValue">${s.drag}</span></label>
+                <input type="range" id="drag" min="0.9" max="0.999" value="${s.drag}" step="0.001">
+            </div>
+            <div class="control-group">
+                <label>Attraction: <span id="attractionValue">${s.attraction}</span></label>
+                <input type="range" id="attraction" min="-0.5" max="0.5" value="${s.attraction}" step="0.05">
+            </div>
+            <div class="control-group">
+                <label>Repulsion: <span id="repulsionValue">${s.repulsion}</span></label>
+                <input type="range" id="repulsion" min="0" max="2" value="${s.repulsion}" step="0.1">
+            </div>
+            <div class="control-group">
+                <label>Turbulence: <span id="turbulenceValue">${s.turbulence}</span></label>
+                <input type="range" id="turbulence" min="0" max="2" value="${s.turbulence}" step="0.1">
+            </div>
+            <div class="control-group">
+                <label>Size Min: <span id="particleSizeMinValue">${s.particleSizeMin}</span>px</label>
+                <input type="range" id="particleSizeMin" min="0.5" max="5" value="${s.particleSizeMin}" step="0.1">
+            </div>
+            <div class="control-group">
+                <label>Size Max: <span id="particleSizeMaxValue">${s.particleSizeMax}</span>px</label>
+                <input type="range" id="particleSizeMax" min="1" max="10" value="${s.particleSizeMax}" step="0.1">
+            </div>
+            <div class="control-group">
+                <label>Color Mode:</label>
+                <select id="colorMode">
+                    <option value="velocity" ${s.colorMode === 'velocity' ? 'selected' : ''}>Velocity</option>
+                    <option value="lifetime" ${s.colorMode === 'lifetime' ? 'selected' : ''}>Lifetime</option>
+                    <option value="audio" ${s.colorMode === 'audio' ? 'selected' : ''}>Audio Reactive</option>
+                    <option value="rainbow" ${s.colorMode === 'rainbow' ? 'selected' : ''}>Rainbow</option>
+                </select>
+            </div>
+            <div class="control-group checkbox-group">
+                <label><input type="checkbox" id="glow" ${s.glow ? 'checked' : ''}> Glow Effect</label>
+                <label><input type="checkbox" id="trails" ${s.trails ? 'checked' : ''}> Particle Trails</label>
+                <label><input type="checkbox" id="audioReactive" ${s.audioReactive ? 'checked' : ''}> Audio Reactive</label>
+            </div>
+            <div class="control-group">
+                <p>Particles: <span id="particleCount">${this.particles.length}</span> / 15000</p>
+            </div>
+            <button id="clearParticles">Clear All Particles</button>
+            <button id="resetViz">Reset to Defaults</button>
+        `;
+    }
+
+    getBloomControls() {
+        const s = this.bloomSettings;
+        return `
+            <div class="control-group">
+                <label>Velocity Threshold: <span id="bloomVelocityValue">${s.velocityThreshold}</span></label>
+                <input type="range" id="bloomVelocity" min="1" max="20" value="${s.velocityThreshold}" step="0.5">
+            </div>
+            <div class="control-group">
+                <label>Bloom Interval: <span id="bloomIntervalValue">${s.bloomInterval}</span>ms</label>
+                <input type="range" id="bloomInterval" min="50" max="500" value="${s.bloomInterval}" step="10">
+            </div>
+            <div class="control-group">
+                <label>Lifetime: <span id="bloomLifetimeValue">${s.lifetime}</span>ms</label>
+                <input type="range" id="bloomLifetime" min="500" max="5000" value="${s.lifetime}" step="100">
+            </div>
+            <div class="control-group">
+                <label>Max Radius: <span id="bloomRadiusValue">${s.maxRadius}</span>px</label>
+                <input type="range" id="bloomRadius" min="100" max="500" value="${s.maxRadius}" step="10">
+            </div>
+            <div class="control-group">
+                <label>Ring Count: <span id="bloomRingsValue">${s.ringCount}</span></label>
+                <input type="range" id="bloomRings" min="1" max="8" value="${s.ringCount}" step="1">
+            </div>
+            <div class="control-group">
+                <label>Ring Spacing: <span id="bloomSpacingValue">${s.ringSpacing}</span>px</label>
+                <input type="range" id="bloomSpacing" min="10" max="60" value="${s.ringSpacing}" step="5">
+            </div>
+            <div class="control-group">
+                <label>Pulse Speed: <span id="bloomSpeedValue">${s.pulseSpeed}</span>x</label>
+                <input type="range" id="bloomSpeed" min="0.5" max="3.0" value="${s.pulseSpeed}" step="0.1">
+            </div>
+            <div class="control-group">
+                <label>Glow Intensity: <span id="bloomGlowValue">${s.glowIntensity}</span></label>
+                <input type="range" id="bloomGlow" min="0" max="40" value="${s.glowIntensity}" step="2">
+            </div>
+            <div class="control-group checkbox-group">
+                <label><input type="checkbox" id="bloomColorShift" ${s.colorShift ? 'checked' : ''}> Color Shift</label>
+            </div>
+            <div class="control-group">
+                <p>Active Blooms: <span id="bloomCount">${this.blooms.length}</span></p>
+            </div>
+            <button id="clearBlooms">Clear All Blooms</button>
+            <button id="resetViz">Reset to Defaults</button>
+        `;
+    }
+
+    getFluidControls() {
+        const s = this.fluidSettings;
+        return `
+            <div class="control-group">
+                <label>Tendril Count: <span id="fluidTendrilsValue">${s.tendrilCount}</span></label>
+                <input type="range" id="fluidTendrils" min="3" max="15" value="${s.tendrilCount}" step="1">
+            </div>
+            <div class="control-group">
+                <label>Tendril Radius: <span id="fluidRadiusValue">${s.tendrilRadius}</span>px</label>
+                <input type="range" id="fluidRadius" min="10" max="60" value="${s.tendrilRadius}" step="5">
+            </div>
+            <div class="control-group">
+                <label>Flow Speed: <span id="fluidSpeedValue">${s.flowSpeed}</span></label>
+                <input type="range" id="fluidSpeed" min="0.0005" max="0.01" value="${s.flowSpeed}" step="0.0005">
+            </div>
+            <div class="control-group">
+                <label>Pulse Amount: <span id="fluidPulseValue">${s.pulseAmount}</span>px</label>
+                <input type="range" id="fluidPulse" min="0" max="30" value="${s.pulseAmount}" step="2">
+            </div>
+            <div class="control-group">
+                <label>Gradient Size: <span id="fluidGradientValue">${s.gradientSize}</span>px</label>
+                <input type="range" id="fluidGradient" min="20" max="80" value="${s.gradientSize}" step="5">
+            </div>
+            <div class="control-group">
+                <label>Opacity: <span id="fluidOpacityValue">${s.opacity}</span></label>
+                <input type="range" id="fluidOpacity" min="0.2" max="0.8" value="${s.opacity}" step="0.05">
+            </div>
+            <div class="control-group">
+                <label>Trail Persistence: <span id="fluidTrailValue">${s.trailPersistence}</span></label>
+                <input type="range" id="fluidTrail" min="0.8" max="0.98" value="${s.trailPersistence}" step="0.01">
+            </div>
+            <div class="control-group">
+                <label>Velocity Influence: <span id="fluidVelocityValue">${s.velocityInfluence}</span></label>
+                <input type="range" id="fluidVelocity" min="0" max="5" value="${s.velocityInfluence}" step="0.2">
+            </div>
+            <button id="resetViz">Reset to Defaults</button>
+        `;
+    }
+
+    getOrbitControls() {
+        const s = this.orbitSettings;
+        return `
+            <div class="control-group">
+                <label>Orbiter Count: <span id="orbitCountValue">${s.orbiterCount}</span></label>
+                <input type="range" id="orbitCount" min="4" max="20" value="${s.orbiterCount}" step="1">
+            </div>
+            <div class="control-group">
+                <label>Orbit Radius: <span id="orbitRadiusValue">${s.orbitRadius}</span>px</label>
+                <input type="range" id="orbitRadius" min="20" max="100" value="${s.orbitRadius}" step="5">
+            </div>
+            <div class="control-group">
+                <label>Orbit Speed: <span id="orbitSpeedValue">${s.orbitSpeed}</span></label>
+                <input type="range" id="orbitSpeed" min="0.001" max="0.01" value="${s.orbitSpeed}" step="0.0005">
+            </div>
+            <div class="control-group">
+                <label>Orbiter Size: <span id="orbitSizeValue">${s.orbiterSize}</span>px</label>
+                <input type="range" id="orbitSize" min="2" max="12" value="${s.orbiterSize}" step="0.5">
+            </div>
+            <div class="control-group">
+                <label>Sun Size: <span id="orbitSunValue">${s.sunSize}</span>px</label>
+                <input type="range" id="orbitSun" min="8" max="30" value="${s.sunSize}" step="1">
+            </div>
+            <div class="control-group">
+                <label>Trail Length: <span id="orbitTrailValue">${s.trailLength}</span></label>
+                <input type="range" id="orbitTrail" min="0" max="0.5" value="${s.trailLength}" step="0.05">
+            </div>
+            <div class="control-group">
+                <label>Wobble: <span id="orbitWobbleValue">${s.wobble}</span></label>
+                <input type="range" id="orbitWobble" min="0" max="20" value="${s.wobble}" step="1">
+            </div>
+            <div class="control-group">
+                <label>Glow Intensity: <span id="orbitGlowValue">${s.glowIntensity}</span></label>
+                <input type="range" id="orbitGlow" min="0" max="40" value="${s.glowIntensity}" step="2">
+            </div>
+            <button id="resetViz">Reset to Defaults</button>
+        `;
+    }
+
+    getKaleidoscopeControls() {
+        const s = this.kaleidoscopeSettings;
+        return `
+            <div class="control-group">
+                <label>Symmetry Count: <span id="kaleSymmetryValue">${s.symmetryCount}</span></label>
+                <input type="range" id="kaleSymmetry" min="3" max="12" value="${s.symmetryCount}" step="1">
+            </div>
+            <div class="control-group">
+                <label>Finger Size: <span id="kaleFingerValue">${s.fingerSize}</span>px</label>
+                <input type="range" id="kaleFinger" min="8" max="40" value="${s.fingerSize}" step="2">
+            </div>
+            <div class="control-group">
+                <label>Line Opacity: <span id="kaleLineValue">${s.lineOpacity}</span></label>
+                <input type="range" id="kaleLine" min="0" max="1" value="${s.lineOpacity}" step="0.05">
+            </div>
+            <div class="control-group">
+                <label>Rotation Speed: <span id="kaleRotationValue">${s.rotationSpeed}</span></label>
+                <input type="range" id="kaleRotation" min="0" max="0.01" value="${s.rotationSpeed}" step="0.0005">
+            </div>
+            <div class="control-group">
+                <label>Trail Persistence: <span id="kaleTrailValue">${s.trailPersistence}</span></label>
+                <input type="range" id="kaleTrail" min="0.7" max="0.95" value="${s.trailPersistence}" step="0.01">
+            </div>
+            <div class="control-group">
+                <label>Glow Intensity: <span id="kaleGlowValue">${s.glowIntensity}</span></label>
+                <input type="range" id="kaleGlow" min="0" max="50" value="${s.glowIntensity}" step="2">
+            </div>
+            <div class="control-group checkbox-group">
+                <label><input type="checkbox" id="kalePulse" ${s.pulseWithAudio ? 'checked' : ''}> Pulse With Audio</label>
+                <label><input type="checkbox" id="kaleCenter" ${s.showCenter ? 'checked' : ''}> Show Center</label>
+            </div>
+            <button id="resetViz">Reset to Defaults</button>
+        `;
+    }
+
+    getEchoControls() {
+        const s = this.echoSettings;
+        return `
+            <div class="control-group">
+                <label>Trail Length: <span id="echoLengthValue">${s.trailLength}</span></label>
+                <input type="range" id="echoLength" min="5" max="60" value="${s.trailLength}" step="1">
+            </div>
+            <div class="control-group">
+                <label>Fade Speed: <span id="echoFadeValue">${s.fadeSpeed}</span></label>
+                <input type="range" id="echoFade" min="0.01" max="0.1" value="${s.fadeSpeed}" step="0.005">
+            </div>
+            <div class="control-group">
+                <label>Chromatic Aberration: <span id="echoChromaticValue">${s.chromaticAberration}</span>px</label>
+                <input type="range" id="echoChromatic" min="0" max="10" value="${s.chromaticAberration}" step="0.5">
+            </div>
+            <div class="control-group">
+                <label>Echo Spacing: <span id="echoSpacingValue">${s.echoSpacing}</span></label>
+                <input type="range" id="echoSpacing" min="1" max="5" value="${s.echoSpacing}" step="1">
+            </div>
+            <div class="control-group">
+                <label>Glow Intensity: <span id="echoGlowValue">${s.glowIntensity}</span></label>
+                <input type="range" id="echoGlow" min="0" max="30" value="${s.glowIntensity}" step="2">
+            </div>
+            <div class="control-group">
+                <label>Finger Size: <span id="echoFingerValue">${s.fingerSize}</span>px</label>
+                <input type="range" id="echoFinger" min="6" max="24" value="${s.fingerSize}" step="1">
+            </div>
+            <div class="control-group">
+                <label>Palm Size: <span id="echoPalmValue">${s.palmSize}</span>px</label>
+                <input type="range" id="echoPalm" min="10" max="40" value="${s.palmSize}" step="2">
+            </div>
+            <div class="control-group checkbox-group">
+                <label><input type="checkbox" id="echoMotionBlur" ${s.motionBlur ? 'checked' : ''}> Motion Blur</label>
+                <label><input type="checkbox" id="echoPalm" ${s.showPalm ? 'checked' : ''}> Show Palm</label>
+                <label><input type="checkbox" id="echoFingers" ${s.showFingers ? 'checked' : ''}> Show Fingers</label>
+            </div>
+            <button id="resetViz">Reset to Defaults</button>
+        `;
+    }
+
+    attachVizDebugListeners() {
+        // Remove old listeners by replacing setupVizDebugListeners
+        // Mode-specific listeners based on current mode
+        if (this.visualizationMode === 1) {
+            this.attachParticleListeners();
+        } else if (this.visualizationMode === 2) {
+            this.attachBloomListeners();
+        } else if (this.visualizationMode === 3) {
+            this.attachFluidListeners();
+        } else if (this.visualizationMode === 4) {
+            this.attachOrbitListeners();
+        } else if (this.visualizationMode === 5) {
+            this.attachKaleidoscopeListeners();
+        } else if (this.visualizationMode === 6) {
+            this.attachEchoListeners();
+        }
+
+        // All modes have reset button
+        const resetBtn = document.getElementById('resetViz');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => this.resetCurrentModeSettings());
+        }
+    }
+
+    attachParticleListeners() {
+        document.getElementById('emissionRate').addEventListener('input', (e) => {
+            this.particleSettings.emissionRate = parseFloat(e.target.value);
+            document.getElementById('emissionRateValue').textContent = e.target.value;
+        });
+        document.getElementById('lifetime').addEventListener('input', (e) => {
+            this.particleSettings.lifetime = parseInt(e.target.value);
+            document.getElementById('lifetimeValue').textContent = e.target.value;
+        });
+        document.getElementById('initialVelocity').addEventListener('input', (e) => {
+            this.particleSettings.initialVelocity = parseFloat(e.target.value);
+            document.getElementById('initialVelocityValue').textContent = e.target.value;
+        });
+        document.getElementById('gravity').addEventListener('input', (e) => {
+            this.particleSettings.gravity = parseFloat(e.target.value);
+            document.getElementById('gravityValue').textContent = e.target.value;
+        });
+        document.getElementById('drag').addEventListener('input', (e) => {
+            this.particleSettings.drag = parseFloat(e.target.value);
+            document.getElementById('dragValue').textContent = e.target.value;
+        });
+        document.getElementById('attraction').addEventListener('input', (e) => {
+            this.particleSettings.attraction = parseFloat(e.target.value);
+            document.getElementById('attractionValue').textContent = e.target.value;
+        });
+        document.getElementById('repulsion').addEventListener('input', (e) => {
+            this.particleSettings.repulsion = parseFloat(e.target.value);
+            document.getElementById('repulsionValue').textContent = e.target.value;
+        });
+        document.getElementById('turbulence').addEventListener('input', (e) => {
+            this.particleSettings.turbulence = parseFloat(e.target.value);
+            document.getElementById('turbulenceValue').textContent = e.target.value;
+        });
+        document.getElementById('particleSizeMin').addEventListener('input', (e) => {
+            this.particleSettings.particleSizeMin = parseFloat(e.target.value);
+            document.getElementById('particleSizeMinValue').textContent = e.target.value;
+        });
+        document.getElementById('particleSizeMax').addEventListener('input', (e) => {
+            this.particleSettings.particleSizeMax = parseFloat(e.target.value);
+            document.getElementById('particleSizeMaxValue').textContent = e.target.value;
+        });
+        document.getElementById('colorMode').addEventListener('change', (e) => {
+            this.particleSettings.colorMode = e.target.value;
+        });
+        document.getElementById('glow').addEventListener('change', (e) => {
+            this.particleSettings.glow = e.target.checked;
+        });
+        document.getElementById('trails').addEventListener('change', (e) => {
+            this.particleSettings.trails = e.target.checked;
+        });
+        document.getElementById('audioReactive').addEventListener('change', (e) => {
+            this.particleSettings.audioReactive = e.target.checked;
+        });
+        const clearBtn = document.getElementById('clearParticles');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                this.particles = [];
+                console.log('Cleared all particles');
+            });
+        }
+    }
+
+    attachBloomListeners() {
+        document.getElementById('bloomVelocity').addEventListener('input', (e) => {
+            this.bloomSettings.velocityThreshold = parseFloat(e.target.value);
+            document.getElementById('bloomVelocityValue').textContent = e.target.value;
+        });
+        document.getElementById('bloomInterval').addEventListener('input', (e) => {
+            this.bloomSettings.bloomInterval = parseInt(e.target.value);
+            document.getElementById('bloomIntervalValue').textContent = e.target.value;
+        });
+        document.getElementById('bloomLifetime').addEventListener('input', (e) => {
+            this.bloomSettings.lifetime = parseInt(e.target.value);
+            document.getElementById('bloomLifetimeValue').textContent = e.target.value;
+        });
+        document.getElementById('bloomRadius').addEventListener('input', (e) => {
+            this.bloomSettings.maxRadius = parseInt(e.target.value);
+            document.getElementById('bloomRadiusValue').textContent = e.target.value;
+        });
+        document.getElementById('bloomRings').addEventListener('input', (e) => {
+            this.bloomSettings.ringCount = parseInt(e.target.value);
+            document.getElementById('bloomRingsValue').textContent = e.target.value;
+        });
+        document.getElementById('bloomSpacing').addEventListener('input', (e) => {
+            this.bloomSettings.ringSpacing = parseInt(e.target.value);
+            document.getElementById('bloomSpacingValue').textContent = e.target.value;
+        });
+        document.getElementById('bloomSpeed').addEventListener('input', (e) => {
+            this.bloomSettings.pulseSpeed = parseFloat(e.target.value);
+            document.getElementById('bloomSpeedValue').textContent = e.target.value;
+        });
+        document.getElementById('bloomGlow').addEventListener('input', (e) => {
+            this.bloomSettings.glowIntensity = parseInt(e.target.value);
+            document.getElementById('bloomGlowValue').textContent = e.target.value;
+        });
+        document.getElementById('bloomColorShift').addEventListener('change', (e) => {
+            this.bloomSettings.colorShift = e.target.checked;
+        });
+        const clearBtn = document.getElementById('clearBlooms');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                this.blooms = [];
+                console.log('Cleared all blooms');
+            });
+        }
+    }
+
+    attachFluidListeners() {
+        document.getElementById('fluidTendrils').addEventListener('input', (e) => {
+            this.fluidSettings.tendrilCount = parseInt(e.target.value);
+            document.getElementById('fluidTendrilsValue').textContent = e.target.value;
+        });
+        document.getElementById('fluidRadius').addEventListener('input', (e) => {
+            this.fluidSettings.tendrilRadius = parseInt(e.target.value);
+            document.getElementById('fluidRadiusValue').textContent = e.target.value;
+        });
+        document.getElementById('fluidSpeed').addEventListener('input', (e) => {
+            this.fluidSettings.flowSpeed = parseFloat(e.target.value);
+            document.getElementById('fluidSpeedValue').textContent = e.target.value;
+        });
+        document.getElementById('fluidPulse').addEventListener('input', (e) => {
+            this.fluidSettings.pulseAmount = parseInt(e.target.value);
+            document.getElementById('fluidPulseValue').textContent = e.target.value;
+        });
+        document.getElementById('fluidGradient').addEventListener('input', (e) => {
+            this.fluidSettings.gradientSize = parseInt(e.target.value);
+            document.getElementById('fluidGradientValue').textContent = e.target.value;
+        });
+        document.getElementById('fluidOpacity').addEventListener('input', (e) => {
+            this.fluidSettings.opacity = parseFloat(e.target.value);
+            document.getElementById('fluidOpacityValue').textContent = e.target.value;
+        });
+        document.getElementById('fluidTrail').addEventListener('input', (e) => {
+            this.fluidSettings.trailPersistence = parseFloat(e.target.value);
+            document.getElementById('fluidTrailValue').textContent = e.target.value;
+        });
+        document.getElementById('fluidVelocity').addEventListener('input', (e) => {
+            this.fluidSettings.velocityInfluence = parseFloat(e.target.value);
+            document.getElementById('fluidVelocityValue').textContent = e.target.value;
+        });
+    }
+
+    attachOrbitListeners() {
+        document.getElementById('orbitCount').addEventListener('input', (e) => {
+            this.orbitSettings.orbiterCount = parseInt(e.target.value);
+            document.getElementById('orbitCountValue').textContent = e.target.value;
+        });
+        document.getElementById('orbitRadius').addEventListener('input', (e) => {
+            this.orbitSettings.orbitRadius = parseInt(e.target.value);
+            document.getElementById('orbitRadiusValue').textContent = e.target.value;
+        });
+        document.getElementById('orbitSpeed').addEventListener('input', (e) => {
+            this.orbitSettings.orbitSpeed = parseFloat(e.target.value);
+            document.getElementById('orbitSpeedValue').textContent = e.target.value;
+        });
+        document.getElementById('orbitSize').addEventListener('input', (e) => {
+            this.orbitSettings.orbiterSize = parseFloat(e.target.value);
+            document.getElementById('orbitSizeValue').textContent = e.target.value;
+        });
+        document.getElementById('orbitSun').addEventListener('input', (e) => {
+            this.orbitSettings.sunSize = parseInt(e.target.value);
+            document.getElementById('orbitSunValue').textContent = e.target.value;
+        });
+        document.getElementById('orbitTrail').addEventListener('input', (e) => {
+            this.orbitSettings.trailLength = parseFloat(e.target.value);
+            document.getElementById('orbitTrailValue').textContent = e.target.value;
+        });
+        document.getElementById('orbitWobble').addEventListener('input', (e) => {
+            this.orbitSettings.wobble = parseInt(e.target.value);
+            document.getElementById('orbitWobbleValue').textContent = e.target.value;
+        });
+        document.getElementById('orbitGlow').addEventListener('input', (e) => {
+            this.orbitSettings.glowIntensity = parseInt(e.target.value);
+            document.getElementById('orbitGlowValue').textContent = e.target.value;
+        });
+    }
+
+    attachKaleidoscopeListeners() {
+        document.getElementById('kaleSymmetry').addEventListener('input', (e) => {
+            this.kaleidoscopeSettings.symmetryCount = parseInt(e.target.value);
+            document.getElementById('kaleSymmetryValue').textContent = e.target.value;
+        });
+        document.getElementById('kaleFinger').addEventListener('input', (e) => {
+            this.kaleidoscopeSettings.fingerSize = parseInt(e.target.value);
+            document.getElementById('kaleFingerValue').textContent = e.target.value;
+        });
+        document.getElementById('kaleLine').addEventListener('input', (e) => {
+            this.kaleidoscopeSettings.lineOpacity = parseFloat(e.target.value);
+            document.getElementById('kaleLineValue').textContent = e.target.value;
+        });
+        document.getElementById('kaleRotation').addEventListener('input', (e) => {
+            this.kaleidoscopeSettings.rotationSpeed = parseFloat(e.target.value);
+            document.getElementById('kaleRotationValue').textContent = e.target.value;
+        });
+        document.getElementById('kaleTrail').addEventListener('input', (e) => {
+            this.kaleidoscopeSettings.trailPersistence = parseFloat(e.target.value);
+            document.getElementById('kaleTrailValue').textContent = e.target.value;
+        });
+        document.getElementById('kaleGlow').addEventListener('input', (e) => {
+            this.kaleidoscopeSettings.glowIntensity = parseInt(e.target.value);
+            document.getElementById('kaleGlowValue').textContent = e.target.value;
+        });
+        document.getElementById('kalePulse').addEventListener('change', (e) => {
+            this.kaleidoscopeSettings.pulseWithAudio = e.target.checked;
+        });
+        document.getElementById('kaleCenter').addEventListener('change', (e) => {
+            this.kaleidoscopeSettings.showCenter = e.target.checked;
+        });
+    }
+
+    attachEchoListeners() {
+        document.getElementById('echoLength').addEventListener('input', (e) => {
+            this.echoSettings.trailLength = parseInt(e.target.value);
+            document.getElementById('echoLengthValue').textContent = e.target.value;
+        });
+        document.getElementById('echoFade').addEventListener('input', (e) => {
+            this.echoSettings.fadeSpeed = parseFloat(e.target.value);
+            document.getElementById('echoFadeValue').textContent = e.target.value;
+        });
+        document.getElementById('echoChromatic').addEventListener('input', (e) => {
+            this.echoSettings.chromaticAberration = parseFloat(e.target.value);
+            document.getElementById('echoChromaticValue').textContent = e.target.value;
+        });
+        document.getElementById('echoSpacing').addEventListener('input', (e) => {
+            this.echoSettings.echoSpacing = parseInt(e.target.value);
+            document.getElementById('echoSpacingValue').textContent = e.target.value;
+        });
+        document.getElementById('echoGlow').addEventListener('input', (e) => {
+            this.echoSettings.glowIntensity = parseInt(e.target.value);
+            document.getElementById('echoGlowValue').textContent = e.target.value;
+        });
+        document.getElementById('echoFinger').addEventListener('input', (e) => {
+            this.echoSettings.fingerSize = parseInt(e.target.value);
+            document.getElementById('echoFingerValue').textContent = e.target.value;
+        });
+        document.getElementById('echoPalm').addEventListener('input', (e) => {
+            this.echoSettings.palmSize = parseInt(e.target.value);
+            document.getElementById('echoPalmValue').textContent = e.target.value;
+        });
+        document.getElementById('echoMotionBlur').addEventListener('change', (e) => {
+            this.echoSettings.motionBlur = e.target.checked;
+        });
+    }
+
+    resetCurrentModeSettings() {
+        if (this.visualizationMode === 1) {
+            this.resetVizSettings();
+        } else if (this.visualizationMode === 2) {
+            this.bloomSettings = {
+                velocityThreshold: 5,
+                bloomInterval: 100,
+                lifetime: 2000,
+                maxRadius: 300,
+                ringCount: 3,
+                ringSpacing: 30,
+                pulseSpeed: 1.0,
+                glowIntensity: 20,
+                colorShift: true
+            };
+        } else if (this.visualizationMode === 3) {
+            this.fluidSettings = {
+                tendrilCount: 8,
+                tendrilRadius: 25,
+                flowSpeed: 0.002,
+                pulseAmount: 10,
+                gradientSize: 40,
+                opacity: 0.5,
+                trailPersistence: 0.92,
+                velocityInfluence: 2.0
+            };
+        } else if (this.visualizationMode === 4) {
+            this.orbitSettings = {
+                orbiterCount: 8,
+                orbitRadius: 45,
+                orbitSpeed: 0.003,
+                orbiterSize: 5,
+                sunSize: 14,
+                trailLength: 0.15,
+                wobble: 5,
+                glowIntensity: 18
+            };
+        } else if (this.visualizationMode === 5) {
+            this.kaleidoscopeSettings = {
+                symmetryCount: 6,
+                fingerSize: 18,
+                lineOpacity: 0.4,
+                rotationSpeed: 0,
+                trailPersistence: 0.85,
+                glowIntensity: 25,
+                pulseWithAudio: false,
+                showCenter: true
+            };
+        } else if (this.visualizationMode === 6) {
+            this.echoSettings = {
+                trailLength: 30,
+                fadeSpeed: 0.03,
+                chromaticAberration: 3,
+                motionBlur: true,
+                glowIntensity: 15,
+                echoSpacing: 2,
+                showPalm: true,
+                showFingers: true,
+                fingerSize: 12,
+                palmSize: 20
+            };
+        }
+        this.populateVizDebugPanel();
+        console.log(`Reset mode ${this.visualizationMode} settings to defaults`);
     }
 
     updateModeButtons() {
@@ -2970,8 +3656,10 @@ class VisualSoundMirror {
     drawHandGhost(hand, alpha, offsetX, offsetY, colorOverride, handedness) {
         if (alpha <= 0) return;
 
+        const s = this.echoSettings;
+
         // Draw palm if enabled
-        if (this.echoSettings.showPalm && hand.palm) {
+        if (s.showPalm && hand.palm) {
             const palmX = hand.palm.x + offsetX;
             const palmY = hand.palm.y + offsetY;
 
@@ -2981,12 +3669,12 @@ class VisualSoundMirror {
             this.ctx.shadowColor = color.replace('(', '(').replace(', ', ', 80%, 60%)');
             this.ctx.fillStyle = color + alpha + ')';
             this.ctx.beginPath();
-            this.ctx.arc(palmX, palmY, 20, 0, Math.PI * 2);
+            this.ctx.arc(palmX, palmY, s.palmSize, 0, Math.PI * 2);
             this.ctx.fill();
         }
 
         // Draw fingertips
-        if (this.echoSettings.showFingers && hand.fingertips) {
+        if (s.showFingers && hand.fingertips) {
             for (const fingertip of hand.fingertips) {
                 const x = fingertip.x + offsetX;
                 const y = fingertip.y + offsetY;
@@ -2997,7 +3685,7 @@ class VisualSoundMirror {
                 this.ctx.shadowColor = color.replace('(', '(').replace(', ', ', 90%, 70%)');
                 this.ctx.fillStyle = color + alpha + ')';
                 this.ctx.beginPath();
-                this.ctx.arc(x, y, 12, 0, Math.PI * 2);
+                this.ctx.arc(x, y, s.fingerSize, 0, Math.PI * 2);
                 this.ctx.fill();
             }
         }
@@ -3052,6 +3740,7 @@ class VisualSoundMirror {
 
     updateAudioBlooms() {
         const now = Date.now();
+        const s = this.bloomSettings;
 
         // Create blooms from fingertip movements
         if (this.leftHand || this.rightHand) {
@@ -3073,14 +3762,15 @@ class VisualSoundMirror {
                         velocity = Math.sqrt(dx * dx + dy * dy);
                     }
 
-                    // Create bloom on fast movement
-                    if (velocity > 5 && now - this.lastBloomTime > 100) {
+                    // Create bloom on fast movement (use settings)
+                    if (velocity > s.velocityThreshold && now - this.lastBloomTime > s.bloomInterval) {
                         this.blooms.push({
                             x: fingertip.x,
                             y: fingertip.y,
                             birthTime: now,
                             hue: (this.baseHue + fingertip.fingerIndex * 30) % 360,
-                            velocity: velocity
+                            velocity: velocity,
+                            fingerIndex: fingertip.fingerIndex
                         });
                         this.lastBloomTime = now;
                     }
@@ -3088,33 +3778,44 @@ class VisualSoundMirror {
             }
         }
 
-        // Remove old blooms
-        this.blooms = this.blooms.filter(bloom => now - bloom.birthTime < 2000);
+        // Remove old blooms (use lifetime setting)
+        this.blooms = this.blooms.filter(bloom => now - bloom.birthTime < s.lifetime);
     }
 
     renderAudioBlooms() {
         const now = Date.now();
+        const s = this.bloomSettings;
 
-        this.ctx.shadowBlur = 20;
+        this.ctx.shadowBlur = s.glowIntensity;
 
         for (const bloom of this.blooms) {
             const age = now - bloom.birthTime;
-            const progress = age / 2000;
+            const progress = age / s.lifetime;
 
-            // Expanding ring
-            const radius = progress * 300;
+            // Expanding ring with pulse speed
+            const radius = Math.pow(progress, s.pulseSpeed) * s.maxRadius;
             const alpha = 1 - progress;
 
+            // Hue shift over lifetime if enabled
+            let hue = bloom.hue;
+            if (s.colorShift) {
+                hue = (bloom.hue + progress * 60) % 360;
+            }
+
             // Draw multiple concentric rings
-            for (let i = 0; i < 3; i++) {
-                const ringRadius = radius - i * 30;
+            for (let i = 0; i < s.ringCount; i++) {
+                const ringRadius = radius - i * s.ringSpacing;
                 if (ringRadius < 0) continue;
 
-                this.ctx.shadowColor = `hsl(${bloom.hue}, 80%, 60%)`;
-                this.ctx.strokeStyle = `hsla(${bloom.hue}, 80%, 60%, ${alpha * 0.6})`;
-                this.ctx.lineWidth = 3;
+                // Pulsing effect based on velocity
+                const pulse = 1 + Math.sin(progress * Math.PI * 4) * 0.1 * (bloom.velocity / 20);
+                const finalRadius = ringRadius * pulse;
+
+                this.ctx.shadowColor = `hsl(${hue}, 80%, 60%)`;
+                this.ctx.strokeStyle = `hsla(${hue}, 80%, 60%, ${alpha * 0.6})`;
+                this.ctx.lineWidth = 3 + i * 0.5; // Vary line width
                 this.ctx.beginPath();
-                this.ctx.arc(bloom.x, bloom.y, ringRadius, 0, Math.PI * 2);
+                this.ctx.arc(bloom.x, bloom.y, finalRadius, 0, Math.PI * 2);
                 this.ctx.stroke();
             }
         }
@@ -3129,9 +3830,14 @@ class VisualSoundMirror {
     renderFluidDynamics() {
         if (!this.leftHand && !this.rightHand) return;
 
+        const s = this.fluidSettings;
         const hands = [];
         if (this.leftHand) hands.push(this.leftHand);
         if (this.rightHand) hands.push(this.rightHand);
+
+        // Apply trail persistence for smokey effect
+        this.ctx.fillStyle = `rgba(0, 0, 0, ${1 - s.trailPersistence})`;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.ctx.shadowBlur = 25;
 
@@ -3141,31 +3847,57 @@ class VisualSoundMirror {
             for (const fingertip of hand.fingertips) {
                 // Calculate velocity
                 let velocity = { x: 0, y: 0 };
+                let velocityMag = 0;
                 const prevHand = hand === this.leftHand ? this.prevLeftHand : this.prevRightHand;
                 if (prevHand && prevHand.fingertips[fingertip.fingerIndex]) {
                     const prev = prevHand.fingertips[fingertip.fingerIndex];
-                    velocity.x = (fingertip.x - prev.x) * 3;
-                    velocity.y = (fingertip.y - prev.y) * 3;
+                    velocity.x = (fingertip.x - prev.x) * s.velocityInfluence;
+                    velocity.y = (fingertip.y - prev.y) * s.velocityInfluence;
+                    velocityMag = Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
                 }
 
                 // Draw flowing smoke tendrils
                 const hue = (this.baseHue + fingertip.fingerIndex * 30) % 360;
-                const numTendrils = 5;
 
-                for (let i = 0; i < numTendrils; i++) {
-                    const angle = (i / numTendrils) * Math.PI * 2 + this.time * 0.001;
-                    const offset = 20;
-                    const x = fingertip.x + Math.cos(angle) * offset;
-                    const y = fingertip.y + Math.sin(angle) * offset;
+                for (let i = 0; i < s.tendrilCount; i++) {
+                    // Rotating flow with velocity influence
+                    const baseAngle = (i / s.tendrilCount) * Math.PI * 2;
+                    const flowAngle = baseAngle + this.time * s.flowSpeed + fingertip.fingerIndex * 0.5;
 
-                    // Draw gradient circle
-                    const gradient = this.ctx.createRadialGradient(x, y, 0, x, y, 30);
-                    gradient.addColorStop(0, `hsla(${hue}, 70%, 60%, 0.4)`);
+                    // Pulsing radius
+                    const pulse = Math.sin(this.time * 0.003 + i) * s.pulseAmount;
+                    const radius = s.tendrilRadius + pulse;
+
+                    // Add velocity offset for flow field effect
+                    const x = fingertip.x + Math.cos(flowAngle) * radius + velocity.x * 0.5;
+                    const y = fingertip.y + Math.sin(flowAngle) * radius + velocity.y * 0.5;
+
+                    // Draw gradient circle with dynamic opacity
+                    const dynamicOpacity = s.opacity * (1 + velocityMag * 0.02);
+                    const gradient = this.ctx.createRadialGradient(x, y, 0, x, y, s.gradientSize);
+                    gradient.addColorStop(0, `hsla(${hue}, 70%, 60%, ${dynamicOpacity})`);
                     gradient.addColorStop(1, `hsla(${hue}, 70%, 60%, 0)`);
 
                     this.ctx.fillStyle = gradient;
-                    this.ctx.fillRect(x - 30, y - 30, 60, 60);
+                    this.ctx.fillRect(x - s.gradientSize, y - s.gradientSize, s.gradientSize * 2, s.gradientSize * 2);
                 }
+
+                // Draw connecting wisps between tendrils for more fluid feel
+                this.ctx.strokeStyle = `hsla(${hue}, 70%, 60%, ${s.opacity * 0.3})`;
+                this.ctx.lineWidth = 2;
+                this.ctx.beginPath();
+                for (let i = 0; i < s.tendrilCount; i++) {
+                    const angle1 = (i / s.tendrilCount) * Math.PI * 2 + this.time * s.flowSpeed;
+                    const angle2 = ((i + 1) / s.tendrilCount) * Math.PI * 2 + this.time * s.flowSpeed;
+                    const x1 = fingertip.x + Math.cos(angle1) * s.tendrilRadius;
+                    const y1 = fingertip.y + Math.sin(angle1) * s.tendrilRadius;
+                    const x2 = fingertip.x + Math.cos(angle2) * s.tendrilRadius;
+                    const y2 = fingertip.y + Math.sin(angle2) * s.tendrilRadius;
+
+                    if (i === 0) this.ctx.moveTo(x1, y1);
+                    this.ctx.lineTo(x2, y2);
+                }
+                this.ctx.stroke();
             }
         }
 
@@ -3179,11 +3911,12 @@ class VisualSoundMirror {
     renderGravitationalOrbits() {
         if (!this.leftHand && !this.rightHand) return;
 
+        const s = this.orbitSettings;
         const hands = [];
         if (this.leftHand) hands.push(this.leftHand);
         if (this.rightHand) hands.push(this.rightHand);
 
-        this.ctx.shadowBlur = 15;
+        this.ctx.shadowBlur = s.glowIntensity;
 
         for (const hand of hands) {
             if (!hand.fingertips) continue;
@@ -3192,38 +3925,63 @@ class VisualSoundMirror {
                 const hue = (this.baseHue + fingertip.fingerIndex * 30) % 360;
 
                 // Draw orbiting particles around fingertip
-                const numOrbiters = 8;
-                const orbitRadius = 40;
+                for (let i = 0; i < s.orbiterCount; i++) {
+                    // Variable speed per orbiter for more dynamic feel
+                    const speedVar = 1 + (i % 3) * 0.2 - 0.2; // Some faster, some slower
+                    const angle = (i / s.orbiterCount) * Math.PI * 2 + this.time * s.orbitSpeed * speedVar + fingertip.fingerIndex;
 
-                for (let i = 0; i < numOrbiters; i++) {
-                    const angle = (i / numOrbiters) * Math.PI * 2 + this.time * 0.002 + fingertip.fingerIndex;
-                    const x = fingertip.x + Math.cos(angle) * orbitRadius;
-                    const y = fingertip.y + Math.sin(angle) * orbitRadius;
+                    // Add wobble to orbit radius
+                    const wobbleAmount = Math.sin(this.time * 0.005 + i) * s.wobble;
+                    const wobbledRadius = s.orbitRadius + wobbleAmount;
 
-                    // Draw orbital particle
+                    const x = fingertip.x + Math.cos(angle) * wobbledRadius;
+                    const y = fingertip.y + Math.sin(angle) * wobbledRadius;
+
+                    // Draw orbital particle with size variation
+                    const sizeVar = 1 + Math.sin(this.time * 0.003 + i) * 0.3;
                     this.ctx.shadowColor = `hsl(${hue}, 90%, 70%)`;
                     this.ctx.fillStyle = `hsla(${hue}, 90%, 70%, 0.8)`;
                     this.ctx.beginPath();
-                    this.ctx.arc(x, y, 4, 0, Math.PI * 2);
+                    this.ctx.arc(x, y, s.orbiterSize * sizeVar, 0, Math.PI * 2);
                     this.ctx.fill();
 
-                    // Draw orbital trail
-                    const prevAngle = angle - 0.1;
-                    const prevX = fingertip.x + Math.cos(prevAngle) * orbitRadius;
-                    const prevY = fingertip.y + Math.sin(prevAngle) * orbitRadius;
+                    // Draw orbital trail if enabled
+                    if (s.trailLength > 0) {
+                        const trailAngle = angle - s.trailLength;
+                        const trailX = fingertip.x + Math.cos(trailAngle) * wobbledRadius;
+                        const trailY = fingertip.y + Math.sin(trailAngle) * wobbledRadius;
 
-                    this.ctx.strokeStyle = `hsla(${hue}, 90%, 70%, 0.3)`;
-                    this.ctx.lineWidth = 2;
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(prevX, prevY);
-                    this.ctx.lineTo(x, y);
-                    this.ctx.stroke();
+                        const gradient = this.ctx.createLinearGradient(trailX, trailY, x, y);
+                        gradient.addColorStop(0, `hsla(${hue}, 90%, 70%, 0)`);
+                        gradient.addColorStop(1, `hsla(${hue}, 90%, 70%, 0.4)`);
+
+                        this.ctx.strokeStyle = gradient;
+                        this.ctx.lineWidth = s.orbiterSize * 0.5;
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(trailX, trailY);
+                        this.ctx.lineTo(x, y);
+                        this.ctx.stroke();
+                    }
                 }
 
-                // Draw central "sun"
-                this.ctx.fillStyle = `hsla(${hue}, 90%, 80%, 0.6)`;
+                // Draw central "sun" with pulsing
+                const sunPulse = 1 + Math.sin(this.time * 0.004) * 0.15;
+                this.ctx.shadowColor = `hsl(${hue}, 90%, 80%)`;
+                this.ctx.fillStyle = `hsla(${hue}, 90%, 80%, 0.7)`;
                 this.ctx.beginPath();
-                this.ctx.arc(fingertip.x, fingertip.y, 12, 0, Math.PI * 2);
+                this.ctx.arc(fingertip.x, fingertip.y, s.sunSize * sunPulse, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Draw sun corona
+                const gradient = this.ctx.createRadialGradient(
+                    fingertip.x, fingertip.y, s.sunSize * sunPulse,
+                    fingertip.x, fingertip.y, s.sunSize * sunPulse * 1.8
+                );
+                gradient.addColorStop(0, `hsla(${hue}, 90%, 80%, 0.4)`);
+                gradient.addColorStop(1, `hsla(${hue}, 90%, 80%, 0)`);
+                this.ctx.fillStyle = gradient;
+                this.ctx.beginPath();
+                this.ctx.arc(fingertip.x, fingertip.y, s.sunSize * sunPulse * 1.8, 0, Math.PI * 2);
                 this.ctx.fill();
             }
         }
@@ -3238,15 +3996,23 @@ class VisualSoundMirror {
     renderKaleidoscope() {
         if (!this.leftHand && !this.rightHand) return;
 
+        const s = this.kaleidoscopeSettings;
         const centerX = this.canvas.width / 2;
         const centerY = this.canvas.height / 2;
 
+        // Apply trail persistence
+        this.ctx.fillStyle = `rgba(0, 0, 0, ${1 - s.trailPersistence})`;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
         this.ctx.save();
-        this.ctx.shadowBlur = 20;
+        this.ctx.shadowBlur = s.glowIntensity;
 
         const hands = [];
         if (this.leftHand) hands.push(this.leftHand);
         if (this.rightHand) hands.push(this.rightHand);
+
+        // Auto-rotation offset
+        const rotationOffset = this.time * s.rotationSpeed;
 
         for (const hand of hands) {
             if (!hand.fingertips) continue;
@@ -3255,32 +4021,69 @@ class VisualSoundMirror {
                 const hue = (this.baseHue + fingertip.fingerIndex * 30) % 360;
 
                 // Draw the fingertip reflected around the center with radial symmetry
-                for (let sym = 0; sym < this.kaleidoscopeSymmetry; sym++) {
-                    const angle = (sym / this.kaleidoscopeSymmetry) * Math.PI * 2;
+                for (let sym = 0; sym < s.symmetryCount; sym++) {
+                    const angle = (sym / s.symmetryCount) * Math.PI * 2 + rotationOffset;
 
                     this.ctx.save();
                     this.ctx.translate(centerX, centerY);
                     this.ctx.rotate(angle);
                     this.ctx.translate(-centerX, -centerY);
 
-                    // Draw reflected fingertip
+                    // Pulsing size with audio if enabled
+                    let pulseMultiplier = 1;
+                    if (s.pulseWithAudio && this.audioContext) {
+                        pulseMultiplier = 1 + Math.sin(this.time * 0.005 + fingertip.fingerIndex) * 0.3;
+                    }
+
+                    // Draw reflected fingertip with glow
                     this.ctx.shadowColor = `hsl(${hue}, 90%, 70%)`;
                     this.ctx.fillStyle = `hsla(${hue}, 90%, 70%, 0.7)`;
                     this.ctx.beginPath();
-                    this.ctx.arc(fingertip.x, fingertip.y, 15, 0, Math.PI * 2);
+                    this.ctx.arc(fingertip.x, fingertip.y, s.fingerSize * pulseMultiplier, 0, Math.PI * 2);
                     this.ctx.fill();
 
-                    // Draw connecting line to center
-                    this.ctx.strokeStyle = `hsla(${hue}, 80%, 60%, 0.3)`;
+                    // Draw outer ring for more visual interest
+                    this.ctx.strokeStyle = `hsla(${hue}, 90%, 80%, 0.5)`;
                     this.ctx.lineWidth = 2;
                     this.ctx.beginPath();
-                    this.ctx.moveTo(centerX, centerY);
-                    this.ctx.lineTo(fingertip.x, fingertip.y);
+                    this.ctx.arc(fingertip.x, fingertip.y, s.fingerSize * pulseMultiplier * 1.3, 0, Math.PI * 2);
                     this.ctx.stroke();
+
+                    // Draw connecting line to center
+                    if (s.lineOpacity > 0) {
+                        const gradient = this.ctx.createLinearGradient(centerX, centerY, fingertip.x, fingertip.y);
+                        gradient.addColorStop(0, `hsla(${hue}, 80%, 60%, ${s.lineOpacity * 0.5})`);
+                        gradient.addColorStop(1, `hsla(${hue}, 80%, 60%, ${s.lineOpacity})`);
+                        this.ctx.strokeStyle = gradient;
+                        this.ctx.lineWidth = 2;
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(centerX, centerY);
+                        this.ctx.lineTo(fingertip.x, fingertip.y);
+                        this.ctx.stroke();
+                    }
 
                     this.ctx.restore();
                 }
             }
+        }
+
+        // Draw center point if enabled
+        if (s.showCenter) {
+            const centerPulse = 1 + Math.sin(this.time * 0.003) * 0.2;
+            this.ctx.shadowColor = `hsl(${this.baseHue}, 90%, 80%)`;
+            this.ctx.fillStyle = `hsla(${this.baseHue}, 90%, 80%, 0.8)`;
+            this.ctx.beginPath();
+            this.ctx.arc(centerX, centerY, 10 * centerPulse, 0, Math.PI * 2);
+            this.ctx.fill();
+
+            // Center glow
+            const gradient = this.ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 25 * centerPulse);
+            gradient.addColorStop(0, `hsla(${this.baseHue}, 90%, 80%, 0.5)`);
+            gradient.addColorStop(1, `hsla(${this.baseHue}, 90%, 80%, 0)`);
+            this.ctx.fillStyle = gradient;
+            this.ctx.beginPath();
+            this.ctx.arc(centerX, centerY, 25 * centerPulse, 0, Math.PI * 2);
+            this.ctx.fill();
         }
 
         this.ctx.restore();
