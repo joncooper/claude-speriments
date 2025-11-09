@@ -1,4 +1,4 @@
-// Visual Sound Mirror - v6.6.0 Hands-Free Edition
+// Visual Sound Mirror - v6.6.1 Hands-Free Edition
 // Interactive music instrument with gesture-controlled mode switching and global audio controls
 // No keyboard required - switch modes with hand gestures (1, 2, or 5 fingers)
 
@@ -2441,13 +2441,25 @@ class VisualSoundMirror {
         // Always update viz debug panel (independent of main debug mode)
         if (this.vizDebugVisible) {
             const modeName = this.getVisualizationModeName(this.visualizationMode);
-            document.getElementById('currentVizMode').textContent = this.visualizationMode;
+            const modeElement = document.getElementById('currentVizMode');
+            if (modeElement) {
+                modeElement.textContent = this.visualizationMode;
+            }
             // Update the mode indicator text
             const modeIndicator = document.querySelector('.viz-mode-indicator');
             if (modeIndicator) {
                 modeIndicator.innerHTML = `Mode <span id="currentVizMode">${this.visualizationMode}</span>: ${modeName} | Press 1-6 to switch modes`;
             }
-            document.getElementById('particleCount').textContent = this.particles.length;
+
+            // Update mode-specific counters (only if they exist)
+            const particleCountEl = document.getElementById('particleCount');
+            if (particleCountEl) {
+                particleCountEl.textContent = this.particles.length;
+            }
+            const bloomCountEl = document.getElementById('bloomCount');
+            if (bloomCountEl) {
+                bloomCountEl.textContent = this.blooms.length;
+            }
         }
 
         // Main debug panel only when debug mode is on
@@ -3302,15 +3314,18 @@ class VisualSoundMirror {
         // Emit particles from fingertips
         this.emitParticles();
 
-        // Update existing particles
-        for (let i = this.particles.length - 1; i >= 0; i--) {
-            const p = this.particles[i];
+        // Build spatial grid for inter-particle forces (only if needed)
+        let spatialGrid = null;
+        if (this.particleSettings.attraction !== 0 || this.particleSettings.repulsion !== 0) {
+            spatialGrid = this.buildSpatialGrid();
+        }
 
+        // Update existing particles - use filter for efficient removal
+        this.particles = this.particles.filter(p => {
             // Check lifetime
             const age = now - p.birthTime;
             if (age > this.particleSettings.lifetime) {
-                this.particles.splice(i, 1);
-                continue;
+                return false; // Remove dead particles
             }
 
             // Apply physics
@@ -3328,17 +3343,18 @@ class VisualSoundMirror {
                 p.vy += turb.y * this.particleSettings.turbulence;
             }
 
-            // 4. Inter-particle forces (expensive, only if enabled)
-            if (this.particleSettings.attraction !== 0 || this.particleSettings.repulsion !== 0) {
-                this.applyInterParticleForces(p, i);
+            // 4. Inter-particle forces (using spatial grid for O(n) instead of O(n²))
+            if (spatialGrid) {
+                this.applyInterParticleForcesFast(p, spatialGrid);
             }
 
             // Update position
             p.x += p.vx;
             p.y += p.vy;
 
-            // Update trail history
+            // Update trail history (only if needed)
             if (this.particleSettings.trails) {
+                if (!p.trail) p.trail = [];
                 p.trail.push({ x: p.x, y: p.y });
                 if (p.trail.length > 10) p.trail.shift();
             }
@@ -3356,7 +3372,9 @@ class VisualSoundMirror {
                 p.y = this.canvas.height;
                 p.vy *= -0.5;
             }
-        }
+
+            return true; // Keep particle
+        });
     }
 
     emitParticles() {
@@ -3435,79 +3453,164 @@ class VisualSoundMirror {
     renderParticles() {
         const now = Date.now();
 
-        // Enable glow if requested
+        // OPTIMIZATION: Batch all particles into a single path
+        // Apply glow once instead of per-particle
         if (this.particleSettings.glow) {
-            this.ctx.shadowBlur = 15;
+            this.ctx.shadowBlur = 8;
+            this.ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
         }
 
-        for (const p of this.particles) {
-            const age = now - p.birthTime;
-            const lifeProgress = age / this.particleSettings.lifetime;
+        // Draw trails first (if enabled) - batched by color
+        if (this.particleSettings.trails) {
+            for (const p of this.particles) {
+                if (!p.trail || p.trail.length < 2) continue;
 
-            // Calculate color based on color mode
-            let hue, saturation, lightness;
+                const age = now - p.birthTime;
+                const lifeProgress = age / this.particleSettings.lifetime;
+                const alpha = 1 - Math.pow(lifeProgress, 2);
 
-            switch (this.particleSettings.colorMode) {
-                case 'velocity':
-                    const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
-                    hue = (this.baseHue + speed * 20) % 360;
-                    saturation = 70 + speed * 3;
-                    lightness = 50 + speed * 2;
-                    break;
+                const { hue, saturation, lightness } = this.getParticleColor(p, lifeProgress, now);
 
-                case 'lifetime':
-                    hue = (p.hue + lifeProgress * 120) % 360;
-                    saturation = 80;
-                    lightness = 60;
-                    break;
-
-                case 'audio':
-                    // React to audio (filter frequency affects hue)
-                    const filterFreq = this.knobs[0] ? this.knobs[0].value : 0.5;
-                    hue = (this.baseHue + filterFreq * 180) % 360;
-                    saturation = 85;
-                    lightness = 55;
-                    break;
-
-                case 'rainbow':
-                default:
-                    hue = (p.hue + this.time * 0.05) % 360;
-                    saturation = 90;
-                    lightness = 60;
-                    break;
-            }
-
-            // Fade out near end of life
-            const alpha = 1 - Math.pow(lifeProgress, 2);
-
-            // Draw trail if enabled
-            if (this.particleSettings.trails && p.trail.length > 1) {
+                this.ctx.strokeStyle = `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha * 0.3})`;
+                this.ctx.lineWidth = p.size * 0.5;
                 this.ctx.beginPath();
                 this.ctx.moveTo(p.trail[0].x, p.trail[0].y);
                 for (let i = 1; i < p.trail.length; i++) {
                     this.ctx.lineTo(p.trail[i].x, p.trail[i].y);
                 }
-                this.ctx.strokeStyle = `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha * 0.3})`;
-                this.ctx.lineWidth = p.size * 0.5;
                 this.ctx.stroke();
             }
+        }
 
-            // Draw particle
-            if (this.particleSettings.glow) {
-                this.ctx.shadowColor = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-            }
-
-            this.ctx.fillStyle = `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha})`;
-            this.ctx.beginPath();
+        // Draw particles - batch by similar properties for better performance
+        // Group particles to minimize state changes
+        this.ctx.beginPath();
+        for (const p of this.particles) {
+            this.ctx.moveTo(p.x + p.size, p.y);
             this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        }
+
+        // Fill all particles at once with gradient or single color
+        // For best performance, use single color mode
+        if (this.particleSettings.colorMode === 'rainbow' || this.particleSettings.colorMode === 'audio') {
+            // Single color fill for all particles (fastest)
+            const baseColor = this.getParticleColor(this.particles[0] || { hue: this.baseHue }, 0.5, now);
+            this.ctx.fillStyle = `hsla(${baseColor.hue}, ${baseColor.saturation}%, ${baseColor.lightness}%, 0.8)`;
             this.ctx.fill();
+        } else {
+            // Individual coloring (slower but more dynamic)
+            for (const p of this.particles) {
+                const age = now - p.birthTime;
+                const lifeProgress = age / this.particleSettings.lifetime;
+                const alpha = 1 - Math.pow(lifeProgress, 2);
+
+                const { hue, saturation, lightness } = this.getParticleColor(p, lifeProgress, now);
+
+                this.ctx.fillStyle = `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha})`;
+                this.ctx.beginPath();
+                this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
         }
 
         // Reset shadow
         this.ctx.shadowBlur = 0;
     }
 
+    getParticleColor(p, lifeProgress, now) {
+        let hue, saturation, lightness;
+
+        switch (this.particleSettings.colorMode) {
+            case 'velocity':
+                const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+                hue = (this.baseHue + speed * 20) % 360;
+                saturation = 70 + Math.min(speed * 3, 20);
+                lightness = 50 + Math.min(speed * 2, 20);
+                break;
+
+            case 'lifetime':
+                hue = (p.hue + lifeProgress * 120) % 360;
+                saturation = 80;
+                lightness = 60;
+                break;
+
+            case 'audio':
+                // React to audio (filter frequency affects hue)
+                const filterFreq = this.knobs[0] ? this.knobs[0].value : 0.5;
+                hue = (this.baseHue + filterFreq * 180) % 360;
+                saturation = 85;
+                lightness = 55;
+                break;
+
+            case 'rainbow':
+            default:
+                hue = (p.hue + this.time * 0.05) % 360;
+                saturation = 90;
+                lightness = 60;
+                break;
+        }
+
+        return { hue, saturation, lightness };
+    }
+
+    buildSpatialGrid() {
+        // Spatial hashing for O(n) particle interactions instead of O(n²)
+        const cellSize = 100; // Same as max interaction distance
+        const grid = new Map();
+
+        for (const p of this.particles) {
+            const cellX = Math.floor(p.x / cellSize);
+            const cellY = Math.floor(p.y / cellSize);
+            const key = `${cellX},${cellY}`;
+
+            if (!grid.has(key)) {
+                grid.set(key, []);
+            }
+            grid.get(key).push(p);
+        }
+
+        return { grid, cellSize };
+    }
+
+    applyInterParticleForcesFast(particle, spatialGrid) {
+        const { grid, cellSize } = spatialGrid;
+        const maxDistance = 100;
+
+        // Only check particles in neighboring cells
+        const cellX = Math.floor(particle.x / cellSize);
+        const cellY = Math.floor(particle.y / cellSize);
+
+        // Check 9 cells (current + 8 neighbors)
+        for (let dx = -1; dx <= 1; dx++) {
+            for (let dy = -1; dy <= 1; dy++) {
+                const key = `${cellX + dx},${cellY + dy}`;
+                const neighbors = grid.get(key);
+                if (!neighbors) continue;
+
+                for (const other of neighbors) {
+                    if (other === particle) continue;
+
+                    const dx = other.x - particle.x;
+                    const dy = other.y - particle.y;
+                    const distSq = dx * dx + dy * dy;
+
+                    if (distSq < maxDistance * maxDistance && distSq > 0.1) {
+                        const dist = Math.sqrt(distSq);
+                        const force = (this.particleSettings.attraction - this.particleSettings.repulsion / dist);
+                        const fx = (dx / dist) * force * 0.01; // Scale down for stability
+                        const fy = (dy / dist) * force * 0.01;
+
+                        particle.vx += fx;
+                        particle.vy += fy;
+                    }
+                }
+            }
+        }
+    }
+
+    // Legacy method - kept for compatibility but not used
     applyInterParticleForces(particle, currentIndex) {
+        // DEPRECATED: This O(n²) method replaced by applyInterParticleForcesFast
         // Only check nearby particles for performance
         const maxDistance = 100;
 
