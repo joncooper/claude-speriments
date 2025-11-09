@@ -1,4 +1,4 @@
-// Visual Sound Mirror - v6.6.1 Hands-Free Edition
+// Visual Sound Mirror - v6.7.0 Hands-Free Edition
 // Interactive music instrument with gesture-controlled mode switching and global audio controls
 // No keyboard required - switch modes with hand gestures (1, 2, or 5 fingers)
 
@@ -114,10 +114,10 @@ class VisualSoundMirror {
 
         // Particle System (#1)
         this.particles = [];
-        this.maxParticles = 15000;
+        this.maxParticles = 150000;  // Increased for massive particle clouds
         this.lastParticleEmitTime = 0;
         this.particleSettings = {
-            emissionRate: 30,          // Particles per finger per SECOND (10-200)
+            emissionRate: 30,          // Particles per finger per SECOND (10-500)
             lifetime: 4000,            // Milliseconds (500-8000)
             initialVelocity: 0.3,      // Speed multiplier (0.01-2.0)
             gravity: 0.08,             // Downward acceleration (0-0.5)
@@ -128,6 +128,8 @@ class VisualSoundMirror {
             particleSizeMin: 0.5,      // Min particle size (0.5-5)
             particleSizeMax: 2.5,      // Max particle size (1-10)
             colorMode: 'velocity',     // 'velocity', 'lifetime', 'audio', 'rainbow'
+            blendMode: 'normal',       // 'normal', 'additive', 'screen', 'multiply'
+            alpha: 0.8,                // Base alpha/opacity (0.1-1.0)
             glow: true,                // Glow effect
             trails: false,             // Particle trails
             audioReactive: true        // React to audio
@@ -704,6 +706,8 @@ class VisualSoundMirror {
             particleSizeMin: 0.5,
             particleSizeMax: 2.5,
             colorMode: 'velocity',
+            blendMode: 'normal',
+            alpha: 0.8,
             glow: true,
             trails: false,
             audioReactive: true
@@ -731,6 +735,9 @@ class VisualSoundMirror {
         document.getElementById('particleSizeMax').value = '2.5';
         document.getElementById('particleSizeMaxValue').textContent = '2.5';
         document.getElementById('colorMode').value = 'velocity';
+        document.getElementById('blendMode').value = 'normal';
+        document.getElementById('alpha').value = '0.8';
+        document.getElementById('alphaValue').textContent = '0.8';
         document.getElementById('glow').checked = true;
         document.getElementById('trails').checked = false;
         document.getElementById('audioReactive').checked = true;
@@ -781,7 +788,7 @@ class VisualSoundMirror {
         return `
             <div class="control-group">
                 <label>Emission Rate: <span id="emissionRateValue">${s.emissionRate}</span>/sec</label>
-                <input type="range" id="emissionRate" min="10" max="200" value="${s.emissionRate}" step="5">
+                <input type="range" id="emissionRate" min="10" max="500" value="${s.emissionRate}" step="10">
             </div>
             <div class="control-group">
                 <label>Lifetime: <span id="lifetimeValue">${s.lifetime}</span>ms</label>
@@ -828,13 +835,26 @@ class VisualSoundMirror {
                     <option value="rainbow" ${s.colorMode === 'rainbow' ? 'selected' : ''}>Rainbow</option>
                 </select>
             </div>
+            <div class="control-group">
+                <label>Blend Mode:</label>
+                <select id="blendMode">
+                    <option value="normal" ${s.blendMode === 'normal' ? 'selected' : ''}>Normal</option>
+                    <option value="additive" ${s.blendMode === 'additive' ? 'selected' : ''}>Additive (Energy)</option>
+                    <option value="screen" ${s.blendMode === 'screen' ? 'selected' : ''}>Screen (Soft)</option>
+                    <option value="multiply" ${s.blendMode === 'multiply' ? 'selected' : ''}>Multiply (Dark)</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Alpha/Opacity: <span id="alphaValue">${s.alpha}</span></label>
+                <input type="range" id="alpha" min="0.05" max="1.0" value="${s.alpha}" step="0.05">
+            </div>
             <div class="control-group checkbox-group">
                 <label><input type="checkbox" id="glow" ${s.glow ? 'checked' : ''}> Glow Effect</label>
                 <label><input type="checkbox" id="trails" ${s.trails ? 'checked' : ''}> Particle Trails</label>
                 <label><input type="checkbox" id="audioReactive" ${s.audioReactive ? 'checked' : ''}> Audio Reactive</label>
             </div>
             <div class="control-group">
-                <p>Particles: <span id="particleCount">${this.particles.length}</span> / 15000</p>
+                <p>Particles: <span id="particleCount">${this.particles.length}</span> / 150,000</p>
             </div>
             <button id="clearParticles">Clear All Particles</button>
             <button id="resetViz">Reset to Defaults</button>
@@ -1107,6 +1127,13 @@ class VisualSoundMirror {
         });
         document.getElementById('colorMode').addEventListener('change', (e) => {
             this.particleSettings.colorMode = e.target.value;
+        });
+        document.getElementById('blendMode').addEventListener('change', (e) => {
+            this.particleSettings.blendMode = e.target.value;
+        });
+        document.getElementById('alpha').addEventListener('input', (e) => {
+            this.particleSettings.alpha = parseFloat(e.target.value);
+            document.getElementById('alphaValue').textContent = e.target.value;
         });
         document.getElementById('glow').addEventListener('change', (e) => {
             this.particleSettings.glow = e.target.checked;
@@ -3453,6 +3480,15 @@ class VisualSoundMirror {
     renderParticles() {
         const now = Date.now();
 
+        // Apply blend mode for different visual effects
+        const blendModeMap = {
+            'normal': 'source-over',
+            'additive': 'lighter',
+            'screen': 'screen',
+            'multiply': 'multiply'
+        };
+        this.ctx.globalCompositeOperation = blendModeMap[this.particleSettings.blendMode] || 'source-over';
+
         // OPTIMIZATION: Batch all particles into a single path
         // Apply glow once instead of per-particle
         if (this.particleSettings.glow) {
@@ -3467,7 +3503,8 @@ class VisualSoundMirror {
 
                 const age = now - p.birthTime;
                 const lifeProgress = age / this.particleSettings.lifetime;
-                const alpha = 1 - Math.pow(lifeProgress, 2);
+                const lifetimeAlpha = 1 - Math.pow(lifeProgress, 2);
+                const alpha = lifetimeAlpha * this.particleSettings.alpha;
 
                 const { hue, saturation, lightness } = this.getParticleColor(p, lifeProgress, now);
 
@@ -3495,14 +3532,15 @@ class VisualSoundMirror {
         if (this.particleSettings.colorMode === 'rainbow' || this.particleSettings.colorMode === 'audio') {
             // Single color fill for all particles (fastest)
             const baseColor = this.getParticleColor(this.particles[0] || { hue: this.baseHue }, 0.5, now);
-            this.ctx.fillStyle = `hsla(${baseColor.hue}, ${baseColor.saturation}%, ${baseColor.lightness}%, 0.8)`;
+            this.ctx.fillStyle = `hsla(${baseColor.hue}, ${baseColor.saturation}%, ${baseColor.lightness}%, ${this.particleSettings.alpha})`;
             this.ctx.fill();
         } else {
             // Individual coloring (slower but more dynamic)
             for (const p of this.particles) {
                 const age = now - p.birthTime;
                 const lifeProgress = age / this.particleSettings.lifetime;
-                const alpha = 1 - Math.pow(lifeProgress, 2);
+                const lifetimeAlpha = 1 - Math.pow(lifeProgress, 2);
+                const alpha = lifetimeAlpha * this.particleSettings.alpha;
 
                 const { hue, saturation, lightness } = this.getParticleColor(p, lifeProgress, now);
 
@@ -3513,8 +3551,9 @@ class VisualSoundMirror {
             }
         }
 
-        // Reset shadow
+        // Reset shadow and blend mode
         this.ctx.shadowBlur = 0;
+        this.ctx.globalCompositeOperation = 'source-over';
     }
 
     getParticleColor(p, lifeProgress, now) {
