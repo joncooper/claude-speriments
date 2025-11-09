@@ -108,6 +108,30 @@ class VisualSoundMirror {
         this.debugMode = false;
         this.debugPanelVisible = false;
 
+        // VISUALIZATION SYSTEM
+        this.visualizationMode = 1; // 1-6 for different visual effects
+        this.vizDebugVisible = false;
+
+        // Particle System (#1)
+        this.particles = [];
+        this.maxParticles = 2000;
+        this.particleSettings = {
+            emissionRate: 5,           // Particles per finger per frame (1-20)
+            lifetime: 3000,            // Milliseconds (500-5000)
+            initialVelocity: 2.0,      // Speed multiplier (0.1-5.0)
+            gravity: 0.15,             // Downward acceleration (0-1)
+            drag: 0.98,                // Air resistance (0.9-0.99)
+            attraction: 0.0,           // Inter-particle attraction (-0.5 to 0.5)
+            repulsion: 0.0,            // Inter-particle repulsion (0-2)
+            turbulence: 0.5,           // Curl noise strength (0-2)
+            particleSizeMin: 2,        // Min particle size (1-10)
+            particleSizeMax: 8,        // Max particle size (2-20)
+            colorMode: 'velocity',     // 'velocity', 'lifetime', 'audio', 'rainbow'
+            glow: true,                // Glow effect
+            trails: false,             // Particle trails
+            audioReactive: true        // React to audio
+        };
+
         // No hands timer
         this.noHandsTime = 0;
         this.fadeoutStarted = false;
@@ -333,16 +357,32 @@ class VisualSoundMirror {
             this.playChord(e.clientX, e.clientY);
         });
 
-        // Keyboard controls for mode switching (debug only)
+        // Keyboard controls
         document.addEventListener('keydown', (e) => {
-            if (e.key === '1') this.switchMode('ribbons');
-            if (e.key === '2') this.switchMode('theremin');
-            if (e.key === '3') this.switchMode('pads');
-            if (e.key === 's') this.cycleScale();
+            // Visualization modes (1-6)
+            if (e.key >= '1' && e.key <= '6') {
+                this.visualizationMode = parseInt(e.key);
+                console.log(`Visualization Mode ${this.visualizationMode}`);
+                // Reset particles when switching modes
+                if (this.visualizationMode === 1) {
+                    this.particles = [];
+                }
+            }
+
+            // Toggle visualization debug panel
+            if (e.key === 'v' || e.key === 'V') {
+                this.vizDebugVisible = !this.vizDebugVisible;
+                document.getElementById('vizDebugPanel').classList.toggle('hidden');
+            }
+
+            // Toggle pad debug panel
             if (e.key === 'p' || e.key === 'P') {
                 this.debugPanelVisible = !this.debugPanelVisible;
                 document.getElementById('padDebugPanel').classList.toggle('hidden');
             }
+
+            // Scale cycling
+            if (e.key === 's') this.cycleScale();
         });
 
         document.getElementById('startButton').addEventListener('click', () => {
@@ -461,6 +501,151 @@ class VisualSoundMirror {
                 console.log('Cannot recalibrate: need to detect left hand with 5 fingers');
             }
         });
+
+        // Visualization Debug Panel Controls
+        this.setupVizDebugListeners();
+    }
+
+    setupVizDebugListeners() {
+        // Emission Rate
+        document.getElementById('emissionRate').addEventListener('input', (e) => {
+            this.particleSettings.emissionRate = parseFloat(e.target.value);
+            document.getElementById('emissionRateValue').textContent = e.target.value;
+        });
+
+        // Lifetime
+        document.getElementById('lifetime').addEventListener('input', (e) => {
+            this.particleSettings.lifetime = parseInt(e.target.value);
+            document.getElementById('lifetimeValue').textContent = e.target.value;
+        });
+
+        // Initial Velocity
+        document.getElementById('initialVelocity').addEventListener('input', (e) => {
+            this.particleSettings.initialVelocity = parseFloat(e.target.value);
+            document.getElementById('initialVelocityValue').textContent = e.target.value;
+        });
+
+        // Gravity
+        document.getElementById('gravity').addEventListener('input', (e) => {
+            this.particleSettings.gravity = parseFloat(e.target.value);
+            document.getElementById('gravityValue').textContent = e.target.value;
+        });
+
+        // Drag
+        document.getElementById('drag').addEventListener('input', (e) => {
+            this.particleSettings.drag = parseFloat(e.target.value);
+            document.getElementById('dragValue').textContent = e.target.value;
+        });
+
+        // Attraction
+        document.getElementById('attraction').addEventListener('input', (e) => {
+            this.particleSettings.attraction = parseFloat(e.target.value);
+            document.getElementById('attractionValue').textContent = e.target.value;
+        });
+
+        // Repulsion
+        document.getElementById('repulsion').addEventListener('input', (e) => {
+            this.particleSettings.repulsion = parseFloat(e.target.value);
+            document.getElementById('repulsionValue').textContent = e.target.value;
+        });
+
+        // Turbulence
+        document.getElementById('turbulence').addEventListener('input', (e) => {
+            this.particleSettings.turbulence = parseFloat(e.target.value);
+            document.getElementById('turbulenceValue').textContent = e.target.value;
+        });
+
+        // Particle Size Min
+        document.getElementById('particleSizeMin').addEventListener('input', (e) => {
+            this.particleSettings.particleSizeMin = parseFloat(e.target.value);
+            document.getElementById('particleSizeMinValue').textContent = e.target.value;
+        });
+
+        // Particle Size Max
+        document.getElementById('particleSizeMax').addEventListener('input', (e) => {
+            this.particleSettings.particleSizeMax = parseFloat(e.target.value);
+            document.getElementById('particleSizeMaxValue').textContent = e.target.value;
+        });
+
+        // Color Mode
+        document.getElementById('colorMode').addEventListener('change', (e) => {
+            this.particleSettings.colorMode = e.target.value;
+            console.log(`Color mode: ${e.target.value}`);
+        });
+
+        // Glow
+        document.getElementById('glow').addEventListener('change', (e) => {
+            this.particleSettings.glow = e.target.checked;
+        });
+
+        // Trails
+        document.getElementById('trails').addEventListener('change', (e) => {
+            this.particleSettings.trails = e.target.checked;
+        });
+
+        // Audio Reactive
+        document.getElementById('audioReactive').addEventListener('change', (e) => {
+            this.particleSettings.audioReactive = e.target.checked;
+        });
+
+        // Clear Particles
+        document.getElementById('clearParticles').addEventListener('click', () => {
+            this.particles = [];
+            console.log('Cleared all particles');
+        });
+
+        // Reset Viz Settings
+        document.getElementById('resetViz').addEventListener('click', () => {
+            this.resetVizSettings();
+        });
+    }
+
+    resetVizSettings() {
+        // Reset to defaults
+        this.particleSettings = {
+            emissionRate: 5,
+            lifetime: 3000,
+            initialVelocity: 2.0,
+            gravity: 0.15,
+            drag: 0.98,
+            attraction: 0.0,
+            repulsion: 0.0,
+            turbulence: 0.5,
+            particleSizeMin: 2,
+            particleSizeMax: 8,
+            colorMode: 'velocity',
+            glow: true,
+            trails: false,
+            audioReactive: true
+        };
+
+        // Update UI
+        document.getElementById('emissionRate').value = '5';
+        document.getElementById('emissionRateValue').textContent = '5';
+        document.getElementById('lifetime').value = '3000';
+        document.getElementById('lifetimeValue').textContent = '3000';
+        document.getElementById('initialVelocity').value = '2.0';
+        document.getElementById('initialVelocityValue').textContent = '2.0';
+        document.getElementById('gravity').value = '0.15';
+        document.getElementById('gravityValue').textContent = '0.15';
+        document.getElementById('drag').value = '0.98';
+        document.getElementById('dragValue').textContent = '0.98';
+        document.getElementById('attraction').value = '0.0';
+        document.getElementById('attractionValue').textContent = '0.0';
+        document.getElementById('repulsion').value = '0.0';
+        document.getElementById('repulsionValue').textContent = '0.0';
+        document.getElementById('turbulence').value = '0.5';
+        document.getElementById('turbulenceValue').textContent = '0.5';
+        document.getElementById('particleSizeMin').value = '2';
+        document.getElementById('particleSizeMinValue').textContent = '2';
+        document.getElementById('particleSizeMax').value = '8';
+        document.getElementById('particleSizeMaxValue').textContent = '8';
+        document.getElementById('colorMode').value = 'velocity';
+        document.getElementById('glow').checked = true;
+        document.getElementById('trails').checked = false;
+        document.getElementById('audioReactive').checked = true;
+
+        console.log('Reset visualization settings to defaults');
     }
 
     updateModeButtons() {
@@ -1497,11 +1682,17 @@ class VisualSoundMirror {
         document.getElementById('debugPosition').textContent =
             `Hands touching: ${this.handsAreTouching ? 'YES' : 'NO'}`;
         document.getElementById('debugParticles').textContent =
-            `Touching fingers: ${this.touchingFingers.length}`;
+            `${this.particles.length} | Viz Mode: ${this.visualizationMode}`;
         document.getElementById('debugAudio').textContent =
             this.audioContext ? `${this.audioContext.state} (${this.isMuted ? 'muted' : 'active'})` : 'Not initialized';
         document.getElementById('debugHands').textContent =
             (this.leftHand ? 1 : 0) + (this.rightHand ? 1 : 0);
+
+        // Update viz debug panel
+        if (this.vizDebugVisible) {
+            document.getElementById('currentVizMode').textContent = this.visualizationMode;
+            document.getElementById('particleCount').textContent = this.particles.length;
+        }
     }
 
     getColorForFinger(fingerIndex, handedness, t = 0) {
@@ -1934,6 +2125,13 @@ class VisualSoundMirror {
         // Update color phase
         this.baseHue = (this.baseHue + 0.1) % 360;
 
+        // VISUALIZATION SYSTEM - Update and render based on current viz mode
+        if (this.visualizationMode === 1) {
+            this.updateParticles();
+            this.renderParticles();
+        }
+        // TODO: Add modes 2-6 here
+
         // Mode-specific rendering
         if (this.mode === 'theremin') {
             this.renderThereminMode();
@@ -2309,6 +2507,258 @@ class VisualSoundMirror {
         this.ctx.textAlign = 'left';
         this.ctx.textBaseline = 'alphabetic';
     }
+
+    // ============================================================
+    // PARTICLE SYSTEM (#1) - Particle Fountain
+    // ============================================================
+
+    updateParticles() {
+        const now = Date.now();
+
+        // Emit particles from fingertips
+        this.emitParticles();
+
+        // Update existing particles
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+            const p = this.particles[i];
+
+            // Check lifetime
+            const age = now - p.birthTime;
+            if (age > this.particleSettings.lifetime) {
+                this.particles.splice(i, 1);
+                continue;
+            }
+
+            // Apply physics
+            // 1. Gravity
+            p.vy += this.particleSettings.gravity;
+
+            // 2. Drag
+            p.vx *= this.particleSettings.drag;
+            p.vy *= this.particleSettings.drag;
+
+            // 3. Turbulence (curl noise for organic swirling)
+            if (this.particleSettings.turbulence > 0) {
+                const turb = this.curlNoise(p.x * 0.01, p.y * 0.01, this.time * 0.001);
+                p.vx += turb.x * this.particleSettings.turbulence;
+                p.vy += turb.y * this.particleSettings.turbulence;
+            }
+
+            // 4. Inter-particle forces (expensive, only if enabled)
+            if (this.particleSettings.attraction !== 0 || this.particleSettings.repulsion !== 0) {
+                this.applyInterParticleForces(p, i);
+            }
+
+            // Update position
+            p.x += p.vx;
+            p.y += p.vy;
+
+            // Update trail history
+            if (this.particleSettings.trails) {
+                p.trail.push({ x: p.x, y: p.y });
+                if (p.trail.length > 10) p.trail.shift();
+            }
+
+            // Bounce off edges (optional - creates interesting contained effect)
+            if (p.x < 0) {
+                p.x = 0;
+                p.vx *= -0.5;
+            }
+            if (p.x > this.canvas.width) {
+                p.x = this.canvas.width;
+                p.vx *= -0.5;
+            }
+            if (p.y > this.canvas.height) {
+                p.y = this.canvas.height;
+                p.vy *= -0.5;
+            }
+        }
+    }
+
+    emitParticles() {
+        // Don't emit if no hands detected
+        if (!this.leftHand && !this.rightHand) return;
+
+        // Limit total particles for performance
+        if (this.particles.length >= this.maxParticles) return;
+
+        const hands = [];
+        if (this.leftHand) hands.push(this.leftHand);
+        if (this.rightHand) hands.push(this.rightHand);
+
+        const now = Date.now();
+
+        for (const hand of hands) {
+            if (!hand.fingertips) continue;
+
+            for (const fingertip of hand.fingertips) {
+                // Calculate finger velocity for initial particle velocity
+                let velX = 0, velY = 0;
+                const prevHand = hand === this.leftHand ? this.prevLeftHand : this.prevRightHand;
+                if (prevHand && prevHand.fingertips[fingertip.fingerIndex]) {
+                    const prev = prevHand.fingertips[fingertip.fingerIndex];
+                    velX = (fingertip.x - prev.x) * 2; // Amplify for visibility
+                    velY = (fingertip.y - prev.y) * 2;
+                }
+
+                // Emit multiple particles per frame based on emission rate
+                const numToEmit = Math.ceil(this.particleSettings.emissionRate);
+
+                for (let e = 0; e < numToEmit; e++) {
+                    if (this.particles.length >= this.maxParticles) break;
+
+                    // Randomize initial position slightly around fingertip
+                    const spread = 3;
+                    const px = fingertip.x + (Math.random() - 0.5) * spread;
+                    const py = fingertip.y + (Math.random() - 0.5) * spread;
+
+                    // Initial velocity = finger movement + random spread
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = this.particleSettings.initialVelocity;
+                    const randomVel = 0.5;
+
+                    const particle = {
+                        x: px,
+                        y: py,
+                        vx: velX * speed + Math.cos(angle) * randomVel,
+                        vy: velY * speed + Math.sin(angle) * randomVel,
+                        birthTime: now,
+                        size: this.particleSettings.particleSizeMin +
+                              Math.random() * (this.particleSettings.particleSizeMax - this.particleSettings.particleSizeMin),
+                        hue: this.baseHue + fingertip.fingerIndex * 30, // Color per finger
+                        fingerIndex: fingertip.fingerIndex,
+                        trail: []
+                    };
+
+                    this.particles.push(particle);
+                }
+            }
+        }
+    }
+
+    renderParticles() {
+        const now = Date.now();
+
+        // Enable glow if requested
+        if (this.particleSettings.glow) {
+            this.ctx.shadowBlur = 15;
+        }
+
+        for (const p of this.particles) {
+            const age = now - p.birthTime;
+            const lifeProgress = age / this.particleSettings.lifetime;
+
+            // Calculate color based on color mode
+            let hue, saturation, lightness;
+
+            switch (this.particleSettings.colorMode) {
+                case 'velocity':
+                    const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+                    hue = (this.baseHue + speed * 20) % 360;
+                    saturation = 70 + speed * 3;
+                    lightness = 50 + speed * 2;
+                    break;
+
+                case 'lifetime':
+                    hue = (p.hue + lifeProgress * 120) % 360;
+                    saturation = 80;
+                    lightness = 60;
+                    break;
+
+                case 'audio':
+                    // React to audio (filter frequency affects hue)
+                    const filterFreq = this.knobs[0] ? this.knobs[0].value : 0.5;
+                    hue = (this.baseHue + filterFreq * 180) % 360;
+                    saturation = 85;
+                    lightness = 55;
+                    break;
+
+                case 'rainbow':
+                default:
+                    hue = (p.hue + this.time * 0.05) % 360;
+                    saturation = 90;
+                    lightness = 60;
+                    break;
+            }
+
+            // Fade out near end of life
+            const alpha = 1 - Math.pow(lifeProgress, 2);
+
+            // Draw trail if enabled
+            if (this.particleSettings.trails && p.trail.length > 1) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(p.trail[0].x, p.trail[0].y);
+                for (let i = 1; i < p.trail.length; i++) {
+                    this.ctx.lineTo(p.trail[i].x, p.trail[i].y);
+                }
+                this.ctx.strokeStyle = `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha * 0.3})`;
+                this.ctx.lineWidth = p.size * 0.5;
+                this.ctx.stroke();
+            }
+
+            // Draw particle
+            if (this.particleSettings.glow) {
+                this.ctx.shadowColor = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+            }
+
+            this.ctx.fillStyle = `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha})`;
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+
+        // Reset shadow
+        this.ctx.shadowBlur = 0;
+    }
+
+    applyInterParticleForces(particle, currentIndex) {
+        // Only check nearby particles for performance
+        const maxDistance = 100;
+
+        for (let i = 0; i < this.particles.length; i++) {
+            if (i === currentIndex) continue;
+
+            const other = this.particles[i];
+            const dx = other.x - particle.x;
+            const dy = other.y - particle.y;
+            const distSq = dx * dx + dy * dy;
+            const dist = Math.sqrt(distSq);
+
+            if (dist < maxDistance && dist > 0.1) {
+                const force = (this.particleSettings.attraction - this.particleSettings.repulsion / dist);
+                const fx = (dx / dist) * force;
+                const fy = (dy / dist) * force;
+
+                particle.vx += fx;
+                particle.vy += fy;
+            }
+        }
+    }
+
+    // Simpli curl noise for organic turbulence
+    curlNoise(x, y, t) {
+        // Simple Perlin-like noise approximation using sin waves
+        const noise = (x, y) => {
+            return Math.sin(x * 1.3 + t) * Math.cos(y * 1.7 + t) +
+                   Math.sin(x * 2.1 - t * 0.5) * Math.cos(y * 2.3 - t * 0.5);
+        };
+
+        // Calculate curl (rotation) of noise field
+        const eps = 0.1;
+        const n = noise(x, y);
+        const nx = noise(x + eps, y);
+        const ny = noise(x, y + eps);
+
+        // Curl = (dN/dy, -dN/dx)
+        return {
+            x: (ny - n) / eps,
+            y: -(nx - n) / eps
+        };
+    }
+
+    // ============================================================
+    // END PARTICLE SYSTEM
+    // ============================================================
 
     drawFluidRibbon(trail, fingerIndex, handedness) {
         // Draw multiple parallel ribbons with varying width for silk effect
