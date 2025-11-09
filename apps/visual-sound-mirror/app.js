@@ -378,9 +378,11 @@ class VisualSoundMirror {
             if (e.key >= '1' && e.key <= '6') {
                 this.visualizationMode = parseInt(e.key);
                 console.log(`Visualization Mode ${this.visualizationMode}`);
-                // Reset particles when switching modes
+                // Reset state when switching modes
                 if (this.visualizationMode === 1) {
                     this.particles = [];
+                } else if (this.visualizationMode === 6) {
+                    this.handHistory = [];
                 }
             }
 
@@ -854,34 +856,51 @@ class VisualSoundMirror {
 
     // Count extended fingers on a hand (stricter detection for deliberate gestures)
     countExtendedFingers(landmarks) {
-        let count = 0;
+        // Check each finger individually
+        const wrist = landmarks[0];
 
         // Thumb: check if tip is significantly further from wrist than knuckle
         const thumbTip = landmarks[4];
         const thumbKnuckle = landmarks[2];
-        const wrist = landmarks[0];
         const thumbTipDist = Math.hypot(thumbTip.x - wrist.x, thumbTip.y - wrist.y);
         const thumbKnuckleDist = Math.hypot(thumbKnuckle.x - wrist.x, thumbKnuckle.y - wrist.y);
-        if (thumbTipDist > thumbKnuckleDist * 1.3) count++; // Stricter: 1.3 instead of 1.1
+        const thumbExtended = thumbTipDist > thumbKnuckleDist * 1.3;
 
         // Other fingers: check if tip is significantly higher than PIP joint
-        const fingerIndices = [
-            [8, 6],   // Index finger: tip, PIP
-            [12, 10], // Middle finger
-            [16, 14], // Ring finger
-            [20, 18]  // Pinky
-        ];
+        const indexTip = landmarks[8];
+        const indexPip = landmarks[6];
+        const indexExtended = indexTip.y < indexPip.y - 0.05;
 
-        for (const [tipIdx, pipIdx] of fingerIndices) {
-            const tip = landmarks[tipIdx];
-            const pip = landmarks[pipIdx];
-            // Extended if tip is significantly higher than PIP (stricter threshold)
-            if (tip.y < pip.y - 0.05) { // Stricter: 0.05 instead of 0.03
-                count++;
-            }
+        const middleTip = landmarks[12];
+        const middlePip = landmarks[10];
+        const middleExtended = middleTip.y < middlePip.y - 0.05;
+
+        const ringTip = landmarks[16];
+        const ringPip = landmarks[14];
+        const ringExtended = ringTip.y < ringPip.y - 0.05;
+
+        const pinkyTip = landmarks[20];
+        const pinkyPip = landmarks[18];
+        const pinkyExtended = pinkyTip.y < pinkyPip.y - 0.05;
+
+        // STRICT GESTURE DETECTION:
+        // 1 finger = ONLY index extended
+        if (indexExtended && !middleExtended && !ringExtended && !pinkyExtended && !thumbExtended) {
+            return 1;
         }
 
-        return count;
+        // 2 fingers (peace sign) = ONLY index + middle extended
+        if (indexExtended && middleExtended && !ringExtended && !pinkyExtended && !thumbExtended) {
+            return 2;
+        }
+
+        // 5 fingers = all fingers extended
+        if (thumbExtended && indexExtended && middleExtended && ringExtended && pinkyExtended) {
+            return 5;
+        }
+
+        // Any other combination = 0 (no recognized gesture)
+        return 0;
     }
 
     // Convert MIDI note number to frequency
