@@ -114,18 +114,19 @@ class VisualSoundMirror {
 
         // Particle System (#1)
         this.particles = [];
-        this.maxParticles = 2000;
+        this.maxParticles = 15000;
+        this.lastParticleEmitTime = 0;
         this.particleSettings = {
-            emissionRate: 5,           // Particles per finger per frame (1-20)
-            lifetime: 3000,            // Milliseconds (500-5000)
-            initialVelocity: 2.0,      // Speed multiplier (0.1-5.0)
-            gravity: 0.15,             // Downward acceleration (0-1)
-            drag: 0.98,                // Air resistance (0.9-0.99)
+            emissionRate: 30,          // Particles per finger per SECOND (10-200)
+            lifetime: 4000,            // Milliseconds (500-8000)
+            initialVelocity: 0.3,      // Speed multiplier (0.01-2.0)
+            gravity: 0.08,             // Downward acceleration (0-0.5)
+            drag: 0.995,               // Air resistance (0.9-0.999)
             attraction: 0.0,           // Inter-particle attraction (-0.5 to 0.5)
             repulsion: 0.0,            // Inter-particle repulsion (0-2)
-            turbulence: 0.5,           // Curl noise strength (0-2)
-            particleSizeMin: 2,        // Min particle size (1-10)
-            particleSizeMax: 8,        // Max particle size (2-20)
+            turbulence: 0.3,           // Curl noise strength (0-2)
+            particleSizeMin: 0.5,      // Min particle size (0.5-5)
+            particleSizeMax: 2.5,      // Max particle size (1-10)
             colorMode: 'velocity',     // 'velocity', 'lifetime', 'audio', 'rainbow'
             glow: true,                // Glow effect
             trails: false,             // Particle trails
@@ -603,16 +604,16 @@ class VisualSoundMirror {
     resetVizSettings() {
         // Reset to defaults
         this.particleSettings = {
-            emissionRate: 5,
-            lifetime: 3000,
-            initialVelocity: 2.0,
-            gravity: 0.15,
-            drag: 0.98,
+            emissionRate: 30,
+            lifetime: 4000,
+            initialVelocity: 0.3,
+            gravity: 0.08,
+            drag: 0.995,
             attraction: 0.0,
             repulsion: 0.0,
-            turbulence: 0.5,
-            particleSizeMin: 2,
-            particleSizeMax: 8,
+            turbulence: 0.3,
+            particleSizeMin: 0.5,
+            particleSizeMax: 2.5,
             colorMode: 'velocity',
             glow: true,
             trails: false,
@@ -620,26 +621,26 @@ class VisualSoundMirror {
         };
 
         // Update UI
-        document.getElementById('emissionRate').value = '5';
-        document.getElementById('emissionRateValue').textContent = '5';
-        document.getElementById('lifetime').value = '3000';
-        document.getElementById('lifetimeValue').textContent = '3000';
-        document.getElementById('initialVelocity').value = '2.0';
-        document.getElementById('initialVelocityValue').textContent = '2.0';
-        document.getElementById('gravity').value = '0.15';
-        document.getElementById('gravityValue').textContent = '0.15';
-        document.getElementById('drag').value = '0.98';
-        document.getElementById('dragValue').textContent = '0.98';
+        document.getElementById('emissionRate').value = '30';
+        document.getElementById('emissionRateValue').textContent = '30';
+        document.getElementById('lifetime').value = '4000';
+        document.getElementById('lifetimeValue').textContent = '4000';
+        document.getElementById('initialVelocity').value = '0.3';
+        document.getElementById('initialVelocityValue').textContent = '0.3';
+        document.getElementById('gravity').value = '0.08';
+        document.getElementById('gravityValue').textContent = '0.08';
+        document.getElementById('drag').value = '0.995';
+        document.getElementById('dragValue').textContent = '0.995';
         document.getElementById('attraction').value = '0.0';
         document.getElementById('attractionValue').textContent = '0.0';
         document.getElementById('repulsion').value = '0.0';
         document.getElementById('repulsionValue').textContent = '0.0';
-        document.getElementById('turbulence').value = '0.5';
-        document.getElementById('turbulenceValue').textContent = '0.5';
-        document.getElementById('particleSizeMin').value = '2';
-        document.getElementById('particleSizeMinValue').textContent = '2';
-        document.getElementById('particleSizeMax').value = '8';
-        document.getElementById('particleSizeMaxValue').textContent = '8';
+        document.getElementById('turbulence').value = '0.3';
+        document.getElementById('turbulenceValue').textContent = '0.3';
+        document.getElementById('particleSizeMin').value = '0.5';
+        document.getElementById('particleSizeMinValue').textContent = '0.5';
+        document.getElementById('particleSizeMax').value = '2.5';
+        document.getElementById('particleSizeMaxValue').textContent = '2.5';
         document.getElementById('colorMode').value = 'velocity';
         document.getElementById('glow').checked = true;
         document.getElementById('trails').checked = false;
@@ -2582,11 +2583,21 @@ class VisualSoundMirror {
         // Limit total particles for performance
         if (this.particles.length >= this.maxParticles) return;
 
+        const now = Date.now();
+
+        // TIME-BASED EMISSION (not frame-based!)
+        // Calculate how much time has passed since last emission
+        if (this.lastParticleEmitTime === 0) {
+            this.lastParticleEmitTime = now;
+            return; // Skip first frame to establish timing
+        }
+
+        const deltaTime = now - this.lastParticleEmitTime;
+        this.lastParticleEmitTime = now;
+
         const hands = [];
         if (this.leftHand) hands.push(this.leftHand);
         if (this.rightHand) hands.push(this.rightHand);
-
-        const now = Date.now();
 
         for (const hand of hands) {
             if (!hand.fingertips) continue;
@@ -2597,25 +2608,27 @@ class VisualSoundMirror {
                 const prevHand = hand === this.leftHand ? this.prevLeftHand : this.prevRightHand;
                 if (prevHand && prevHand.fingertips[fingertip.fingerIndex]) {
                     const prev = prevHand.fingertips[fingertip.fingerIndex];
-                    velX = (fingertip.x - prev.x) * 2; // Amplify for visibility
-                    velY = (fingertip.y - prev.y) * 2;
+                    velX = (fingertip.x - prev.x);
+                    velY = (fingertip.y - prev.y);
                 }
 
-                // Emit multiple particles per frame based on emission rate
-                const numToEmit = Math.ceil(this.particleSettings.emissionRate);
+                // Calculate particles to emit based on TIME (not frames!)
+                // emissionRate is particles per SECOND, convert to particles this frame
+                const particlesToEmit = (this.particleSettings.emissionRate * deltaTime) / 1000;
+                const numToEmit = Math.floor(particlesToEmit);
 
                 for (let e = 0; e < numToEmit; e++) {
                     if (this.particles.length >= this.maxParticles) break;
 
                     // Randomize initial position slightly around fingertip
-                    const spread = 3;
+                    const spread = 2;
                     const px = fingertip.x + (Math.random() - 0.5) * spread;
                     const py = fingertip.y + (Math.random() - 0.5) * spread;
 
                     // Initial velocity = finger movement + random spread
                     const angle = Math.random() * Math.PI * 2;
                     const speed = this.particleSettings.initialVelocity;
-                    const randomVel = 0.5;
+                    const randomVel = 0.2;
 
                     const particle = {
                         x: px,

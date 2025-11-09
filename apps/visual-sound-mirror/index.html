@@ -109,28 +109,28 @@
                 <p class="viz-mode-indicator">Mode <span id="currentVizMode">1</span>: Particle Fountain | Press 1-6 to switch modes</p>
 
                 <div class="control-group">
-                    <label>Emission Rate: <span id="emissionRateValue">5</span>/frame</label>
-                    <input type="range" id="emissionRate" min="1" max="20" value="5" step="1">
+                    <label>Emission Rate: <span id="emissionRateValue">30</span>/sec</label>
+                    <input type="range" id="emissionRate" min="10" max="200" value="30" step="5">
                 </div>
 
                 <div class="control-group">
-                    <label>Lifetime: <span id="lifetimeValue">3000</span>ms</label>
-                    <input type="range" id="lifetime" min="500" max="5000" value="3000" step="100">
+                    <label>Lifetime: <span id="lifetimeValue">4000</span>ms</label>
+                    <input type="range" id="lifetime" min="500" max="8000" value="4000" step="100">
                 </div>
 
                 <div class="control-group">
-                    <label>Initial Velocity: <span id="initialVelocityValue">2.0</span>x</label>
-                    <input type="range" id="initialVelocity" min="0.1" max="5.0" value="2.0" step="0.1">
+                    <label>Initial Velocity: <span id="initialVelocityValue">0.3</span>x</label>
+                    <input type="range" id="initialVelocity" min="0.01" max="2.0" value="0.3" step="0.01">
                 </div>
 
                 <div class="control-group">
-                    <label>Gravity: <span id="gravityValue">0.15</span></label>
-                    <input type="range" id="gravity" min="0" max="1" value="0.15" step="0.05">
+                    <label>Gravity: <span id="gravityValue">0.08</span></label>
+                    <input type="range" id="gravity" min="0" max="0.5" value="0.08" step="0.01">
                 </div>
 
                 <div class="control-group">
-                    <label>Drag: <span id="dragValue">0.98</span></label>
-                    <input type="range" id="drag" min="0.9" max="0.99" value="0.98" step="0.01">
+                    <label>Drag: <span id="dragValue">0.995</span></label>
+                    <input type="range" id="drag" min="0.9" max="0.999" value="0.995" step="0.001">
                 </div>
 
                 <div class="control-group">
@@ -144,18 +144,18 @@
                 </div>
 
                 <div class="control-group">
-                    <label>Turbulence: <span id="turbulenceValue">0.5</span></label>
-                    <input type="range" id="turbulence" min="0" max="2" value="0.5" step="0.1">
+                    <label>Turbulence: <span id="turbulenceValue">0.3</span></label>
+                    <input type="range" id="turbulence" min="0" max="2" value="0.3" step="0.1">
                 </div>
 
                 <div class="control-group">
-                    <label>Size Min: <span id="particleSizeMinValue">2</span>px</label>
-                    <input type="range" id="particleSizeMin" min="1" max="10" value="2" step="0.5">
+                    <label>Size Min: <span id="particleSizeMinValue">0.5</span>px</label>
+                    <input type="range" id="particleSizeMin" min="0.5" max="5" value="0.5" step="0.1">
                 </div>
 
                 <div class="control-group">
-                    <label>Size Max: <span id="particleSizeMaxValue">8</span>px</label>
-                    <input type="range" id="particleSizeMax" min="2" max="20" value="8" step="1">
+                    <label>Size Max: <span id="particleSizeMaxValue">2.5</span>px</label>
+                    <input type="range" id="particleSizeMax" min="1" max="10" value="2.5" step="0.1">
                 </div>
 
                 <div class="control-group">
@@ -175,7 +175,7 @@
                 </div>
 
                 <div class="control-group">
-                    <p>Particles: <span id="particleCount">0</span> / 2000</p>
+                    <p>Particles: <span id="particleCount">0</span> / 15000</p>
                 </div>
 
                 <button id="clearParticles">Clear All Particles</button>
