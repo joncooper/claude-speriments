@@ -183,6 +183,15 @@ body {
     transform: scale(1.1);
 }
 
+.control-buttons button.inactive {
+    opacity: 0.4;
+    border-color: rgba(255, 100, 100, 0.5);
+}
+
+.control-buttons button.inactive:hover {
+    border-color: rgba(255, 150, 150, 0.7);
+}
+
 #info {
     position: absolute;
     top: 0;
