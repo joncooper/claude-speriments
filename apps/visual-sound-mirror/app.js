@@ -133,6 +133,14 @@ class VisualSoundMirror {
             audioReactive: true        // React to audio
         };
 
+        // Audio Bloom Pulses System (#2)
+        this.blooms = [];
+        this.lastBloomTime = 0;
+
+        // Kaleidoscope Symmetry System (#5)
+        this.kaleidoscopeSymmetry = 6; // 6-fold symmetry
+        this.kaleidoscopeTrails = [];
+
         // Temporal Echoes System (#6)
         this.handHistory = [];
         this.maxHistoryLength = 60; // Store up to 60 frames of history
@@ -1731,10 +1739,28 @@ class VisualSoundMirror {
         }
     }
 
+    getVisualizationModeName(mode) {
+        const modeNames = {
+            1: 'Particle Fountain',
+            2: 'Audio Bloom Pulses',
+            3: 'Fluid Dynamics',
+            4: 'Gravitational Orbits',
+            5: 'Kaleidoscope Symmetry',
+            6: 'Temporal Echoes'
+        };
+        return modeNames[mode] || 'Unknown';
+    }
+
     updateDebug() {
         // Always update viz debug panel (independent of main debug mode)
         if (this.vizDebugVisible) {
+            const modeName = this.getVisualizationModeName(this.visualizationMode);
             document.getElementById('currentVizMode').textContent = this.visualizationMode;
+            // Update the mode indicator text
+            const modeIndicator = document.querySelector('.viz-mode-indicator');
+            if (modeIndicator) {
+                modeIndicator.innerHTML = `Mode <span id="currentVizMode">${this.visualizationMode}</span>: ${modeName} | Press 1-6 to switch modes`;
+            }
             document.getElementById('particleCount').textContent = this.particles.length;
         }
 
@@ -2190,11 +2216,19 @@ class VisualSoundMirror {
         if (this.visualizationMode === 1) {
             this.updateParticles();
             this.renderParticles();
+        } else if (this.visualizationMode === 2) {
+            this.updateAudioBlooms();
+            this.renderAudioBlooms();
+        } else if (this.visualizationMode === 3) {
+            this.renderFluidDynamics();
+        } else if (this.visualizationMode === 4) {
+            this.renderGravitationalOrbits();
+        } else if (this.visualizationMode === 5) {
+            this.renderKaleidoscope();
         } else if (this.visualizationMode === 6) {
             this.updateHandHistory();
             this.renderTemporalEchoes();
         }
-        // TODO: Add modes 2-5 here
 
         // Mode-specific rendering
         if (this.mode === 'theremin') {
@@ -3010,6 +3044,251 @@ class VisualSoundMirror {
 
     // ============================================================
     // END TEMPORAL ECHOES SYSTEM
+    // ============================================================
+
+    // ============================================================
+    // AUDIO BLOOM PULSES (#2) - Expanding Waves from Sound
+    // ============================================================
+
+    updateAudioBlooms() {
+        const now = Date.now();
+
+        // Create blooms from fingertip movements
+        if (this.leftHand || this.rightHand) {
+            const hands = [];
+            if (this.leftHand) hands.push(this.leftHand);
+            if (this.rightHand) hands.push(this.rightHand);
+
+            for (const hand of hands) {
+                if (!hand.fingertips) continue;
+
+                for (const fingertip of hand.fingertips) {
+                    // Calculate velocity
+                    let velocity = 0;
+                    const prevHand = hand === this.leftHand ? this.prevLeftHand : this.prevRightHand;
+                    if (prevHand && prevHand.fingertips[fingertip.fingerIndex]) {
+                        const prev = prevHand.fingertips[fingertip.fingerIndex];
+                        const dx = fingertip.x - prev.x;
+                        const dy = fingertip.y - prev.y;
+                        velocity = Math.sqrt(dx * dx + dy * dy);
+                    }
+
+                    // Create bloom on fast movement
+                    if (velocity > 5 && now - this.lastBloomTime > 100) {
+                        this.blooms.push({
+                            x: fingertip.x,
+                            y: fingertip.y,
+                            birthTime: now,
+                            hue: (this.baseHue + fingertip.fingerIndex * 30) % 360,
+                            velocity: velocity
+                        });
+                        this.lastBloomTime = now;
+                    }
+                }
+            }
+        }
+
+        // Remove old blooms
+        this.blooms = this.blooms.filter(bloom => now - bloom.birthTime < 2000);
+    }
+
+    renderAudioBlooms() {
+        const now = Date.now();
+
+        this.ctx.shadowBlur = 20;
+
+        for (const bloom of this.blooms) {
+            const age = now - bloom.birthTime;
+            const progress = age / 2000;
+
+            // Expanding ring
+            const radius = progress * 300;
+            const alpha = 1 - progress;
+
+            // Draw multiple concentric rings
+            for (let i = 0; i < 3; i++) {
+                const ringRadius = radius - i * 30;
+                if (ringRadius < 0) continue;
+
+                this.ctx.shadowColor = `hsl(${bloom.hue}, 80%, 60%)`;
+                this.ctx.strokeStyle = `hsla(${bloom.hue}, 80%, 60%, ${alpha * 0.6})`;
+                this.ctx.lineWidth = 3;
+                this.ctx.beginPath();
+                this.ctx.arc(bloom.x, bloom.y, ringRadius, 0, Math.PI * 2);
+                this.ctx.stroke();
+            }
+        }
+
+        this.ctx.shadowBlur = 0;
+    }
+
+    // ============================================================
+    // FLUID DYNAMICS (#3) - Flowing Smoke Effect
+    // ============================================================
+
+    renderFluidDynamics() {
+        if (!this.leftHand && !this.rightHand) return;
+
+        const hands = [];
+        if (this.leftHand) hands.push(this.leftHand);
+        if (this.rightHand) hands.push(this.rightHand);
+
+        this.ctx.shadowBlur = 25;
+
+        for (const hand of hands) {
+            if (!hand.fingertips) continue;
+
+            for (const fingertip of hand.fingertips) {
+                // Calculate velocity
+                let velocity = { x: 0, y: 0 };
+                const prevHand = hand === this.leftHand ? this.prevLeftHand : this.prevRightHand;
+                if (prevHand && prevHand.fingertips[fingertip.fingerIndex]) {
+                    const prev = prevHand.fingertips[fingertip.fingerIndex];
+                    velocity.x = (fingertip.x - prev.x) * 3;
+                    velocity.y = (fingertip.y - prev.y) * 3;
+                }
+
+                // Draw flowing smoke tendrils
+                const hue = (this.baseHue + fingertip.fingerIndex * 30) % 360;
+                const numTendrils = 5;
+
+                for (let i = 0; i < numTendrils; i++) {
+                    const angle = (i / numTendrils) * Math.PI * 2 + this.time * 0.001;
+                    const offset = 20;
+                    const x = fingertip.x + Math.cos(angle) * offset;
+                    const y = fingertip.y + Math.sin(angle) * offset;
+
+                    // Draw gradient circle
+                    const gradient = this.ctx.createRadialGradient(x, y, 0, x, y, 30);
+                    gradient.addColorStop(0, `hsla(${hue}, 70%, 60%, 0.4)`);
+                    gradient.addColorStop(1, `hsla(${hue}, 70%, 60%, 0)`);
+
+                    this.ctx.fillStyle = gradient;
+                    this.ctx.fillRect(x - 30, y - 30, 60, 60);
+                }
+            }
+        }
+
+        this.ctx.shadowBlur = 0;
+    }
+
+    // ============================================================
+    // GRAVITATIONAL ORBITS (#4) - Particles Orbit Fingertips
+    // ============================================================
+
+    renderGravitationalOrbits() {
+        if (!this.leftHand && !this.rightHand) return;
+
+        const hands = [];
+        if (this.leftHand) hands.push(this.leftHand);
+        if (this.rightHand) hands.push(this.rightHand);
+
+        this.ctx.shadowBlur = 15;
+
+        for (const hand of hands) {
+            if (!hand.fingertips) continue;
+
+            for (const fingertip of hand.fingertips) {
+                const hue = (this.baseHue + fingertip.fingerIndex * 30) % 360;
+
+                // Draw orbiting particles around fingertip
+                const numOrbiters = 8;
+                const orbitRadius = 40;
+
+                for (let i = 0; i < numOrbiters; i++) {
+                    const angle = (i / numOrbiters) * Math.PI * 2 + this.time * 0.002 + fingertip.fingerIndex;
+                    const x = fingertip.x + Math.cos(angle) * orbitRadius;
+                    const y = fingertip.y + Math.sin(angle) * orbitRadius;
+
+                    // Draw orbital particle
+                    this.ctx.shadowColor = `hsl(${hue}, 90%, 70%)`;
+                    this.ctx.fillStyle = `hsla(${hue}, 90%, 70%, 0.8)`;
+                    this.ctx.beginPath();
+                    this.ctx.arc(x, y, 4, 0, Math.PI * 2);
+                    this.ctx.fill();
+
+                    // Draw orbital trail
+                    const prevAngle = angle - 0.1;
+                    const prevX = fingertip.x + Math.cos(prevAngle) * orbitRadius;
+                    const prevY = fingertip.y + Math.sin(prevAngle) * orbitRadius;
+
+                    this.ctx.strokeStyle = `hsla(${hue}, 90%, 70%, 0.3)`;
+                    this.ctx.lineWidth = 2;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(prevX, prevY);
+                    this.ctx.lineTo(x, y);
+                    this.ctx.stroke();
+                }
+
+                // Draw central "sun"
+                this.ctx.fillStyle = `hsla(${hue}, 90%, 80%, 0.6)`;
+                this.ctx.beginPath();
+                this.ctx.arc(fingertip.x, fingertip.y, 12, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+        }
+
+        this.ctx.shadowBlur = 0;
+    }
+
+    // ============================================================
+    // KALEIDOSCOPE SYMMETRY (#5) - Radial Mirroring
+    // ============================================================
+
+    renderKaleidoscope() {
+        if (!this.leftHand && !this.rightHand) return;
+
+        const centerX = this.canvas.width / 2;
+        const centerY = this.canvas.height / 2;
+
+        this.ctx.save();
+        this.ctx.shadowBlur = 20;
+
+        const hands = [];
+        if (this.leftHand) hands.push(this.leftHand);
+        if (this.rightHand) hands.push(this.rightHand);
+
+        for (const hand of hands) {
+            if (!hand.fingertips) continue;
+
+            for (const fingertip of hand.fingertips) {
+                const hue = (this.baseHue + fingertip.fingerIndex * 30) % 360;
+
+                // Draw the fingertip reflected around the center with radial symmetry
+                for (let sym = 0; sym < this.kaleidoscopeSymmetry; sym++) {
+                    const angle = (sym / this.kaleidoscopeSymmetry) * Math.PI * 2;
+
+                    this.ctx.save();
+                    this.ctx.translate(centerX, centerY);
+                    this.ctx.rotate(angle);
+                    this.ctx.translate(-centerX, -centerY);
+
+                    // Draw reflected fingertip
+                    this.ctx.shadowColor = `hsl(${hue}, 90%, 70%)`;
+                    this.ctx.fillStyle = `hsla(${hue}, 90%, 70%, 0.7)`;
+                    this.ctx.beginPath();
+                    this.ctx.arc(fingertip.x, fingertip.y, 15, 0, Math.PI * 2);
+                    this.ctx.fill();
+
+                    // Draw connecting line to center
+                    this.ctx.strokeStyle = `hsla(${hue}, 80%, 60%, 0.3)`;
+                    this.ctx.lineWidth = 2;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(centerX, centerY);
+                    this.ctx.lineTo(fingertip.x, fingertip.y);
+                    this.ctx.stroke();
+
+                    this.ctx.restore();
+                }
+            }
+        }
+
+        this.ctx.restore();
+        this.ctx.shadowBlur = 0;
+    }
+
+    // ============================================================
+    // END VISUALIZATION MODES
     // ============================================================
 
     drawFluidRibbon(trail, fingerIndex, handedness) {
