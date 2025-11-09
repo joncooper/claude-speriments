@@ -103,6 +103,86 @@
             </div>
         </div>
 
+        <div id="vizDebugPanel" class="hidden">
+            <div class="viz-debug-content">
+                <h3>Visualization Tuning (Press 'V' to toggle)</h3>
+                <p class="viz-mode-indicator">Mode <span id="currentVizMode">1</span>: Particle Fountain | Press 1-6 to switch modes</p>
+
+                <div class="control-group">
+                    <label>Emission Rate: <span id="emissionRateValue">5</span>/frame</label>
+                    <input type="range" id="emissionRate" min="1" max="20" value="5" step="1">
+                </div>
+
+                <div class="control-group">
+                    <label>Lifetime: <span id="lifetimeValue">3000</span>ms</label>
+                    <input type="range" id="lifetime" min="500" max="5000" value="3000" step="100">
+                </div>
+
+                <div class="control-group">
+                    <label>Initial Velocity: <span id="initialVelocityValue">2.0</span>x</label>
+                    <input type="range" id="initialVelocity" min="0.1" max="5.0" value="2.0" step="0.1">
+                </div>
+
+                <div class="control-group">
+                    <label>Gravity: <span id="gravityValue">0.15</span></label>
+                    <input type="range" id="gravity" min="0" max="1" value="0.15" step="0.05">
+                </div>
+
+                <div class="control-group">
+                    <label>Drag: <span id="dragValue">0.98</span></label>
+                    <input type="range" id="drag" min="0.9" max="0.99" value="0.98" step="0.01">
+                </div>
+
+                <div class="control-group">
+                    <label>Attraction: <span id="attractionValue">0.0</span></label>
+                    <input type="range" id="attraction" min="-0.5" max="0.5" value="0.0" step="0.05">
+                </div>
+
+                <div class="control-group">
+                    <label>Repulsion: <span id="repulsionValue">0.0</span></label>
+                    <input type="range" id="repulsion" min="0" max="2" value="0.0" step="0.1">
+                </div>
+
+                <div class="control-group">
+                    <label>Turbulence: <span id="turbulenceValue">0.5</span></label>
+                    <input type="range" id="turbulence" min="0" max="2" value="0.5" step="0.1">
+                </div>
+
+                <div class="control-group">
+                    <label>Size Min: <span id="particleSizeMinValue">2</span>px</label>
+                    <input type="range" id="particleSizeMin" min="1" max="10" value="2" step="0.5">
+                </div>
+
+                <div class="control-group">
+                    <label>Size Max: <span id="particleSizeMaxValue">8</span>px</label>
+                    <input type="range" id="particleSizeMax" min="2" max="20" value="8" step="1">
+                </div>
+
+                <div class="control-group">
+                    <label>Color Mode:</label>
+                    <select id="colorMode">
+                        <option value="velocity">Velocity</option>
+                        <option value="lifetime">Lifetime</option>
+                        <option value="audio">Audio Reactive</option>
+                        <option value="rainbow">Rainbow</option>
+                    </select>
+                </div>
+
+                <div class="control-group checkbox-group">
+                    <label><input type="checkbox" id="glow" checked> Glow Effect</label>
+                    <label><input type="checkbox" id="trails"> Particle Trails</label>
+                    <label><input type="checkbox" id="audioReactive" checked> Audio Reactive</label>
+                </div>
+
+                <div class="control-group">
+                    <p>Particles: <span id="particleCount">0</span> / 2000</p>
+                </div>
+
+                <button id="clearParticles">Clear All Particles</button>
+                <button id="resetViz">Reset to Defaults</button>
+            </div>
+        </div>
+
         <div id="info" class="hidden">
             <div class="info-content">
                 <h2>Visual Sound Mirror - v6.2</h2>
