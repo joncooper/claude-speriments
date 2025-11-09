@@ -1706,6 +1706,13 @@ class VisualSoundMirror {
     }
 
     updateDebug() {
+        // Always update viz debug panel (independent of main debug mode)
+        if (this.vizDebugVisible) {
+            document.getElementById('currentVizMode').textContent = this.visualizationMode;
+            document.getElementById('particleCount').textContent = this.particles.length;
+        }
+
+        // Main debug panel only when debug mode is on
         if (!this.debugMode) return;
 
         const leftSpread = this.leftHand ? this.leftHand.fingerSpread.toFixed(0) : 'N/A';
@@ -1721,12 +1728,6 @@ class VisualSoundMirror {
             this.audioContext ? `${this.audioContext.state} (${this.isMuted ? 'muted' : 'active'})` : 'Not initialized';
         document.getElementById('debugHands').textContent =
             (this.leftHand ? 1 : 0) + (this.rightHand ? 1 : 0);
-
-        // Update viz debug panel
-        if (this.vizDebugVisible) {
-            document.getElementById('currentVizMode').textContent = this.visualizationMode;
-            document.getElementById('particleCount').textContent = this.particles.length;
-        }
     }
 
     getColorForFinger(fingerIndex, handedness, t = 0) {
@@ -3152,9 +3153,8 @@ class VisualSoundMirror {
         this.updateAudio();
         this.render();
 
-        if (this.debugMode) {
-            this.updateDebug();
-        }
+        // Always update debug (handles both main debug and viz debug panels)
+        this.updateDebug();
 
         requestAnimationFrame((t) => this.animate(t));
     }
