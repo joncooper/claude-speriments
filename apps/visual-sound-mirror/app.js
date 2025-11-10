@@ -1,4 +1,4 @@
-// Visual Sound Mirror - v6.8.0 Modular Edition
+// Visual Sound Mirror - v6.9.0 Modular Edition
 // Interactive music instrument with gesture-controlled mode switching and global audio controls
 // Now with modular architecture for better maintainability
 
@@ -9,6 +9,12 @@ import { Knobs } from './src/ui/Knobs.js';
 import { PadsMode } from './src/modes/PadsMode.js';
 import { RibbonsMode } from './src/modes/RibbonsMode.js';
 import { ThereminMode } from './src/modes/ThereminMode.js';
+import { ParticleFountain } from './src/visualizations/ParticleFountain.js';
+import { AudioBloom } from './src/visualizations/AudioBloom.js';
+import { FluidDynamics } from './src/visualizations/FluidDynamics.js';
+import { GravitationalOrbits } from './src/visualizations/GravitationalOrbits.js';
+import { Kaleidoscope } from './src/visualizations/Kaleidoscope.js';
+import { TemporalEchoes } from './src/visualizations/TemporalEchoes.js';
 import { MODES, DEFAULT_SETTINGS, GESTURE_SETTINGS, SCALES } from './src/utils/Constants.js';
 
 
@@ -112,99 +118,28 @@ class VisualSoundMirror {
         this.debugMode = false;
         this.debugPanelVisible = false;
 
-        // VISUALIZATION SYSTEM
+        // === VISUALIZATION MODULES ===
         this.visualizationMode = 1; // 1-6 for different visual effects
         this.vizDebugVisible = false;
 
-        // Particle System (#1)
-        this.particles = [];
-        this.maxParticles = 150000;  // Increased for massive particle clouds
-        this.lastParticleEmitTime = 0;
-        this.particleSettings = {
-            emissionRate: 30,          // Particles per finger per SECOND (10-500)
-            lifetime: 4000,            // Milliseconds (500-8000)
-            initialVelocity: 0.3,      // Speed multiplier (0.01-2.0)
-            gravity: 0.08,             // Downward acceleration (0-0.5)
-            drag: 0.995,               // Air resistance (0.9-0.999)
-            attraction: 0.0,           // Inter-particle attraction (-0.5 to 0.5)
-            repulsion: 0.0,            // Inter-particle repulsion (0-2)
-            turbulence: 0.3,           // Curl noise strength (0-2)
-            particleSizeMin: 0.5,      // Min particle size (0.5-5)
-            particleSizeMax: 2.5,      // Max particle size (1-10)
-            colorMode: 'velocity',     // 'velocity', 'lifetime', 'audio', 'rainbow'
-            blendMode: 'normal',       // 'normal', 'additive', 'screen', 'multiply'
-            alpha: 0.8,                // Base alpha/opacity (0.1-1.0)
-            glow: true,                // Glow effect
-            trails: false,             // Particle trails
-            audioReactive: true        // React to audio
-        };
+        // Initialize visualization modules
+        this.particleViz = new ParticleFountain(this.canvas, this.ctx);
+        this.bloomViz = new AudioBloom(this.canvas, this.ctx);
+        this.fluidViz = new FluidDynamics(this.canvas, this.ctx);
+        this.orbitViz = new GravitationalOrbits(this.canvas, this.ctx);
+        this.kaleidoscopeViz = new Kaleidoscope(this.canvas, this.ctx);
+        this.echoViz = new TemporalEchoes(this.canvas, this.ctx);
 
-        // Audio Bloom Pulses System (#2)
-        this.blooms = [];
-        this.lastBloomTime = 0;
-        this.bloomSettings = {
-            velocityThreshold: 5,      // Min velocity to trigger bloom (1-20)
-            bloomInterval: 100,        // Min ms between blooms (50-500)
-            lifetime: 2000,            // Bloom lifetime in ms (500-5000)
-            maxRadius: 300,            // Max expansion radius (100-500)
-            ringCount: 3,              // Number of concentric rings (1-8)
-            ringSpacing: 30,           // Space between rings (10-60)
-            pulseSpeed: 1.0,           // Animation speed multiplier (0.5-3.0)
-            glowIntensity: 20,         // Glow blur amount (0-40)
-            colorShift: true           // Shift color over lifetime
-        };
-
-        // Fluid Dynamics System (#3)
-        this.fluidSettings = {
-            tendrilCount: 8,           // Tendrils per fingertip (3-15)
-            tendrilRadius: 25,         // Distance from center (10-60)
-            flowSpeed: 0.002,          // Rotation speed (0.0005-0.01)
-            pulseAmount: 10,           // Radius pulsing (0-30)
-            gradientSize: 40,          // Gradient radius (20-80)
-            opacity: 0.5,              // Base opacity (0.2-0.8)
-            trailPersistence: 0.92,    // How long trails last (0.8-0.98)
-            velocityInfluence: 2.0     // How much movement affects flow (0-5)
-        };
-
-        // Gravitational Orbits System (#4)
-        this.orbitSettings = {
-            orbiterCount: 8,           // Particles per fingertip (4-20)
-            orbitRadius: 45,           // Orbit distance (20-100)
-            orbitSpeed: 0.003,         // Rotation speed (0.001-0.01)
-            orbiterSize: 5,            // Particle size (2-12)
-            sunSize: 14,               // Central sun size (8-30)
-            trailLength: 0.15,         // Orbital trail length (0-0.5)
-            wobble: 5,                 // Orbit wobble amount (0-20)
-            glowIntensity: 18          // Glow blur (0-40)
-        };
-
-        // Kaleidoscope Symmetry System (#5)
-        this.kaleidoscopeSettings = {
-            symmetryCount: 6,          // Fold count (3-12)
-            fingerSize: 18,            // Reflected finger size (8-40)
-            lineOpacity: 0.4,          // Line to center opacity (0-1)
-            rotationSpeed: 0,          // Auto-rotation (0-0.01)
-            trailPersistence: 0.85,    // Trail fade (0.7-0.95)
-            glowIntensity: 25,         // Glow blur (0-50)
-            pulseWithAudio: false,     // React to audio
-            showCenter: true           // Show center point
-        };
-
-        // Temporal Echoes System (#6)
-        this.handHistory = [];
-        this.maxHistoryLength = 60; // Store up to 60 frames of history
-        this.echoSettings = {
-            trailLength: 30,           // Number of echoes to show (5-60)
-            fadeSpeed: 0.03,           // How fast echoes fade (0.01-0.1)
-            chromaticAberration: 3,    // RGB separation in pixels (0-10)
-            motionBlur: true,          // Connect echoes with lines
-            glowIntensity: 15,         // Glow blur amount (0-30)
-            echoSpacing: 2,            // Frames between echoes (1-5)
-            showPalm: true,            // Show palm echoes
-            showFingers: true,         // Show finger echoes
-            fingerSize: 12,            // Echo finger size (6-24)
-            palmSize: 20               // Echo palm size (10-40)
-        };
+        // Backwards compatibility references for settings access
+        this.particles = this.particleViz.particles;
+        this.particleSettings = this.particleViz.settings;
+        this.blooms = this.bloomViz.blooms;
+        this.bloomSettings = this.bloomViz.settings;
+        this.fluidSettings = this.fluidViz.settings;
+        this.orbitSettings = this.orbitViz.settings;
+        this.kaleidoscopeSettings = this.kaleidoscopeViz.settings;
+        this.handHistory = this.echoViz.handHistory;
+        this.echoSettings = this.echoViz.settings;
 
         // No hands timer
         this.noHandsTime = 0;
