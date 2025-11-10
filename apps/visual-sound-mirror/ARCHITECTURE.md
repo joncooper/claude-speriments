@@ -4,9 +4,9 @@
 
 **Final Result:**
 - **Before:** 4,450 lines (monolithic app.js)
-- **After:** 2,237 lines (orchestrator)
-- **Reduction:** 2,213 lines (49.7%)
-- **Modules Created:** 16 modules across 4 directories
+- **After:** 1,260 lines (orchestrator)
+- **Reduction:** 3,190 lines (71.7%)
+- **Modules Created:** 18 modules across 4 directories
 
 ---
 
@@ -50,22 +50,35 @@
 - Controls: Filter, Reverb, Delay, Resonance
 - **~160 lines**
 
+#### 6. `src/ui/DebugPanels.js` ✅
+- Visualization debug panel generation and event handling
+- Dynamic HTML generation for each visualization mode
+- Methods: populate(), get*Controls(), attach*Listeners()
+- Handles all slider, checkbox, and button events
+- **~591 lines**
+
+#### 7. `src/ui/RenderHelpers.js` ✅
+- Rendering helper methods for UI elements
+- Methods: drawModeIndicator(), drawGestureHoldProgress(), drawModeSwitchAnimation()
+- Methods: drawFluidRibbon(), drawTouchingEffect(), drawFingertipMarkers(), drawDebugSkeleton()
+- **~280 lines**
+
 ### Mode Modules
 
-#### 6. `src/modes/PadsMode.js` ✅
+#### 8. `src/modes/PadsMode.js` ✅
 - Sample pad system with hand calibration
 - 4 tap detection algorithms (Z-velocity, dwell-retreat, wiggle, hybrid)
 - Auto-calibrates to hand geometry
 - Methods: init(), calibrateFromHand(), detect(), render(), getPadColor()
 - **~340 lines**
 
-#### 7. `src/modes/RibbonsMode.js` ✅
+#### 9. `src/modes/RibbonsMode.js` ✅
 - Flowing finger ribbons visualization
 - Multi-ribbon per finger with gradients
 - Method: render()
 - **~87 lines**
 
-#### 8. `src/modes/ThereminMode.js` ✅
+#### 10. `src/modes/ThereminMode.js` ✅
 - Theremin visualization with frequency display
 - Shows palm position, pitch, and filter
 - Method: render()
@@ -73,37 +86,37 @@
 
 ### Visualization Modules
 
-#### 9. `src/visualizations/ParticleFountain.js` ✅
+#### 11. `src/visualizations/ParticleFountain.js` ✅
 - Particle physics system with gravity, drag, turbulence
 - Spatial grid optimization for inter-particle forces
 - Methods: update(), render(), emitParticles(), curlNoise()
 - **~440 lines**
 
-#### 10. `src/visualizations/AudioBloom.js` ✅
+#### 12. `src/visualizations/AudioBloom.js` ✅
 - Expanding bloom pulses triggered by fast movements
 - Multi-ring concentric pulses
 - Methods: update(), render()
 - **~120 lines**
 
-#### 11. `src/visualizations/FluidDynamics.js` ✅
+#### 13. `src/visualizations/FluidDynamics.js` ✅
 - Flowing smoke/fluid effect around fingertips
 - Rotating tendrils with trail persistence
 - Method: render()
 - **~110 lines**
 
-#### 12. `src/visualizations/GravitationalOrbits.js` ✅
+#### 14. `src/visualizations/GravitationalOrbits.js` ✅
 - Particles orbit fingertips like planets
 - Variable speeds, wobble, orbital trails
 - Method: render()
 - **~115 lines**
 
-#### 13. `src/visualizations/Kaleidoscope.js` ✅
+#### 15. `src/visualizations/Kaleidoscope.js` ✅
 - Radial symmetry mirroring effect
 - Configurable fold count and rotation
 - Method: render()
 - **~120 lines**
 
-#### 14. `src/visualizations/TemporalEchoes.js` ✅
+#### 16. `src/visualizations/TemporalEchoes.js` ✅
 - Ghost images / motion blur showing hand movement history
 - Chromatic aberration, motion blur connections
 - Methods: update(), render(), copyHandState()
@@ -148,17 +161,25 @@
 - ✅ Clean delegation to modules
 - ✅ Backwards compatibility maintained
 
+### Phase 6: UI Module Extraction (Lines 977)
+**Extracted:** DebugPanels, RenderHelpers
+- ✅ Debug panel HTML generation (591 lines)
+- ✅ Visualization control event listeners
+- ✅ Render helper methods (280 lines)
+- ✅ Removed duplicate debug listener code (147 lines)
+- ✅ Final app.js size: 1,260 lines
+
 ---
 
 ## Final File Structure
 
 ```
 apps/visual-sound-mirror/
-├── app.js                           # Main orchestrator (2,237 lines)
+├── app.js                           # Main orchestrator (1,260 lines)
 ├── app.js.backup                    # Original monolith (safety)
 ├── index.html                       # Entry point (ES6 modules)
 ├── styles.css                       # Styles
-├── REFACTORING_PLAN.md             # This file
+├── ARCHITECTURE.md                  # This file
 └── src/
     ├── core/
     │   ├── AudioSystem.js          # Audio synthesis (~650 lines)
@@ -167,7 +188,9 @@ apps/visual-sound-mirror/
     │   ├── Constants.js            # Configuration (~50 lines)
     │   └── ColorSchemes.js         # Color palettes (~110 lines)
     ├── ui/
-    │   └── Knobs.js                # Virtual knobs (~160 lines)
+    │   ├── Knobs.js                # Virtual knobs (~160 lines)
+    │   ├── DebugPanels.js          # Debug UI generation (~591 lines)
+    │   └── RenderHelpers.js        # Render helpers (~280 lines)
     ├── modes/
     │   ├── PadsMode.js             # Sample pads (~340 lines)
     │   ├── RibbonsMode.js          # Ribbons (~87 lines)
@@ -224,16 +247,24 @@ apps/visual-sound-mirror/
 
 | Metric | Before | After | Improvement |
 |--------|--------|-------|-------------|
-| Lines of Code (app.js) | 4,450 | 2,237 | **-49.7%** |
-| Number of Files | 1 | 16 | **+1,500%** |
-| Avg Lines per File | 4,450 | 201 | **-95.5%** |
-| Methods in app.js | ~120 | ~50 | **-58.3%** |
+| Lines of Code (app.js) | 4,450 | 1,260 | **-71.7%** |
+| Number of Files | 1 | 18 | **+1,700%** |
+| Avg Lines per File | 4,450 | 242 | **-94.6%** |
+| Methods in app.js | ~120 | ~45 | **-62.5%** |
 | Largest File Size | 4,450 | 650 | **-85.4%** |
 
 ---
 
 ## Conclusion
 
-The refactoring is **complete and successful**. The Visual Sound Mirror application has been transformed from a 4,450-line monolithic file into a clean, modular architecture with 16 focused modules. The application maintains 100% feature parity while being significantly more maintainable, testable, and extensible.
+The refactoring is **complete and successful**. The Visual Sound Mirror application has been transformed from a 4,450-line monolithic file into a clean, modular architecture with 18 focused modules achieving a **71.7% reduction** in main file size. The application maintains 100% feature parity while being significantly more maintainable, testable, and extensible.
+
+### Phase 6 Achievements
+The final phase extracted UI helper modules (DebugPanels and RenderHelpers), removing an additional 977 lines from app.js:
+- **DebugPanels.js** (591 lines): All visualization debug panel HTML generation and event handling
+- **RenderHelpers.js** (280 lines): UI rendering helpers for mode indicators, gestures, and debug overlays
+- Removed 147 lines of duplicate debug listener code
+
+The main orchestrator file (app.js) is now **1,260 lines** - a clean, focused coordinator that delegates to specialized modules. Each module has a single, clear responsibility and can be maintained, tested, and extended independently.
 
 All code has been committed to branch: `claude/interactive-art-sound-visuals-011CUvuEddjAfeBTuyfHDNat`
