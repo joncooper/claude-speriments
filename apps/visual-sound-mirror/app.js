@@ -1816,22 +1816,31 @@ class VisualSoundMirror {
         // Update color phase
         this.baseHue = (this.baseHue + 0.1) % 360;
 
-        // VISUALIZATION SYSTEM - Update and render based on current viz mode
+        // VISUALIZATION SYSTEM - Delegate to visualization modules
         if (this.visualizationMode === 1) {
-            this.updateParticles();
-            this.renderParticles();
+            // Particle Fountain
+            this.particleViz.update(this.leftHand, this.rightHand, this.prevLeftHand, this.prevRightHand, this.time);
+            this.particleViz.render(this.baseHue, this.time, this.knobs);
+            this.particles = this.particleViz.particles; // Sync backwards compatibility
         } else if (this.visualizationMode === 2) {
-            this.updateAudioBlooms();
-            this.renderAudioBlooms();
+            // Audio Bloom Pulses
+            this.bloomViz.update(this.leftHand, this.rightHand, this.prevLeftHand, this.prevRightHand, this.baseHue);
+            this.bloomViz.render();
+            this.blooms = this.bloomViz.blooms; // Sync backwards compatibility
         } else if (this.visualizationMode === 3) {
-            this.renderFluidDynamics();
+            // Fluid Dynamics
+            this.fluidViz.render(this.leftHand, this.rightHand, this.prevLeftHand, this.prevRightHand, this.baseHue, this.time);
         } else if (this.visualizationMode === 4) {
-            this.renderGravitationalOrbits();
+            // Gravitational Orbits
+            this.orbitViz.render(this.leftHand, this.rightHand, this.baseHue, this.time);
         } else if (this.visualizationMode === 5) {
-            this.renderKaleidoscope();
+            // Kaleidoscope
+            this.kaleidoscopeViz.render(this.leftHand, this.rightHand, this.baseHue, this.time, this.audioContext);
         } else if (this.visualizationMode === 6) {
-            this.updateHandHistory();
-            this.renderTemporalEchoes();
+            // Temporal Echoes
+            this.echoViz.update(this.leftHand, this.rightHand);
+            this.echoViz.render(this.baseHue);
+            this.handHistory = this.echoViz.handHistory; // Sync backwards compatibility
         }
 
         // Mode-specific rendering
@@ -2014,11 +2023,15 @@ class VisualSoundMirror {
         this.ctx.textBaseline = 'alphabetic';
     }
 
+    // === VISUALIZATION METHODS (DELEGATED TO MODULES) ===
+    // All visualization methods have been moved to src/visualizations/*
+    // This section intentionally left blank for backwards compatibility
+
     // ============================================================
-    // PARTICLE SYSTEM (#1) - Particle Fountain
+    // HELPER METHODS FOR MODES
     // ============================================================
 
-    updateParticles() {
+    drawFluidRibbon_PLACEHOLDER() {
         const now = Date.now();
 
         // Emit particles from fingertips
