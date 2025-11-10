@@ -6,6 +6,9 @@ import { AudioSystem } from './src/core/AudioSystem.js';
 import { HandTracker } from './src/core/HandTracker.js';
 import { ColorSchemes } from './src/utils/ColorSchemes.js';
 import { Knobs } from './src/ui/Knobs.js';
+import { PadsMode } from './src/modes/PadsMode.js';
+import { RibbonsMode } from './src/modes/RibbonsMode.js';
+import { ThereminMode } from './src/modes/ThereminMode.js';
 import { MODES, DEFAULT_SETTINGS, GESTURE_SETTINGS, SCALES } from './src/utils/Constants.js';
 
 
@@ -89,30 +92,16 @@ class VisualSoundMirror {
         this.thereminFilter = null;
         this.thereminActive = false;
 
-        // Sample pads
-        this.padGrid = { rows: 4, cols: 4 };
-        this.pads = [];
-        this.padCalibration = {
-            calibrated: false,
-            fingertipPositions: [],
-            fingertipDistances: [],
-            handCenter: null,
-            scale: 1.0
-        };
+        // === MODE MODULES ===
+        this.padsMode = new PadsMode(this.canvas);
+        this.padsMode.init();
+        this.ribbonsMode = new RibbonsMode(this.canvas, this.ctx);
+        this.thereminMode = new ThereminMode(this.canvas, this.ctx);
 
-        // Pad tuning parameters (adjustable via debug UI)
-        this.padSettings = {
-            basePadSize: 70,           // Base pad size in pixels (40-120)
-            spacingMultiplier: 0.8,    // Spacing between pads (0.5-2.0)
-            tapAlgorithm: 'z-velocity', // 'z-velocity', 'dwell-retreat', 'wiggle', 'hybrid'
-            zThreshold: 0.02,          // Z-axis movement threshold (0.005-0.1) - MORE SENSITIVE
-            dwellTime: 200,            // Time to hover before tap counts (100-500ms)
-            wiggleThreshold: 10,       // XY wiggle distance in pixels (5-30)
-            retreatThreshold: 0.02,    // Z-axis retreat speed (0.01-0.05)
-            retriggerDelay: 100        // Cooldown between re-triggers in ms (50-300) - FAST for drums!
-        };
-
-        this.initPads();
+        // Backwards compatibility references
+        this.pads = this.padsMode.getPads();
+        this.padCalibration = this.padsMode.getCalibration();
+        this.padSettings = this.padsMode.padSettings;
 
         // Virtual knobs (delegated to Knobs module)
         this.knobsSystem = new Knobs(this.canvas);
@@ -259,148 +248,17 @@ class VisualSoundMirror {
     }
 
     initPads() {
-        // Arc-based layout - 5 arcs (one per finger), 5 pads per arc
-        // Positioned based on actual hand geometry if calibrated
-        const padsPerFinger = 5;
-
-        // Define sounds for each finger's arc (5 fingers × 5 pads = 25 sounds)
-        const fingerSounds = [
-            // Thumb (0): Bass and low tones
-            ['kick', 'bass1', 'bass2', 'bass3', 'subkick'],
-            // Index (1): Snares and mid percussion
-            ['snare', 'rimshot', 'clap', 'snap', 'sidestick'],
-            // Middle (2): Hi-hats and cymbals
-            ['hihat', 'hihat_open', 'crash', 'ride', 'splash'],
-            // Ring (3): Toms and melodic percussion
-            ['tom1', 'tom2', 'tom3', 'conga', 'bongo'],
-            // Pinky (4): Synths and effects
-            ['chord1', 'chord2', 'lead', 'fx1', 'fx2']
-        ];
-
-        this.pads = [];
-
-        if (this.padCalibration.calibrated && this.padCalibration.fingertipPositions.length === 5) {
-            // Use calibrated hand geometry
-            console.log('Using calibrated pad layout');
-            const scale = this.padCalibration.scale;
-            const padSize = Math.max(40, Math.min(120, this.padSettings.basePadSize * scale));
-            // Make pads adjacent: spacing = padSize * multiplier
-            const padSpacing = padSize * this.padSettings.spacingMultiplier;
-
-            for (let finger = 0; finger < 5; finger++) {
-                const fingertip = this.padCalibration.fingertipPositions[finger];
-                const handCenter = this.padCalibration.handCenter;
-
-                // Calculate direction from hand center to fingertip
-                const dx = fingertip.x - handCenter.x;
-                const dy = fingertip.y - handCenter.y;
-                const angle = Math.atan2(dy, dx);
-
-                // Place pads along a line extending from fingertip away from hand center
-                for (let padIdx = 0; padIdx < padsPerFinger; padIdx++) {
-                    const distance = padSpacing * (padIdx + 1); // Adjacent pads starting from fingertip
-                    const x = fingertip.x + Math.cos(angle) * distance;
-                    const y = fingertip.y + Math.sin(angle) * distance;
-
-                    // Clamp to screen bounds
-                    const clampedX = Math.max(padSize / 2, Math.min(this.canvas.width - padSize / 2, x));
-                    const clampedY = Math.max(padSize / 2, Math.min(this.canvas.height - padSize / 2, y));
-
-                    this.pads.push({
-                        x: clampedX - padSize / 2,
-                        y: clampedY - padSize / 2,
-                        size: padSize,
-                        centerX: clampedX,
-                        centerY: clampedY,
-                        type: fingerSounds[finger][padIdx],
-                        fingerIndex: finger,
-                        triggered: false,
-                        triggerTime: 0,
-                        lastZ: null,
-                        dwellStartTime: null,  // For dwell-retreat algorithm
-                        lastXY: null,          // For wiggle detection
-                        color: this.getPadColor(fingerSounds[finger][padIdx])
-                    });
-                }
-            }
-        } else {
-            // Use default static layout (fallback)
-            console.log('Using default pad layout (not calibrated)');
-            const centerX = this.canvas.width / 2;
-            const centerY = this.canvas.height * 0.7;
-            const arcRadius = 200;
-            const padSize = 50;
-
-            for (let finger = 0; finger < 5; finger++) {
-                const baseAngle = -Math.PI / 2;
-                const angleSpread = Math.PI * 0.6;
-                const startAngle = baseAngle - angleSpread / 2 + (finger * angleSpread / 4);
-
-                for (let padIdx = 0; padIdx < padsPerFinger; padIdx++) {
-                    const angle = startAngle + (padIdx / (padsPerFinger - 1)) * (angleSpread / 5);
-                    const radius = arcRadius + (finger * 35);
-                    const distance = radius - (padIdx * 30);
-
-                    const x = centerX + Math.cos(angle) * distance;
-                    const y = centerY + Math.sin(angle) * distance;
-
-                    this.pads.push({
-                        x: x - padSize / 2,
-                        y: y - padSize / 2,
-                        size: padSize,
-                        centerX: x,
-                        centerY: y,
-                        type: fingerSounds[finger][padIdx],
-                        fingerIndex: finger,
-                        triggered: false,
-                        triggerTime: 0,
-                        lastZ: null,
-                        color: this.getPadColor(fingerSounds[finger][padIdx])
-                    });
-                }
-            }
-        }
+        // Delegate to PadsMode module
+        this.padsMode.init();
+        // Update backwards compatibility references
+        this.pads = this.padsMode.getPads();
+        this.padCalibration = this.padsMode.getCalibration();
     }
 
 
     getPadColor(type) {
-        const colors = {
-            // Thumb - Bass (reds/oranges)
-            kick: { r: 255, g: 60, b: 60 },
-            bass1: { r: 200, g: 40, b: 40 },
-            bass2: { r: 180, g: 60, b: 40 },
-            bass3: { r: 160, g: 80, b: 60 },
-            subkick: { r: 120, g: 40, b: 40 },
-
-            // Index - Snares (blues)
-            snare: { r: 60, g: 150, b: 255 },
-            rimshot: { r: 80, g: 180, b: 255 },
-            clap: { r: 100, g: 200, b: 255 },
-            snap: { r: 120, g: 220, b: 255 },
-            sidestick: { r: 60, g: 120, b: 200 },
-
-            // Middle - Hi-hats/Cymbals (yellows/whites)
-            hihat: { r: 200, g: 200, b: 60 },
-            hihat_open: { r: 220, g: 220, b: 100 },
-            crash: { r: 240, g: 240, b: 240 },
-            ride: { r: 200, g: 200, b: 200 },
-            splash: { r: 255, g: 255, b: 150 },
-
-            // Ring - Toms (purples)
-            tom1: { r: 180, g: 80, b: 200 },
-            tom2: { r: 160, g: 100, b: 220 },
-            tom3: { r: 140, g: 120, b: 240 },
-            conga: { r: 200, g: 100, b: 180 },
-            bongo: { r: 220, g: 120, b: 200 },
-
-            // Pinky - Synths (greens/teals)
-            chord1: { r: 100, g: 200, b: 100 },
-            chord2: { r: 80, g: 220, b: 120 },
-            lead: { r: 100, g: 255, b: 150 },
-            fx1: { r: 60, g: 200, b: 200 },
-            fx2: { r: 80, g: 180, b: 220 }
-        };
-        return colors[type] || { r: 150, g: 150, b: 150 };
+        // Delegate to PadsMode module
+        return this.padsMode.getPadColor(type);
     }
 
     resizeCanvas() {
@@ -1437,45 +1295,10 @@ class VisualSoundMirror {
     }
 
     calibratePadsFromHand(hand) {
-        // Capture hand geometry at moment of entering pads mode (5 fingers spread)
-        if (!hand || !hand.fingertips || hand.fingertips.length !== 5) {
-            console.log('Cannot calibrate: need all 5 fingertips');
-            return;
-        }
-
-        // Store fingertip positions
-        this.padCalibration.fingertipPositions = hand.fingertips.map(ft => ({
-            x: ft.x,
-            y: ft.y,
-            fingerIndex: ft.fingerIndex
-        }));
-
-        // Calculate distances between adjacent fingers
-        this.padCalibration.fingertipDistances = [];
-        for (let i = 0; i < 4; i++) {
-            const ft1 = hand.fingertips[i];
-            const ft2 = hand.fingertips[i + 1];
-            const dist = Math.hypot(ft2.x - ft1.x, ft2.y - ft1.y);
-            this.padCalibration.fingertipDistances.push(dist);
-        }
-
-        // Calculate hand center (palm position or average of fingertips)
-        if (hand.palm) {
-            this.padCalibration.handCenter = { x: hand.palm.x, y: hand.palm.y };
-        } else {
-            const avgX = hand.fingertips.reduce((sum, ft) => sum + ft.x, 0) / 5;
-            const avgY = hand.fingertips.reduce((sum, ft) => sum + ft.y, 0) / 5;
-            this.padCalibration.handCenter = { x: avgX, y: avgY };
-        }
-
-        // Calculate scale factor (average finger spacing compared to baseline)
-        const avgDistance = this.padCalibration.fingertipDistances.reduce((a, b) => a + b, 0) / 4;
-        const baselineDistance = 100; // Expected distance for "normal" hand size
-        this.padCalibration.scale = avgDistance / baselineDistance;
-
-        this.padCalibration.calibrated = true;
-
-        console.log(`Pads calibrated! Scale: ${this.padCalibration.scale.toFixed(2)}x, Hand center: (${Math.round(this.padCalibration.handCenter.x)}, ${Math.round(this.padCalibration.handCenter.y)})`);
+        // Delegate to PadsMode module
+        this.padsMode.calibrateFromHand(hand);
+        // Update backwards compatibility reference
+        this.padCalibration = this.padsMode.getCalibration();
     }
 
     triggerModeSwitchAnimation() {
@@ -2023,141 +1846,13 @@ class VisualSoundMirror {
     }
 
     detectPadInteractions() {
-        if (!this.leftHand && !this.rightHand) return;
-
-        const hands = [];
-        if (this.leftHand) hands.push(this.leftHand);
-        if (this.rightHand) hands.push(this.rightHand);
-
-        const now = Date.now();
-
-        for (const hand of hands) {
-            for (const fingertip of hand.fingertips) {
-                // Find pads that match this finger
-                for (const pad of this.pads) {
-                    // Only check pads for this specific finger
-                    if (pad.fingerIndex !== fingertip.fingerIndex) continue;
-
-                    const dx = fingertip.x - pad.centerX;
-                    const dy = fingertip.y - pad.centerY;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-
-                    const isOver = dist < pad.size * 0.6; // Larger hit radius
-
-                    if (isOver) {
-                        // Fingertip is over pad - use selected algorithm
-                        let tapDetected = false;
-
-                        switch (this.padSettings.tapAlgorithm) {
-                            case 'z-velocity':
-                                tapDetected = this.detectTap_ZVelocity(pad, fingertip, now);
-                                break;
-                            case 'dwell-retreat':
-                                tapDetected = this.detectTap_DwellRetreat(pad, fingertip, now);
-                                break;
-                            case 'wiggle':
-                                tapDetected = this.detectTap_Wiggle(pad, fingertip, now);
-                                break;
-                            case 'hybrid':
-                                tapDetected = this.detectTap_Hybrid(pad, fingertip, now);
-                                break;
-                        }
-
-                        if (tapDetected && (!pad.triggered || now - pad.triggerTime > this.padSettings.retriggerDelay)) {
-                            pad.triggered = true;
-                            pad.triggerTime = now;
-                            this.playDrumSample(pad.type);
-                            console.log(`[${this.padSettings.tapAlgorithm}] Tapped: ${pad.type}`);
-                        }
-                    } else {
-                        // Finger left the pad area - reset all state
-                        pad.lastZ = null;
-                        pad.dwellStartTime = null;
-                        pad.lastXY = null;
-                    }
-                }
-            }
-        }
-
-        // Reset triggered state after visual feedback timeout
-        for (const pad of this.pads) {
-            if (pad.triggered && now - pad.triggerTime > 150) {
-                pad.triggered = false;
-            }
-        }
-    }
-
-    // Algorithm 1: Z-Velocity (forward motion detection)
-    detectTap_ZVelocity(pad, fingertip, now) {
-        if (pad.lastZ !== null) {
-            const zDelta = pad.lastZ - fingertip.z; // Positive = toward camera
-            if (zDelta > this.padSettings.zThreshold) {
-                pad.lastZ = fingertip.z;
-                return true;
-            }
-        }
-        pad.lastZ = fingertip.z;
-        return false;
-    }
-
-    // Algorithm 2: Dwell + Retreat (hover then pull back)
-    detectTap_DwellRetreat(pad, fingertip, now) {
-        if (pad.dwellStartTime === null) {
-            pad.dwellStartTime = now;
-            pad.lastZ = fingertip.z;
-        } else {
-            const dwellDuration = now - pad.dwellStartTime;
-            if (dwellDuration >= this.padSettings.dwellTime && pad.lastZ !== null) {
-                // Check for retreat (Z increases = away from camera)
-                const zDelta = fingertip.z - pad.lastZ; // Positive = away
-                if (zDelta > this.padSettings.retreatThreshold) {
-                    pad.dwellStartTime = null;
-                    pad.lastZ = null;
-                    return true;
-                }
-            }
-            pad.lastZ = fingertip.z;
-        }
-        return false;
-    }
-
-    // Algorithm 3: Wiggle (rapid XY movement)
-    detectTap_Wiggle(pad, fingertip, now) {
-        if (pad.lastXY !== null) {
-            const xyDist = Math.hypot(fingertip.x - pad.lastXY.x, fingertip.y - pad.lastXY.y);
-            if (xyDist > this.padSettings.wiggleThreshold) {
-                pad.lastXY = { x: fingertip.x, y: fingertip.y };
-                return true;
-            }
-        }
-        pad.lastXY = { x: fingertip.x, y: fingertip.y };
-        return false;
-    }
-
-    // Algorithm 4: Hybrid (combines Z-velocity + small wiggle)
-    detectTap_Hybrid(pad, fingertip, now) {
-        let score = 0;
-
-        // Check Z-velocity
-        if (pad.lastZ !== null) {
-            const zDelta = pad.lastZ - fingertip.z;
-            if (zDelta > this.padSettings.zThreshold * 0.5) {
-                score += 1;
-            }
-        }
-
-        // Check wiggle
-        if (pad.lastXY !== null) {
-            const xyDist = Math.hypot(fingertip.x - pad.lastXY.x, fingertip.y - pad.lastXY.y);
-            if (xyDist > this.padSettings.wiggleThreshold * 0.5) {
-                score += 1;
-            }
-        }
-
-        pad.lastZ = fingertip.z;
-        pad.lastXY = { x: fingertip.x, y: fingertip.y };
-
-        return score >= 2; // Need both indicators
+        // Delegate to PadsMode module, passing audio callback
+        const leftHand = this.leftHand;
+        this.padsMode.detect(leftHand, (drumType) => {
+            this.playDrumSample(drumType);
+        });
+        // Update backwards compatibility reference
+        this.pads = this.padsMode.getPads();
     }
 
     // === KNOBS DELEGATION ===
@@ -2237,185 +1932,39 @@ class VisualSoundMirror {
     }
 
     renderRibbonsMode() {
-        // Draw special effect when hands are touching
-        if (this.handsAreTouching && this.touchingFingers.length > 0) {
-            this.drawTouchingEffect();
-        }
-
-        // Draw fluid silk ribbons for each finger
-        for (const fingerId in this.fingerTrails) {
-            const trail = this.fingerTrails[fingerId];
-            if (trail.length < 3) continue;
-
-            // Determine color based on finger ID
-            const parts = fingerId.split('_');
-            const handedness = parts[0];
-            const fingerIndex = parseInt(parts[1].replace('finger', ''));
-
-            this.drawFluidRibbon(trail, fingerIndex, handedness);
-        }
-
-        // Draw fingertip markers
-        if (this.leftHand) {
-            this.drawFingertipMarkers(this.leftHand);
-        }
-        if (this.rightHand) {
-            this.drawFingertipMarkers(this.rightHand);
-        }
+        // Delegate to RibbonsMode module
+        const ribbonSettings = {
+            ribbonOffsets: 2,
+            ribbonWidth: 3,
+            ribbonSpacing: 8
+        };
+        this.ribbonsMode.render(
+            this.leftHand,
+            this.rightHand,
+            this.fingerTrails,
+            this.touchingFingers,
+            ribbonSettings,
+            (fingerIndex, handedness, t) => this.getColorForFinger(fingerIndex, handedness, t)
+        );
     }
 
     renderThereminMode() {
+        // Delegate to ThereminMode module
         const hand = this.leftHand || this.rightHand;
-
         if (!hand) return;
 
-        // Draw pitch indicator (vertical lines showing scale notes)
-        this.drawScaleGuide();
+        this.thereminMode.render(hand, this.audioSystem);
 
-        // Draw hand position with frequency visualization
-        const normalizedX = hand.palm.x / this.canvas.width;
-        const normalizedY = hand.palm.y / this.canvas.height;
-
-        // Draw horizontal line showing pitch
-        this.ctx.strokeStyle = 'rgba(100, 200, 255, 0.7)';
-        this.ctx.lineWidth = 3;
-        this.ctx.beginPath();
-        this.ctx.moveTo(0, hand.palm.y);
-        this.ctx.lineTo(this.canvas.width, hand.palm.y);
-        this.ctx.stroke();
-
-        // Draw vertical line showing filter
-        this.ctx.strokeStyle = 'rgba(255, 200, 100, 0.7)';
-        this.ctx.lineWidth = 3;
-        this.ctx.beginPath();
-        this.ctx.moveTo(hand.palm.x, 0);
-        this.ctx.lineTo(hand.palm.x, this.canvas.height);
-        this.ctx.stroke();
-
-        // Draw glow at palm center
-        const gradient = this.ctx.createRadialGradient(
-            hand.palm.x, hand.palm.y, 0,
-            hand.palm.x, hand.palm.y, 100
-        );
-        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
-        gradient.addColorStop(0.5, 'rgba(100, 200, 255, 0.4)');
-        gradient.addColorStop(1, 'rgba(100, 200, 255, 0)');
-
-        this.ctx.fillStyle = gradient;
-        this.ctx.beginPath();
-        this.ctx.arc(hand.palm.x, hand.palm.y, 100, 0, Math.PI * 2);
-        this.ctx.fill();
-
-        // Draw fingertips
-        this.drawFingertipMarkers(hand);
-
-        // Show current note and frequency
-        const freq = this.quantizeToScale(normalizedX);
+        // Draw scale name at bottom
         this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-        this.ctx.font = '24px monospace';
-        this.ctx.fillText(`${freq.toFixed(1)} Hz`, hand.palm.x + 20, hand.palm.y - 20);
+        this.ctx.font = '18px monospace';
+        this.ctx.textAlign = 'left';
         this.ctx.fillText(`Scale: ${this.currentScale.toUpperCase()}`, 20, this.canvas.height - 40);
     }
 
-    drawScaleGuide() {
-        const scale = this.scales[this.currentScale];
-        const octaveRange = 3;
-
-        for (let octave = -1; octave <= octaveRange - 1; octave++) {
-            for (const degree of scale) {
-                const midiNote = this.rootNote + (octave * 12) + degree;
-                const freq = this.midiToFreq(midiNote);
-
-                // Map frequency to X position (approximately)
-                const minFreq = this.midiToFreq(this.rootNote - 12);
-                const maxFreq = this.midiToFreq(this.rootNote - 12 + (octaveRange * 12));
-                const x = ((freq - minFreq) / (maxFreq - minFreq)) * this.canvas.width;
-
-                // Draw vertical line for scale note
-                this.ctx.strokeStyle = 'rgba(100, 100, 150, 0.2)';
-                this.ctx.lineWidth = 1;
-                this.ctx.beginPath();
-                this.ctx.moveTo(x, 0);
-                this.ctx.lineTo(x, this.canvas.height);
-                this.ctx.stroke();
-            }
-        }
-    }
-
     renderPadsMode() {
-        // Draw arc guides showing finger paths (subtle)
-        const centerX = this.canvas.width / 2;
-        const centerY = this.canvas.height * 0.7;
-
-        for (let finger = 0; finger < 5; finger++) {
-            const radius = 200 + (finger * 35);
-            this.ctx.strokeStyle = `rgba(100, 100, 150, 0.15)`;
-            this.ctx.lineWidth = 1;
-            this.ctx.setLineDash([5, 5]);
-            this.ctx.beginPath();
-            this.ctx.arc(centerX, centerY, radius, -Math.PI * 0.8, -Math.PI * 0.2);
-            this.ctx.stroke();
-            this.ctx.setLineDash([]);
-        }
-
-        // Draw sample pads in arc layout
-        for (const pad of this.pads) {
-            const alpha = pad.triggered ? 1.0 : 0.5;
-            const size = pad.triggered ? pad.size * 1.2 : pad.size;
-
-            // Draw circular pads instead of squares for better visibility
-            this.ctx.save();
-
-            // Pad background (circle)
-            this.ctx.fillStyle = `rgba(${pad.color.r}, ${pad.color.g}, ${pad.color.b}, ${alpha * 0.3})`;
-            this.ctx.beginPath();
-            this.ctx.arc(pad.centerX, pad.centerY, size / 2, 0, Math.PI * 2);
-            this.ctx.fill();
-
-            // Pad border (circle)
-            this.ctx.strokeStyle = `rgba(${pad.color.r}, ${pad.color.g}, ${pad.color.b}, ${alpha})`;
-            this.ctx.lineWidth = 3;
-            this.ctx.beginPath();
-            this.ctx.arc(pad.centerX, pad.centerY, size / 2, 0, Math.PI * 2);
-            this.ctx.stroke();
-
-            // Glow effect when triggered
-            if (pad.triggered) {
-                this.ctx.shadowBlur = 30;
-                this.ctx.shadowColor = `rgba(${pad.color.r}, ${pad.color.g}, ${pad.color.b}, 0.8)`;
-                this.ctx.beginPath();
-                this.ctx.arc(pad.centerX, pad.centerY, size / 2, 0, Math.PI * 2);
-                this.ctx.stroke();
-            }
-
-            // Pad label
-            this.ctx.shadowBlur = 0;
-            this.ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-            this.ctx.font = '11px monospace';
-            this.ctx.textAlign = 'center';
-            this.ctx.textBaseline = 'middle';
-            this.ctx.fillText(pad.type, pad.centerX, pad.centerY);
-
-            this.ctx.restore();
-        }
-
-        // Draw hand fingertips
-        if (this.leftHand) {
-            this.drawFingertipMarkers(this.leftHand);
-        }
-        if (this.rightHand) {
-            this.drawFingertipMarkers(this.rightHand);
-        }
-
-        // Draw instructions
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-        this.ctx.font = '16px monospace';
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'top';
-        this.ctx.fillText('Tap pads with corresponding finger', this.canvas.width / 2, 20);
-
-        this.ctx.textAlign = 'left';
-        this.ctx.textBaseline = 'alphabetic';
+        // Delegate to PadsMode module
+        this.padsMode.render(this.ctx, this.leftHand);
     }
 
 
