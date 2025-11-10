@@ -5,6 +5,7 @@
 import { AudioSystem } from './src/core/AudioSystem.js';
 import { HandTracker } from './src/core/HandTracker.js';
 import { ColorSchemes } from './src/utils/ColorSchemes.js';
+import { Knobs } from './src/ui/Knobs.js';
 import { MODES, DEFAULT_SETTINGS, GESTURE_SETTINGS, SCALES } from './src/utils/Constants.js';
 
 
@@ -113,9 +114,9 @@ class VisualSoundMirror {
 
         this.initPads();
 
-        // Virtual knobs
-        this.knobs = [];
-        this.initKnobs();
+        // Virtual knobs (delegated to Knobs module)
+        this.knobsSystem = new Knobs(this.canvas);
+        this.knobs = this.knobsSystem.getKnobs(); // Backwards compatibility
         this.activeKnob = null;
 
         // Debug mode
@@ -361,23 +362,6 @@ class VisualSoundMirror {
         }
     }
 
-    initKnobs() {
-        // Smaller knobs positioned in top-right corner
-        const knobRadius = 40; // Smaller for global control overlay
-        const padding = 20;
-        const spacing = 100;
-
-        // Position in top-right, leaving room for video feed
-        const startX = padding + knobRadius;
-        const startY = padding + knobRadius;
-
-        this.knobs = [
-            { x: startX, y: startY, radius: knobRadius, value: 0.5, label: 'Filter', param: 'filter', angle: 0 },
-            { x: startX + spacing, y: startY, radius: knobRadius, value: 0.3, label: 'Reverb', param: 'reverb', angle: 0 },
-            { x: startX + spacing * 2, y: startY, radius: knobRadius, value: 0.4, label: 'Delay', param: 'delay', angle: 0 },
-            { x: startX + spacing * 3, y: startY, radius: knobRadius, value: 0.7, label: 'Res', param: 'resonance', angle: 0 }
-        ];
-    }
 
     getPadColor(type) {
         const colors = {
@@ -2176,160 +2160,18 @@ class VisualSoundMirror {
         return score >= 2; // Need both indicators
     }
 
+    // === KNOBS DELEGATION ===
     detectKnobInteractions() {
-        if (!this.leftHand && !this.rightHand) return;
-
-        const hands = [];
-        if (this.leftHand) hands.push(this.leftHand);
-        if (this.rightHand) hands.push(this.rightHand);
-
-        for (const hand of hands) {
-            // Require BOTH thumb and index finger for pinch control
-            const thumb = hand.fingertips[0];
-            const index = hand.fingertips[1];
-
-            for (const knob of this.knobs) {
-                // Check if both fingers are inside knob area
-                const thumbDist = Math.sqrt(
-                    Math.pow(thumb.x - knob.x, 2) +
-                    Math.pow(thumb.y - knob.y, 2)
-                );
-                const indexDist = Math.sqrt(
-                    Math.pow(index.x - knob.x, 2) +
-                    Math.pow(index.y - knob.y, 2)
-                );
-
-                // Both fingers must be within the knob radius
-                if (thumbDist < knob.radius && indexDist < knob.radius) {
-                    // Calculate pinch center (midpoint between thumb and index)
-                    const pinchX = (thumb.x + index.x) / 2;
-                    const pinchY = (thumb.y + index.y) / 2;
-
-                    // Calculate angle from knob center to pinch center
-                    const dx = pinchX - knob.x;
-                    const dy = pinchY - knob.y;
-                    const angle = Math.atan2(dy, dx);
-
-                    // Map angle to value (0-1)
-                    // Start at bottom (-π/2) and rotate clockwise
-                    const startAngle = -Math.PI / 2;
-                    const normalizedAngle = ((angle - startAngle + 2 * Math.PI) % (2 * Math.PI)) / (2 * Math.PI);
-                    knob.value = Math.max(0, Math.min(1, normalizedAngle));
-
-                    this.activeKnob = knob;
-                    break;
-                } else {
-                    // Reset active knob if fingers leave
-                    if (this.activeKnob === knob) {
-                        this.activeKnob = null;
-                    }
-                }
-            }
-        }
+        this.knobsSystem.detect(this.leftHand, this.rightHand);
+        this.activeKnob = this.knobsSystem.activeKnob;
     }
 
     applyKnobParameters() {
-        const now = this.audioContext.currentTime;
-
-        for (const knob of this.knobs) {
-            switch (knob.param) {
-                case 'filter':
-                    const filterFreq = 200 + knob.value * 3800;
-                    this.filterNode.frequency.linearRampToValueAtTime(filterFreq, now + 0.1);
-                    break;
-                case 'reverb':
-                    // Can't easily change reverb, but could implement dry/wet mix
-                    break;
-                case 'delay':
-                    const delayMix = knob.value * 0.7;
-                    this.delayGain.gain.linearRampToValueAtTime(delayMix, now + 0.1);
-                    break;
-                case 'resonance':
-                    const resonance = 0.1 + knob.value * 19.9; // Q: 0.1-20
-                    this.filterNode.Q.linearRampToValueAtTime(resonance, now + 0.1);
-                    break;
-            }
-        }
+        this.knobsSystem.apply(this.audioContext, this.filterNode, this.delayGain);
     }
 
-    playHandSounds(hand, prevHand, delay) {
-        for (let i = 0; i < hand.fingertips.length; i++) {
-            const curr = hand.fingertips[i];
-            const prev = prevHand.fingertips.find(f => f.fingerIndex === i);
-
-            if (prev) {
-                const dx = curr.x - prev.x;
-                const dy = curr.y - prev.y;
-                const velocity = Math.sqrt(dx * dx + dy * dy);
-
-                if (velocity > this.settings.minVelocityForSound) {
-                    const freq = 200 + (curr.x / this.canvas.width) * 600;
-                    const volume = Math.min(0.15, velocity / 100);
-
-                    setTimeout(() => {
-                        this.playBloop(freq, volume);
-                    }, delay + i * 30);
-                }
-            }
-        }
-    }
-
-    playTouchingSound() {
-        // Harmonic chord when fingers are touching
-        const baseFreq = 300 + (this.handsDistance / 200) * 200;
-        const volumes = [0.12, 0.08, 0.06];
-        const harmonics = [1, 1.5, 2]; // Root, fifth, octave
-
-        for (let i = 0; i < harmonics.length; i++) {
-            setTimeout(() => {
-                this.playBloop(baseFreq * harmonics[i], volumes[i]);
-            }, i * 20);
-        }
-    }
-
-    playBloop(frequency, volume = 0.15) {
-        if (!this.audioEnabled || this.isMuted || !this.audioContext) {
-            return;
-        }
-
-        if (this.audioContext.state === 'suspended') {
-            this.audioContext.resume();
-            return;
-        }
-
-        const now = this.audioContext.currentTime;
-
-        try {
-            const osc = this.audioContext.createOscillator();
-            const gain = this.audioContext.createGain();
-
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(frequency, now);
-            osc.frequency.exponentialRampToValueAtTime(frequency * 0.7, now + 0.5);
-
-            gain.gain.setValueAtTime(0, now);
-            gain.gain.linearRampToValueAtTime(volume, now + 0.04);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
-
-            osc.connect(gain);
-            gain.connect(this.filterNode);
-
-            osc.start(now);
-            osc.stop(now + 0.5);
-        } catch (error) {
-            console.error('Error playing sound:', error);
-        }
-    }
-
-    playChord(x, y) {
-        const baseFreq = 200 + (x / this.canvas.width) * 400;
-        const chord = [1, 1.25, 1.5]; // Major chord
-
-        for (let i = 0; i < chord.length; i++) {
-            setTimeout(() => {
-                this.playBloop(baseFreq * chord[i], 0.2);
-            }, i * 50);
-        }
+    drawKnobs() {
+        this.knobsSystem.render(this.ctx);
     }
 
     render() {
@@ -2576,56 +2418,6 @@ class VisualSoundMirror {
         this.ctx.textBaseline = 'alphabetic';
     }
 
-    drawKnobs() {
-        // Draw virtual knobs (global controls, always visible)
-        for (const knob of this.knobs) {
-            // Knob background circle
-            this.ctx.fillStyle = 'rgba(50, 50, 60, 0.7)';
-            this.ctx.beginPath();
-            this.ctx.arc(knob.x, knob.y, knob.radius, 0, Math.PI * 2);
-            this.ctx.fill();
-
-            // Knob ring
-            this.ctx.strokeStyle = 'rgba(100, 150, 200, 0.6)';
-            this.ctx.lineWidth = 2;
-            this.ctx.beginPath();
-            this.ctx.arc(knob.x, knob.y, knob.radius, 0, Math.PI * 2);
-            this.ctx.stroke();
-
-            // Value indicator (arc from bottom)
-            const startAngle = Math.PI * 0.75; // Start at 135 degrees
-            const endAngle = startAngle + (knob.value * Math.PI * 1.5); // 270 degree range
-
-            this.ctx.strokeStyle = 'rgba(100, 200, 255, 0.9)';
-            this.ctx.lineWidth = 4;
-            this.ctx.beginPath();
-            this.ctx.arc(knob.x, knob.y, knob.radius - 8, startAngle, endAngle);
-            this.ctx.stroke();
-
-            // Knob pointer
-            const pointerAngle = startAngle + (knob.value * Math.PI * 1.5);
-            const pointerX = knob.x + Math.cos(pointerAngle) * (knob.radius - 10);
-            const pointerY = knob.y + Math.sin(pointerAngle) * (knob.radius - 10);
-
-            this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
-            this.ctx.lineWidth = 3;
-            this.ctx.lineCap = 'round';
-            this.ctx.beginPath();
-            this.ctx.moveTo(knob.x, knob.y);
-            this.ctx.lineTo(pointerX, pointerY);
-            this.ctx.stroke();
-
-            // Knob label (smaller for overlay)
-            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-            this.ctx.font = '11px monospace';
-            this.ctx.textAlign = 'center';
-            this.ctx.textBaseline = 'middle';
-            this.ctx.fillText(knob.label, knob.x, knob.y + knob.radius + 15);
-        }
-
-        this.ctx.textAlign = 'left';
-        this.ctx.textBaseline = 'alphabetic';
-    }
 
     drawModeIndicator() {
         this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
