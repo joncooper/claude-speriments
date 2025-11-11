@@ -8,7 +8,7 @@ Visual Sound Mirror is a gesture-controlled interactive music instrument built a
 - ✅ Performance: Single HTTP request, no module loading overhead  
 - ✅ Reliability: No scope/binding bugs from module boundaries
 
-**File**: `app.js.truly-monolithic` (4,450 lines, 111 methods)
+**File**: `app.js` (4,506 lines, 111 methods)
 **Version**: v6.7.0 Hands-Free Edition
 
 ## File Organization
@@ -87,13 +87,13 @@ The monolithic file is organized into logical sections. Use your editor's "Go to
 ### Command Line
 ```bash
 # List all methods with line numbers
-grep -n "^    [a-zA-Z_].*(" app.js.truly-monolithic | less
+grep -n "^    [a-zA-Z_].*(" app.js | less
 
 # Find a specific method
-grep -n "playDrumSample" app.js.truly-monolithic
+grep -n "playDrumSample" app.js
 
 # Jump to line in vim
-vim +2000 app.js.truly-monolithic
+vim +2000 app.js
 ```
 
 ## Key Design Patterns
@@ -154,7 +154,7 @@ Test after any changes:
 - Simple deployment
 
 **When to Split**:
-- File exceeds 10,000 lines (currently 4,450)
+- File exceeds 10,000 lines (currently 4,506)
 - Multiple developers
 - Need code reuse across projects
 
