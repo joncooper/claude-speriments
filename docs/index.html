@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Experiments - Interactive Demos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .experiments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .experiment-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .experiment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .experiment-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .experiment-card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #667eea;
+        }
+
+        .experiment-card p {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .experiment-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-complete {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-beta {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            opacity: 0.8;
+            margin-top: 3rem;
+        }
+
+        footer a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        .features {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .features li {
+            padding: 0.25rem 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .features li:before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Claude Experiments</h1>
+            <p class="subtitle">Interactive demos and applications built with Claude Code</p>
+        </header>
+
+        <div class="experiments-grid">
+            <a href="./visual-sound-mirror/" class="experiment-card">
+                <div class="experiment-icon">🎨</div>
+                <h2>Visual Sound Mirror</h2>
+                <p>Transform your movements into mesmerizing visuals and soothing sounds using your webcam.</p>
+                <ul class="features">
+                    <li>Real-time hand tracking</li>
+                    <li>Interactive music modes</li>
+                    <li>Physics-based particle systems</li>
+                    <li>Privacy-first (all local processing)</li>
+                </ul>
+                <span class="experiment-status status-complete">✓ Live</span>
+            </a>
+
+            <!-- Add more experiments here as they become available -->
+            <!-- Example:
+            <a href="./experiment-name/" class="experiment-card">
+                <div class="experiment-icon">🔬</div>
+                <h2>Experiment Name</h2>
+                <p>Description of the experiment...</p>
+                <ul class="features">
+                    <li>Feature 1</li>
+                    <li>Feature 2</li>
+                </ul>
+                <span class="experiment-status status-beta">Beta</span>
+            </a>
+            -->
+        </div>
+
+        <footer>
+            <p>
+                Explore the source code and more experiments at
+                <a href="https://github.com/joncooper/claude-speriments" target="_blank" rel="noopener">github.com/joncooper/claude-speriments</a>
+            </p>
+            <p style="margin-top: 1rem; font-size: 0.9rem;">
+                Built with Claude Code · All experiments are open source
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

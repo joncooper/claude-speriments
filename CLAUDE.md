@@ -193,6 +193,64 @@ prompts/
 - For apps, consider adding automated tests
 - Document known issues and limitations
 
+### Deploying Web Apps to GitHub Pages
+
+For web applications that should be publicly accessible, we use GitHub Pages with the `/docs` directory as the publishing source.
+
+**Directory structure:**
+```
+/docs/
+├── index.html              # Landing page listing all experiments
+├── experiment-1/           # First experiment
+│   ├── index.html
+│   ├── app.js
+│   └── styles.css
+└── experiment-2/           # Second experiment
+    └── ...
+```
+
+**Deployment pattern for simple client-side apps:**
+
+1. **Develop in `apps/app-name/`** - Keep the source of truth in the apps directory
+2. **Create a deploy script** - Add `deploy-to-pages.sh` in the app directory:
+   ```bash
+   #!/bin/bash
+   # Deploy to GitHub Pages
+   set -e
+   APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+   REPO_ROOT="$(cd "$APP_DIR/../.." && pwd)"
+   DOCS_DIR="$REPO_ROOT/docs/app-name"
+
+   # Remove old deployment and copy fresh
+   rm -rf "$DOCS_DIR"
+   mkdir -p "$DOCS_DIR"
+   cp -r "$APP_DIR"/* "$DOCS_DIR/"
+
+   # Remove documentation files (not needed for web)
+   find "$DOCS_DIR" -type f -name '*.md' -delete
+   rm -f "$DOCS_DIR/deploy-to-pages.sh"
+
+   echo "✅ Deployed to /docs/app-name/"
+   ```
+3. **Make it executable** - `chmod +x deploy-to-pages.sh`
+4. **Run to deploy** - `./deploy-to-pages.sh`
+5. **Update `/docs/index.html`** - Add a card for the new experiment
+
+**For apps with build steps:**
+- Use a build process (Vite, Webpack, etc.) that outputs to `/docs/app-name/`
+- Document the build command in the app's README
+- Consider a GitHub Action for automated deployments
+
+**Benefits of this pattern:**
+- Source and deployment are separate (apps/ vs docs/)
+- Documentation stays in the source directory
+- Simple to add new experiments
+- Easy to preview locally (`python3 -m http.server 8000` in `/docs`)
+- Repeatable process for all web experiments
+
+**Example apps using this pattern:**
+- `apps/visual-sound-mirror/` → `/docs/visual-sound-mirror/`
+
 ## Tips for Claude Code Sessions
 
 1. **Start with context:** Read README.md and CLAUDE.md at session start
