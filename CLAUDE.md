@@ -52,11 +52,12 @@ apps/
 ```
 
 **Examples:**
-- `apps/twitter-data-analyzer/` - CLI tool to audit Twitter profiles
+- `apps/twitter-data-analyzer/` - CLI tool to audit Twitter profiles (Python)
+- `apps/gist-app-highlight/` - Annotated markdown viewer with Firebase (TypeScript + Vite + bun)
 
 **Best practices:**
 - Each app should be self-contained with its own README
-- Use modern package managers (uv for Python, etc.)
+- Use modern package managers (uv for Python, bun for JavaScript/TypeScript)
 - Include comprehensive documentation
 - Store prompts in external files (prompts/ directory)
 - Maintain an ICEBOX.md for future ideas
@@ -140,6 +141,45 @@ As the repository grows, we'll add:
 - Store configuration in `.env` files (with `.env.example` templates)
 - Follow PEP 8 style guidelines
 
+#### JavaScript/TypeScript Projects
+- Use **bun** as the primary package manager (10-100x faster than npm)
+- All-in-one tool: package manager + runtime + bundler + test runner
+- Use **Vite** for modern web applications with fast HMR and optimized builds
+- Include `package.json` and `bun.lock` for dependencies
+- Use TypeScript for type safety and better developer experience
+- Store sensitive config in `.env` files (gitignored) with `.env.example` templates
+- Use `.gitignore` to exclude `node_modules/`, build outputs, and config files with secrets
+
+**Installation:**
+```bash
+# Install bun (if not available)
+npm install -g bun
+
+# Or use curl (on macOS/Linux)
+curl -fsSL https://bun.sh/install | bash
+```
+
+**Common commands:**
+```bash
+# Create new Vite project
+bun create vite my-app --template vanilla-ts
+
+# Install dependencies
+bun install
+
+# Add packages
+bun add package-name
+bun add -d @types/package-name  # Dev dependencies
+
+# Run scripts
+bun run dev
+bun run build
+bun run preview
+
+# Run files directly
+bun run script.ts
+```
+
 #### Documentation
 - Every project/experiment needs a README.md
 - Use NOTES.md for implementation details and decisions
@@ -164,12 +204,25 @@ As the repository grows, we'll add:
 ## Common Patterns
 
 ### Project Setup
+
+**Python projects:**
 ```bash
-# For Python projects
 cd apps/new-project/
 uv init
 uv add package-name
 uv run script.py
+```
+
+**JavaScript/TypeScript projects:**
+```bash
+cd apps/
+bun create vite new-project --template vanilla-ts
+cd new-project/
+bun install
+bun add firebase marked dompurify  # Example dependencies
+bun add -d @types/dompurify        # Type definitions
+bun run dev                        # Start development server
+bun run build                      # Build for production
 ```
 
 ### Prompt Management
