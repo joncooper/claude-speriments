@@ -1,8 +1,34 @@
-// Visual Sound Mirror - v6.7.0 Hands-Free Edition
-// Interactive music instrument with gesture-controlled mode switching and global audio controls
-// No keyboard required - switch modes with hand gestures (1, 2, or 5 fingers)
+// ============================================================================
+// VISUAL SOUND MIRROR - v6.7.0 Hands-Free Edition
+// ============================================================================
+// Interactive music instrument with gesture-controlled mode switching and
+// global audio controls. No keyboard required - switch modes with hand gestures
+// (1, 2, or 5 fingers).
+//
+// Architecture: Monolithic single-file application (4,450 lines, 111 methods)
+// See ARCHITECTURE.md for navigation guide and design rationale.
+//
+// TABLE OF CONTENTS:
+// 1. Constructor & State Initialization (lines 1-245)
+// 2. Initialization Methods (lines 246-408)
+// 3. Event Listeners & UI (lines 409-1408)
+// 4. Mode Switching & Gestures (lines 1409-1598)
+// 5. Audio System - Core & Theremin (lines 1599-1890)
+// 6. Audio System - Drum Synthesis (lines 1891-2679)
+// 7. Hand Tracking & Processing (lines 2680-2873)
+// 8. Visualization System (lines 2874-3800)
+// 9. Rendering Methods (lines 3801-4200)
+// 10. Debug & Monitoring (lines 4201-4300)
+// 11. Animation Loop & Utilities (lines 4301-4450)
+//
+// Use your editor's "Go to Symbol" (Cmd+Shift+O / Ctrl+Shift+O) to navigate.
+// ============================================================================
 
 class VisualSoundMirror {
+    // ========================================================================
+    // SECTION 1: CONSTRUCTOR & STATE INITIALIZATION
+    // ========================================================================
+
     constructor() {
         // Canvas setup
         this.canvas = document.getElementById('canvas');
@@ -244,6 +270,14 @@ class VisualSoundMirror {
         this.setupEventListeners();
     }
 
+    // ========================================================================
+    // SECTION 2: INITIALIZATION METHODS
+    // ========================================================================
+
+    /**
+     * Initialize 25 drum pads arranged in 5 columns (one per finger)
+     * Pads are auto-calibrated to hand geometry when entering pads mode
+     */
     initPads() {
         // Arc-based layout - 5 arcs (one per finger), 5 pads per arc
         // Positioned based on actual hand geometry if calibrated
@@ -411,6 +445,13 @@ class VisualSoundMirror {
         this.canvas.height = window.innerHeight;
     }
 
+    // ========================================================================
+    // SECTION 3: EVENT LISTENERS & UI
+    // ========================================================================
+
+    /**
+     * Set up all UI event handlers for buttons, keyboard, debug panels
+     */
     setupEventListeners() {
         window.addEventListener('resize', () => {
             this.resizeCanvas();
@@ -1406,6 +1447,13 @@ class VisualSoundMirror {
         console.log(`Reset mode ${this.visualizationMode} settings to defaults`);
     }
 
+    // ========================================================================
+    // SECTION 4: MODE SWITCHING & GESTURE DETECTION
+    // ========================================================================
+
+    /**
+     * Update mode button UI to reflect current mode
+     */
     updateModeButtons() {
         document.querySelectorAll('.mode-btn').forEach(btn => {
             const mode = btn.getAttribute('data-mode');
@@ -1655,7 +1703,15 @@ class VisualSoundMirror {
         return 0;
     }
 
-    // Convert MIDI note number to frequency
+    // ========================================================================
+    // SECTION 5: AUDIO SYSTEM - CORE & THEREMIN
+    // ========================================================================
+
+    /**
+     * Convert MIDI note number to frequency in Hz
+     * @param {number} midiNote - MIDI note (0-127, middle C = 60)
+     * @returns {number} Frequency in Hz
+     */
     midiToFreq(midiNote) {
         return 440 * Math.pow(2, (midiNote - 69) / 12);
     }
