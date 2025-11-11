@@ -1,0 +1,20 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Gists collection
+    match /gists/{gistId} {
+      // Anyone can read gists (for public sharing)
+      allow read: if true;
+
+      // Only authenticated users can create gists
+      allow create: if request.auth != null
+                    && request.resource.data.createdBy == request.auth.uid
+                    && request.resource.data.keys().hasAll(['id', 'markdown', 'createdBy', 'createdAt', 'updatedAt', 'highlights']);
+
+      // Only the creator can update or delete their gist
+      allow update, delete: if request.auth != null
+                             && resource.data.createdBy == request.auth.uid;
+    }
+  }
+}
