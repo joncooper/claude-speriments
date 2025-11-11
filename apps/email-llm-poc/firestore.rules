@@ -1,0 +1,16 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default: deny all access (server-side only)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Future: Add rules for web dashboard access
+    // match /conversations/{conversationId} {
+    //   allow read: if request.auth != null &&
+    //                  request.auth.token.email == resource.data.userEmail;
+    // }
+  }
+}
