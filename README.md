@@ -80,24 +80,27 @@ A **full-stack web application** to find nearby auctions on AuctionNinja.com tha
 
 #### 🎨 [Visual Sound Mirror](./apps/visual-sound-mirror/)
 
-An **interactive art piece** that transforms your movements into mesmerizing visuals and soothing bloopy sounds.
+An **interactive music instrument** controlled entirely by hand gestures. No keyboard, mouse, or touch required - just your hands in front of the webcam.
 
-**What it does:** Uses your webcam to detect motion and creates real-time generative art with responsive audio synthesis.
+**What it does:** Uses AI-powered hand tracking (MediaPipe) to turn hand gestures into music across three distinct modes with 6 dynamic visualizations.
+
+**Three Instrument Modes:**
+- **🎨 Ribbons Mode**: Flowing finger trails with filter/delay control - touch fingertips for harmonic chords
+- **🎵 Theremin Mode**: Play melodies with hand position (X=pitch, Y=filter, spread=vibrato)
+- **🥁 Sample Pads Mode**: 25 drum pads auto-calibrated to your hand geometry - tap forward to trigger
 
 **Key features:**
-- Real-time motion detection from webcam
-- Physics-based particle system with dreamy colors
-- Web Audio synthesis for organic, bloopy sounds
-- Privacy-first: all processing happens locally in your browser
-- Zero dependencies: pure HTML5, Canvas, and Web Audio API
-- Click anywhere for particle bursts
-- Responsive to motion intensity and position
+- Completely hands-free: gesture-based mode switching (1/2/5 fingers)
+- Real-time Web Audio synthesis (25+ drum sounds, theremin, effects)
+- 6 visualization modes (particle fountain, audio blooms, fluid dynamics, orbits, kaleidoscope, temporal echoes)
+- Virtual rotary knobs controlled by pinch gestures
+- Musical scale quantization (pentatonic, major, minor, blues, etc.)
+- Privacy-first: all processing happens locally in browser
+- Single-file monolithic architecture (4,506 lines) - no build step required
 
-**Perfect for:** Meditation, creative expression, zoning out, or just enjoying mesmerizing audio-visual feedback.
+**Try it:** [Live demo on GitHub Pages](https://joncooper.github.io/claude-speriments/visual-sound-mirror/) or open `index.html` locally
 
-**Usage:** Simply open `index.html` in a modern browser and grant camera permissions.
-
-**Status:** ✅ Complete
+**Status:** ✅ Complete (v6.7.0)
 
 ---
 
