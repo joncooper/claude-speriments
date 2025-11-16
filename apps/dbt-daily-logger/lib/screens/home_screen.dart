@@ -4,6 +4,8 @@ import '../providers/entries_provider.dart';
 import '../providers/auth_provider.dart';
 import '../models/diary_entry.dart';
 import 'package:intl/intl.dart';
+import 'entry/new_entry_screen.dart';
+import 'entry/entry_detail_screen.dart';
 
 /// Home screen showing list of diary entries
 class HomeScreen extends StatefulWidget {
@@ -38,9 +40,10 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: _selectedIndex == 0
           ? FloatingActionButton.extended(
               onPressed: () {
-                // TODO: Navigate to new entry screen
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('New entry form coming soon!')),
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const NewEntryScreen(),
+                  ),
                 );
               },
               icon: const Icon(Icons.add),
@@ -176,9 +179,10 @@ class _HomeScreenState extends State<HomeScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
         onTap: () {
-          // TODO: Navigate to entry detail screen
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Entry details coming soon!')),
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => EntryDetailScreen(entry: entry),
+            ),
           );
         },
         borderRadius: BorderRadius.circular(12),

@@ -3,7 +3,7 @@
 ## Project Status
 
 **Current Branch**: `claude/dbt-daily-logger-rebuild-011CV4oEjM6dkW5m2vhdeSmn`
-**Status**: Phase 1 (Foundation) Complete - Ready for Phase 2 (Core Features)
+**Status**: Phase 2 (Core Features) Complete - Ready for Phase 3 (Enhanced Features)
 **Last Updated**: 2025-11-12
 
 ---
@@ -44,20 +44,20 @@ This is a **complete rebuild** of the DBT Daily Logger app. Two prototype branch
 - [x] Implement basic navigation structure
 - [x] Create documentation (QUICKSTART.md, FIREBASE_SETUP.md)
 
-### Phase 2: Core Features
-- [ ] Daily entry form
-  - [ ] Emotions slider (6 types, 0-10 scale, randomized order)
-  - [ ] Urges tracker
-  - [ ] Target behaviors (7 types, randomized order)
-  - [ ] DBT skills selector (all 4 modules, organized checkboxes)
-  - [ ] Sleep tracking (hours, quality 0-5, exercise checkbox)
-  - [ ] Medication checkbox
-  - [ ] Notes field
-- [ ] Save entry to Firestore
-- [ ] Entry list view (home screen)
-- [ ] Entry detail view
-- [ ] Edit existing entry
-- [ ] Delete entry
+### Phase 2: Core Features ✅ COMPLETE
+- [x] Daily entry form
+  - [x] Emotions slider (6 types, 0-10 scale, randomized order)
+  - [x] Urges tracker
+  - [x] Target behaviors (7 types, randomized order)
+  - [x] DBT skills selector (all 4 modules, organized checkboxes)
+  - [x] Sleep tracking (hours, quality 0-5, exercise checkbox)
+  - [x] Medication checkbox
+  - [x] Notes field
+- [x] Save entry to Firestore
+- [x] Entry list view (home screen)
+- [x] Entry detail view
+- [x] Edit existing entry
+- [x] Delete entry
 
 ### Phase 3: Enhanced Features
 - [ ] Dark mode + theme persistence
