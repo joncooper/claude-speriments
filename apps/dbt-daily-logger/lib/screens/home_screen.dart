@@ -6,6 +6,9 @@ import '../models/diary_entry.dart';
 import 'package:intl/intl.dart';
 import 'entry/new_entry_screen.dart';
 import 'entry/entry_detail_screen.dart';
+import 'skills/weekly_skills_screen.dart';
+import 'skills/skills_reference_screen.dart';
+import 'settings/settings_screen.dart';
 
 /// Home screen showing list of diary entries
 class HomeScreen extends StatefulWidget {
@@ -23,18 +26,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('DBT Daily Logger'),
-        actions: [
-          // Theme toggle (placeholder for now)
-          IconButton(
-            icon: const Icon(Icons.brightness_6),
-            onPressed: () {
-              // TODO: Implement theme toggle in settings
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Theme settings coming soon!')),
-              );
-            },
-          ),
-        ],
       ),
       body: _buildBody(),
       floatingActionButton: _selectedIndex == 0
@@ -88,11 +79,11 @@ class _HomeScreenState extends State<HomeScreen> {
       case 0:
         return _buildEntriesList();
       case 1:
-        return _buildPlaceholder('Weekly Skills Grid');
+        return const WeeklySkillsScreen();
       case 2:
-        return _buildPlaceholder('Skills Reference');
+        return const SkillsReferenceScreen();
       case 3:
-        return _buildPlaceholder('Settings');
+        return const SettingsScreen();
       default:
         return _buildEntriesList();
     }
@@ -264,33 +255,6 @@ class _HomeScreenState extends State<HomeScreen> {
       label: Text(label),
       visualDensity: VisualDensity.compact,
       padding: EdgeInsets.zero,
-    );
-  }
-
-  Widget _buildPlaceholder(String title) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.construction,
-            size: 64,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            title,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Coming soon!',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                ),
-          ),
-        ],
-      ),
     );
   }
 }
