@@ -104,6 +104,33 @@ An **interactive music instrument** controlled entirely by hand gestures. No key
 
 ---
 
+#### 🔍 [3D Scan Viewer](./apps/3d-scan-viewer/)
+
+A **high-quality web viewer** for 3D scans from iPhone apps like Scaniverse and KIRI Engine. View and interact with various 3D file formats including meshes and point clouds.
+
+**What it does:** Load and visualize 3D scans directly in your browser with professional-grade rendering, lighting, and controls.
+
+**Supported Formats:**
+- **Mesh formats**: USDZ, FBX, OBJ, GLB/GLTF
+- **Point cloud formats**: PLY (with color support), LAS (coming soon)
+
+**Key features:**
+- **Intuitive 3D controls** - Rotate, zoom, pan with mouse/touch
+- **Multiple display modes** - Solid, wireframe, point cloud visualization
+- **Auto-framing** - Models automatically centered and scaled
+- **Model information** - Vertex count, face count, format detection
+- **Drag & drop** - Easy file loading with visual feedback
+- **Performance-optimized** - Handles large models smoothly at 60fps
+- **Responsive design** - Works on desktop and mobile
+
+**Tech stack:** Three.js, TypeScript, Vite, Bun
+
+**Try it:** [Live demo on GitHub Pages](https://joncooper.github.io/claude-speriments/3d-scan-viewer/)
+
+**Status:** ✅ Complete (v1.0.0)
+
+---
+
 ### Agents
 
 #### 🔍 [Forensic Accounting Agent](./agents/forensic-accounting/)
