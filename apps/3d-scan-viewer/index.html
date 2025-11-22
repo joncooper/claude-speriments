@@ -4,14 +4,14 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>3D Scan Viewer</title>
+    <title>3D Room Planner</title>
   </head>
   <body>
     <div id="app">
       <!-- Header -->
       <header class="header">
-        <h1>3D Scan Viewer</h1>
-        <p class="subtitle">View 3D scans from Scaniverse and KIRI Engine</p>
+        <h1>3D Room Planner</h1>
+        <p class="subtitle">View and edit 3D room scans from iPhone RoomPlanner</p>
       </header>
 
       <!-- Controls Panel -->
@@ -24,8 +24,8 @@
               <polyline points="17 8 12 3 7 8"></polyline>
               <line x1="12" y1="3" x2="12" y2="15"></line>
             </svg>
-            <span>Choose 3D file or drag & drop</span>
-            <span class="supported-formats">USDZ, FBX, OBJ, GLB, PLY, LAS</span>
+            <span>Load Room Scan (USDZ)</span>
+            <span class="supported-formats">iPhone RoomPlanner USDZ files</span>
           </label>
         </div>
 
@@ -35,16 +35,34 @@
             <span id="formatInfo">-</span>
           </div>
           <div class="info-item">
-            <span class="info-label">Vertices:</span>
-            <span id="verticesInfo">-</span>
+            <span class="info-label">Objects:</span>
+            <span id="objectsInfo">-</span>
           </div>
           <div class="info-item">
-            <span class="info-label">Faces:</span>
-            <span id="facesInfo">-</span>
+            <span class="info-label">Selected:</span>
+            <span id="selectedInfo">None</span>
           </div>
         </div>
 
         <div class="viewer-controls">
+          <!-- Mode Toggle -->
+          <div class="mode-toggle">
+            <button id="viewMode" class="mode-btn active">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              View
+            </button>
+            <button id="editMode" class="mode-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+              Edit
+            </button>
+          </div>
+
           <button id="resetCamera" class="control-btn">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
@@ -53,15 +71,6 @@
               <path d="M3 21v-5h5"></path>
             </svg>
             Reset View
-          </button>
-
-          <button id="toggleWireframe" class="control-btn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-              <polyline points="2 17 12 22 22 17"></polyline>
-              <polyline points="2 12 12 17 22 12"></polyline>
-            </svg>
-            Wireframe
           </button>
 
           <button id="toggleGrid" class="control-btn active">
@@ -73,16 +82,87 @@
             </svg>
             Grid
           </button>
+        </div>
+      </div>
 
-          <button id="togglePoints" class="control-btn">
+      <!-- Edit Tools Panel (hidden by default) -->
+      <div id="editToolsPanel" class="edit-tools-panel" style="display: none;">
+        <div class="tool-section">
+          <h3>Object Tools</h3>
+          <button id="deleteObject" class="tool-btn" disabled>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="1"></circle>
-              <circle cx="12" cy="5" r="1"></circle>
-              <circle cx="12" cy="19" r="1"></circle>
-              <circle cx="5" cy="12" r="1"></circle>
-              <circle cx="19" cy="12" r="1"></circle>
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
             </svg>
-            Points
+            Delete Selected
+          </button>
+          <button id="hideObject" class="tool-btn" disabled>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+            Hide
+          </button>
+        </div>
+
+        <div class="tool-section">
+          <h3>Paint Walls</h3>
+          <div class="paint-controls">
+            <label for="wallColor">Wall Color:</label>
+            <input type="color" id="wallColor" value="#ffffff" />
+            <button id="paintWall" class="tool-btn" disabled>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 2l4 4-4 4"></path>
+                <path d="M14.5 9.5L2 22l-1-1L13.5 8.5"></path>
+                <path d="M3 21l4-4"></path>
+              </svg>
+              Paint Selected Wall
+            </button>
+          </div>
+        </div>
+
+        <div class="tool-section">
+          <h3>Add Furniture</h3>
+          <div class="furniture-controls">
+            <div class="dimension-inputs">
+              <div class="input-group">
+                <label>Width (m):</label>
+                <input type="number" id="furnitureWidth" value="2.0" step="0.1" min="0.1" />
+              </div>
+              <div class="input-group">
+                <label>Depth (m):</label>
+                <input type="number" id="furnitureDepth" value="1.0" step="0.1" min="0.1" />
+              </div>
+              <div class="input-group">
+                <label>Height (m):</label>
+                <input type="number" id="furnitureHeight" value="0.8" step="0.1" min="0.1" />
+              </div>
+            </div>
+            <button id="addFurniture" class="tool-btn primary">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Add Furniture Block
+            </button>
+            <div class="furniture-presets">
+              <button class="preset-btn" data-w="2.0" data-d="0.9" data-h="0.45">Sofa</button>
+              <button class="preset-btn" data-w="1.5" data-d="1.5" data-h="0.75">Table</button>
+              <button class="preset-btn" data-w="1.0" data-d="0.6" data-h="0.5">Chair</button>
+              <button class="preset-btn" data-w="2.0" data-d="1.6" data-h="0.6">Bed</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool-section">
+          <h3>Export</h3>
+          <button id="exportUSDZ" class="tool-btn primary" disabled>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Export Modified USDZ
           </button>
         </div>
       </div>
@@ -94,11 +174,22 @@
           <div class="spinner"></div>
           <p>Loading 3D model...</p>
         </div>
+
+        <!-- Selection Indicator -->
+        <div id="selectionIndicator" class="selection-indicator" style="display: none;">
+          <div class="selection-info">
+            <strong id="selectionName">Object</strong>
+            <span id="selectionType" class="type-badge">Unknown</span>
+          </div>
+          <div class="selection-actions">
+            <small>Click object to select • ESC to deselect</small>
+          </div>
+        </div>
       </div>
 
       <!-- Footer -->
       <footer class="footer">
-        <p>Use mouse/touch to rotate • Scroll to zoom • Right-click to pan</p>
+        <p><strong>View Mode:</strong> Rotate, zoom, pan • <strong>Edit Mode:</strong> Click to select objects</p>
       </footer>
     </div>
     <script type="module" src="/src/main.ts"></script>
