@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghostty Explainer - Contributor's Guide</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="nav-header">
+            <h1>Ghostty</h1>
+            <p class="subtitle">Contributor's Guide</p>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#overview" class="nav-link active">Overview</a></li>
+            <li><a href="#architecture" class="nav-link">Architecture Tour</a></li>
+            <li><a href="#key-components" class="nav-link">Key Components</a></li>
+            <li><a href="#design" class="nav-link">Design & Tradeoffs</a></li>
+            <li><a href="#libraries" class="nav-link">Libraries</a></li>
+            <li><a href="#zig-intro" class="nav-link">Zig Primer</a></li>
+            <li><a href="#contributing" class="nav-link">Getting Started</a></li>
+        </ul>
+        <div class="nav-footer">
+            <a href="https://github.com/ghostty-org/ghostty" target="_blank">GitHub</a>
+            <a href="https://ghostty.org/docs" target="_blank">Docs</a>
+        </div>
+    </nav>
+
+    <main class="content">
+        <!-- Overview Section -->
+        <section id="overview" class="section">
+            <h1>Ghostty: The Contributor's Guide</h1>
+            <p class="lead">An interactive explainer for developers who want to understand and contribute to Ghostty, a fast, native, feature-rich terminal emulator written in Zig.</p>
+
+            <div class="info-card">
+                <h3>What is Ghostty?</h3>
+                <p>Ghostty is a terminal emulator that differentiates itself by being <strong>fast</strong>, <strong>feature-rich</strong>, and <strong>native</strong>. Unlike many terminal emulators that force you to choose between these qualities, Ghostty provides all three.</p>
+                <ul>
+                    <li><strong>Fast:</strong> Multi-renderer architecture (Metal on macOS, OpenGL on Linux), dedicated IO thread, SIMD-optimized parsing</li>
+                    <li><strong>Feature-rich:</strong> Full standards compliance, ligatures, Kitty graphics protocol, shell integration</li>
+                    <li><strong>Native:</strong> True SwiftUI app on macOS, GTK on Linux - not a lowest-common-denominator cross-platform UI</li>
+                </ul>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-value">~100k</span>
+                    <span class="stat-label">Lines of Zig</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">3</span>
+                    <span class="stat-label">Renderers (Metal, OpenGL, WebGL)</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">2</span>
+                    <span class="stat-label">Platform UIs (SwiftUI, GTK)</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">Zig 0.15+</span>
+                    <span class="stat-label">Language Version</span>
+                </div>
+            </div>
+
+            <h2>Project Status & Roadmap</h2>
+            <table class="roadmap-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Standards-compliant terminal emulation</td>
+                        <td><span class="status done">Complete</span></td>
+                    </tr>
+                    <tr>
+                        <td>Competitive performance</td>
+                        <td><span class="status done">Complete</span></td>
+                    </tr>
+                    <tr>
+                        <td>Basic customizability (fonts, colors, etc.)</td>
+                        <td><span class="status done">Complete</span></td>
+                    </tr>
+                    <tr>
+                        <td>Richer windowing (multi-window, tabs, panes)</td>
+                        <td><span class="status done">Complete</span></td>
+                    </tr>
+                    <tr>
+                        <td>Native platform experiences</td>
+                        <td><span class="status wip">In Progress</span></td>
+                    </tr>
+                    <tr>
+                        <td>libghostty for embeddable terminals</td>
+                        <td><span class="status wip">In Progress</span></td>
+                    </tr>
+                    <tr>
+                        <td>Windows support</td>
+                        <td><span class="status planned">Planned</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Architecture Section -->
+        <section id="architecture" class="section">
+            <h1>Architecture Tour</h1>
+            <p class="lead">Ghostty's architecture separates platform-specific UI code from a shared Zig core, enabling native experiences on each platform while maximizing code reuse.</p>
+
+            <h2>High-Level Architecture</h2>
+            <div class="architecture-diagram">
+                <div class="arch-layer platform-layer">
+                    <h4>Platform Layer</h4>
+                    <div class="arch-boxes">
+                        <div class="arch-box macos">
+                            <strong>macOS</strong>
+                            <span>Swift / SwiftUI / AppKit</span>
+                            <a href="https://github.com/ghostty-org/ghostty/tree/main/macos/Sources" target="_blank" class="gh-link"><code>macos/Sources/</code></a>
+                        </div>
+                        <div class="arch-box linux">
+                            <strong>Linux / FreeBSD</strong>
+                            <span>GTK4 / libadwaita</span>
+                            <a href="https://github.com/ghostty-org/ghostty/tree/main/src/apprt/gtk" target="_blank" class="gh-link"><code>src/apprt/gtk/</code></a>
+                        </div>
+                        <div class="arch-box wasm">
+                            <strong>Web (experimental)</strong>
+                            <span>WebGL / WASM</span>
+                            <a href="https://github.com/ghostty-org/ghostty/tree/main/src/apprt/browser" target="_blank" class="gh-link"><code>src/apprt/browser/</code></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="arch-arrow">&#8595;</div>
+                <div class="arch-layer api-layer">
+                    <h4>C API (libghostty)</h4>
+                    <div class="arch-boxes">
+                        <div class="arch-box api">
+                            <strong>libghostty</strong>
+                            <span>C-compatible API for embedding</span>
+                            <a href="https://github.com/ghostty-org/ghostty/blob/main/src/main_c.zig" target="_blank" class="gh-link"><code>src/main_c.zig</code></a> + <a href="https://github.com/ghostty-org/ghostty/tree/main/include" target="_blank" class="gh-link"><code>include/</code></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="arch-arrow">&#8595;</div>
+                <div class="arch-layer core-layer">
+                    <h4>Zig Core</h4>
+                    <div class="arch-boxes">
+                        <div class="arch-box core">
+                            <strong>Terminal Emulation</strong>
+                            <a href="https://github.com/ghostty-org/ghostty/tree/main/src/terminal" target="_blank" class="gh-link"><code>src/terminal/</code></a>
+                        </div>
+                        <div class="arch-box core">
+                            <strong>Rendering</strong>
+                            <a href="https://github.com/ghostty-org/ghostty/tree/main/src/renderer" target="_blank" class="gh-link"><code>src/renderer/</code></a>
+                        </div>
+                        <div class="arch-box core">
+                            <strong>Font Handling</strong>
+                            <a href="https://github.com/ghostty-org/ghostty/tree/main/src/font" target="_blank" class="gh-link"><code>src/font/</code></a>
+                        </div>
+                        <div class="arch-box core">
+                            <strong>I/O & PTY</strong>
+                            <a href="https://github.com/ghostty-org/ghostty/tree/main/src/termio" target="_blank" class="gh-link"><code>src/termio/</code></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h2>Directory Structure</h2>
+            <div class="code-block">
+                <pre><code>ghostty/
+├── src/                    # Shared Zig core
+│   ├── terminal/          # VT parser, screen state, scrollback
+│   ├── renderer/          # Metal, OpenGL, WebGL renderers
+│   ├── font/              # Font discovery, shaping, atlas
+│   ├── termio/            # PTY I/O handling
+│   ├── apprt/             # Application runtime abstraction
+│   │   ├── gtk/           # GTK implementation
+│   │   ├── embedded/      # libghostty for embedding
+│   │   └── browser/       # WASM/WebGL implementation
+│   ├── config/            # Configuration system (~10k lines!)
+│   ├── input/             # Keyboard/mouse input handling
+│   └── Surface.zig        # Main "widget" (~6k lines, ties everything together)
+├── macos/                  # macOS Swift app
+│   └── Sources/           # Swift/SwiftUI code
+├── pkg/                    # Bundled C libraries (MIT licensed separately)
+├── include/               # C API headers
+└── build.zig              # Zig build system</code></pre>
+            </div>
+
+            <h2>Threading Model</h2>
+            <p>Ghostty uses a multi-threaded architecture for optimal performance:</p>
+
+            <div class="thread-diagram">
+                <div class="thread-box main">
+                    <h4>Main Thread</h4>
+                    <ul>
+                        <li>UI event loop (GTK/AppKit)</li>
+                        <li>Window management</li>
+                        <li>Input handling</li>
+                        <li>Configuration</li>
+                    </ul>
+                </div>
+                <div class="thread-box io">
+                    <h4>I/O Thread</h4>
+                    <ul>
+                        <li>PTY read/write</li>
+                        <li>Terminal parsing</li>
+                        <li>Screen state updates</li>
+                        <li>Low-jitter under heavy load</li>
+                    </ul>
+                </div>
+                <div class="thread-box render">
+                    <h4>Render Thread</h4>
+                    <ul>
+                        <li>GPU rendering</li>
+                        <li>Frame pacing</li>
+                        <li>Font atlas management</li>
+                        <li>Custom shaders</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p class="note"><strong>Why separate threads?</strong> Heavy I/O (like <code>cat large_file.txt</code>) shouldn't block rendering, and rendering shouldn't block input processing. The I/O thread can process incoming data while the render thread is busy drawing the previous frame.</p>
+        </section>
+
+        <!-- Key Components Section -->
+        <section id="key-components" class="section">
+            <h1>Key Components</h1>
+            <p class="lead">Understanding these core components is essential for contributing to Ghostty.</p>
+
+            <div class="component-grid">
+                <div class="component-card" id="comp-surface">
+                    <h3>Surface</h3>
+                    <a href="https://github.com/ghostty-org/ghostty/blob/main/src/Surface.zig" target="_blank" class="gh-link"><code class="filepath">src/Surface.zig</code></a>
+                    <p>The central "widget" that represents a single terminal. It owns:</p>
+                    <ul>
+                        <li>Terminal I/O handler (<code>termio.Termio</code>)</li>
+                        <li>Renderer instance</li>
+                        <li>Font configuration</li>
+                        <li>Input state (keyboard, mouse)</li>
+                        <li>Configuration</li>
+                    </ul>
+                    <p class="note">At ~6,000 lines, this is the largest file. It coordinates all the pieces that make up a working terminal.</p>
+                </div>
+
+                <div class="component-card" id="comp-terminal">
+                    <h3>Terminal</h3>
+                    <a href="https://github.com/ghostty-org/ghostty/blob/main/src/terminal/Terminal.zig" target="_blank" class="gh-link"><code class="filepath">src/terminal/Terminal.zig</code></a>
+                    <p>The primary terminal emulation structure. Manages:</p>
+                    <ul>
+                        <li>Grid of characters (cells)</li>
+                        <li>Scrollback buffer</li>
+                        <li>Cursor position and style</li>
+                        <li>Terminal modes (DEC private modes)</li>
+                        <li>Mouse tracking state</li>
+                        <li>Color palette</li>
+                    </ul>
+                    <div class="code-snippet">
+                        <pre><code class="language-zig">pub const Terminal = struct {
+    screens: ScreenSet,           // Primary & alternate screens
+    tabstops: Tabstops,
+    rows: size.CellCountInt,
+    cols: size.CellCountInt,
+    scrolling_region: ScrollingRegion,
+    colors: Colors,
+    modes: modespkg.ModeState,
+    // ...
+};</code></pre>
+                    </div>
+                </div>
+
+                <div class="component-card" id="comp-parser">
+                    <h3>Parser</h3>
+                    <a href="https://github.com/ghostty-org/ghostty/blob/main/src/terminal/Parser.zig" target="_blank" class="gh-link"><code class="filepath">src/terminal/Parser.zig</code></a>
+                    <p>VT-series parser based on the <a href="https://vt100.net/emu/dec_ansi_parser" target="_blank">vt100.net state machine</a>. Handles:</p>
+                    <ul>
+                        <li>ANSI escape sequences</li>
+                        <li>CSI (Control Sequence Introducer) commands</li>
+                        <li>OSC (Operating System Command) sequences</li>
+                        <li>DCS (Device Control String) sequences</li>
+                    </ul>
+                    <div class="code-snippet">
+                        <pre><code class="language-zig">pub const Action = union(enum) {
+    print: u21,              // Draw character (unicode codepoint)
+    execute: u8,             // Execute C0/C1 function
+    csi_dispatch: CSI,       // CSI command
+    esc_dispatch: ESC,       // ESC command
+    osc_dispatch: osc.Command,
+    dcs_hook: DCS,
+    // ...
+};</code></pre>
+                    </div>
+                </div>
+
+                <div class="component-card" id="comp-screen">
+                    <h3>Screen & PageList</h3>
+                    <a href="https://github.com/ghostty-org/ghostty/blob/main/src/terminal/Screen.zig" target="_blank" class="gh-link"><code class="filepath">src/terminal/Screen.zig</code></a>, <a href="https://github.com/ghostty-org/ghostty/blob/main/src/terminal/PageList.zig" target="_blank" class="gh-link"><code class="filepath">src/terminal/PageList.zig</code></a>
+                    <p>The screen manages the visible grid and scrollback:</p>
+                    <ul>
+                        <li><strong>Screen:</strong> Current viewport into the scrollback</li>
+                        <li><strong>PageList:</strong> Efficiently manages pages of terminal history</li>
+                        <li><strong>Page:</strong> A chunk of terminal rows with cells</li>
+                        <li>Supports millions of lines of scrollback</li>
+                    </ul>
+                </div>
+
+                <div class="component-card" id="comp-renderer">
+                    <h3>Renderer</h3>
+                    <a href="https://github.com/ghostty-org/ghostty/tree/main/src/renderer" target="_blank" class="gh-link"><code class="filepath">src/renderer/</code></a>
+                    <p>Ghostty has a multi-renderer architecture:</p>
+                    <table class="mini-table">
+                        <tr>
+                            <td><strong>Metal</strong></td>
+                            <td>macOS/iOS (native, best performance)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OpenGL</strong></td>
+                            <td>Linux (OpenGL 4.3+)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>WebGL</strong></td>
+                            <td>Browser/WASM (experimental)</td>
+                        </tr>
+                    </table>
+                    <p>The <code>GenericRenderer</code> provides shared rendering logic, while backends handle GPU-specific operations.</p>
+                </div>
+
+                <div class="component-card" id="comp-font">
+                    <h3>Font System</h3>
+                    <a href="https://github.com/ghostty-org/ghostty/tree/main/src/font" target="_blank" class="gh-link"><code class="filepath">src/font/</code></a>
+                    <p>Comprehensive font handling:</p>
+                    <ul>
+                        <li><strong>Discovery:</strong> CoreText (macOS), Fontconfig (Linux)</li>
+                        <li><strong>Rendering:</strong> FreeType for glyph rasterization</li>
+                        <li><strong>Shaping:</strong> HarfBuzz for complex text layout & ligatures</li>
+                        <li><strong>Atlas:</strong> Texture atlas for efficient GPU rendering</li>
+                        <li><strong>Fallback:</strong> Automatic font fallback for missing glyphs</li>
+                    </ul>
+                </div>
+
+                <div class="component-card" id="comp-termio">
+                    <h3>Terminal I/O (termio)</h3>
+                    <a href="https://github.com/ghostty-org/ghostty/tree/main/src/termio" target="_blank" class="gh-link"><code class="filepath">src/termio/</code></a>
+                    <p>Handles communication with the PTY:</p>
+                    <ul>
+                        <li><strong>Backend:</strong> PTY allocation and process management</li>
+                        <li><strong>Mailbox:</strong> Thread-safe message passing</li>
+                        <li><strong>StreamHandler:</strong> Processes terminal data stream</li>
+                        <li>Supports shell integration hooks</li>
+                    </ul>
+                </div>
+
+                <div class="component-card" id="comp-config">
+                    <h3>Configuration</h3>
+                    <a href="https://github.com/ghostty-org/ghostty/blob/main/src/config/Config.zig" target="_blank" class="gh-link"><code class="filepath">src/config/Config.zig</code></a>
+                    <p>At ~10,000 lines, the config system is extensive:</p>
+                    <ul>
+                        <li>200+ configuration options</li>
+                        <li>File-based configuration (<code>~/.config/ghostty/config</code>)</li>
+                        <li>Runtime reloading</li>
+                        <li>Conditional configuration (light/dark mode)</li>
+                        <li>Keybinding system</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Design Section -->
+        <section id="design" class="section">
+            <h1>Design & Tradeoffs</h1>
+            <p class="lead">Understanding the design decisions and tradeoffs helps you make contributions that align with the project's philosophy.</p>
+
+            <h2>Core Design Principles</h2>
+
+            <div class="design-principle">
+                <h3>1. Native UI, Shared Core</h3>
+                <p>Ghostty rejects the "write once, run anywhere" approach for UI. Instead:</p>
+                <ul>
+                    <li><strong>macOS:</strong> Real SwiftUI/AppKit app developed in Xcode, with native menus, preferences, and behaviors</li>
+                    <li><strong>Linux:</strong> GTK4 with libadwaita for a native GNOME experience</li>
+                    <li><strong>Core:</strong> Terminal emulation, rendering, and I/O are shared Zig code</li>
+                </ul>
+                <div class="tradeoff">
+                    <strong>Tradeoff:</strong> More code to maintain (Swift + GTK + Zig), but users get a truly native experience. The macOS app is a genuine first-class macOS citizen, not a web app in disguise.
+                </div>
+            </div>
+
+            <div class="design-principle">
+                <h3>2. libghostty Architecture</h3>
+                <p>The macOS app doesn't compile the Zig code directly. Instead:</p>
+                <ol>
+                    <li>Zig code compiles to <code>libghostty</code> (a C-compatible static library)</li>
+                    <li>Swift app links against libghostty via C headers</li>
+                    <li>Swift's <code>main()</code> is the entry point, calling into libghostty</li>
+                </ol>
+                <div class="code-snippet">
+                    <pre><code>// C API example (simplified)
+ghostty_init(argc, argv);
+ghostty_surface_t* surface = ghostty_surface_new(config);
+ghostty_surface_draw(surface);</code></pre>
+                </div>
+                <div class="tradeoff">
+                    <strong>Tradeoff:</strong> More complex build system, but enables true native UI development and opens the door for embedding Ghostty in other apps.
+                </div>
+            </div>
+
+            <div class="design-principle">
+                <h3>3. Multi-Threaded by Design</h3>
+                <p>Ghostty uses dedicated threads for I/O and rendering:</p>
+                <ul>
+                    <li><strong>I/O Thread:</strong> Reads from PTY, parses escape sequences, updates terminal state</li>
+                    <li><strong>Render Thread:</strong> Draws frames to screen, manages GPU resources</li>
+                    <li><strong>Main Thread:</strong> Handles UI events, input, configuration</li>
+                </ul>
+                <div class="tradeoff">
+                    <strong>Tradeoff:</strong> Complexity of thread synchronization, but essential for performance. Heavy I/O won't block rendering, and rendering won't block input.
+                </div>
+            </div>
+
+            <div class="design-principle">
+                <h3>4. Standards First, Then xterm, Then Others</h3>
+                <p>Terminal behavior priority:</p>
+                <ol>
+                    <li><strong>ECMA-48/ANSI standards</strong> when they exist</li>
+                    <li><strong>xterm behavior</strong> for unspecified features</li>
+                    <li><strong>Other popular terminals</strong> (Kitty, VTE) as fallback</li>
+                </ol>
+                <p>Ghostty maintains a <a href="https://github.com/ghostty-org/ghostty/issues/632" target="_blank">comprehensive xterm audit</a> to ensure compatibility.</p>
+            </div>
+
+            <div class="design-principle">
+                <h3>5. Performance Without Sacrifice</h3>
+                <p>Key performance decisions:</p>
+                <ul>
+                    <li><strong>SIMD parsing:</strong> Uses Highway library for vectorized terminal parsing</li>
+                    <li><strong>Metal renderer:</strong> Direct Metal (not MoltenVK) for macOS, with ligature support</li>
+                    <li><strong>Efficient scrollback:</strong> PageList uses chunked allocation for millions of lines</li>
+                    <li><strong>Lazy font loading:</strong> Fonts are loaded on-demand from a SharedGridSet</li>
+                </ul>
+                <div class="tradeoff">
+                    <strong>Tradeoff:</strong> More complex implementation, but Ghostty can <code>cat</code> large files 2-4x faster than many competitors while still supporting ligatures and rich features.
+                </div>
+            </div>
+
+            <h2>Notable Design Decisions</h2>
+
+            <div class="decision-card">
+                <h4>Why Zig?</h4>
+                <p>Zig was chosen for several reasons:</p>
+                <ul>
+                    <li>Excellent C interop for using FreeType, HarfBuzz, GTK, etc.</li>
+                    <li>No hidden allocations or control flow</li>
+                    <li>Comptime (compile-time execution) for configuration and code generation</li>
+                    <li>Cross-compilation support built-in</li>
+                    <li>Memory safety features (bounds checking, use-after-free detection in debug)</li>
+                </ul>
+            </div>
+
+            <div class="decision-card">
+                <h4>Why Not Electron / Cross-Platform UI?</h4>
+                <p>Ghostty prioritizes native experience over development convenience:</p>
+                <ul>
+                    <li>Native apps are faster (no JavaScript runtime)</li>
+                    <li>Native apps use less memory</li>
+                    <li>Native apps feel right on each platform (gestures, menus, accessibility)</li>
+                    <li>Terminal power users are exactly the audience that notices these differences</li>
+                </ul>
+            </div>
+
+            <div class="decision-card">
+                <h4>Configuration Philosophy</h4>
+                <p>Ghostty uses a simple key-value config format (not TOML, YAML, or JSON):</p>
+                <div class="code-snippet">
+                    <pre><code># ~/.config/ghostty/config
+font-family = JetBrains Mono
+font-size = 14
+theme = Dracula
+window-decoration = false</code></pre>
+                </div>
+                <p>The format is intentionally simple and doesn't require parsing libraries. Config is hot-reloadable.</p>
+            </div>
+        </section>
+
+        <!-- Libraries Section -->
+        <section id="libraries" class="section">
+            <h1>Libraries & Dependencies</h1>
+            <p class="lead">Ghostty builds on top of well-established libraries while adding Zig bindings and custom optimizations.</p>
+
+            <h2>Zig Libraries</h2>
+            <div class="library-grid">
+                <div class="library-card">
+                    <h4>libxev</h4>
+                    <p>Cross-platform event loop (similar to libuv). Used for async I/O operations.</p>
+                    <a href="https://github.com/mitchellh/libxev" target="_blank">mitchellh/libxev</a>
+                </div>
+                <div class="library-card">
+                    <h4>vaxis</h4>
+                    <p>TUI library. Used for terminal-related utilities and possibly future CLI tools.</p>
+                    <a href="https://github.com/rockorager/libvaxis" target="_blank">rockorager/libvaxis</a>
+                </div>
+                <div class="library-card">
+                    <h4>z2d</h4>
+                    <p>2D graphics library for Zig. Used for software rendering fallbacks.</p>
+                    <a href="https://github.com/vancluever/z2d" target="_blank">vancluever/z2d</a>
+                </div>
+                <div class="library-card">
+                    <h4>zig-objc</h4>
+                    <p>Objective-C runtime bindings for Zig. Enables calling macOS/iOS APIs from Zig.</p>
+                    <a href="https://github.com/mitchellh/zig-objc" target="_blank">mitchellh/zig-objc</a>
+                </div>
+                <div class="library-card">
+                    <h4>zig-wayland</h4>
+                    <p>Wayland protocol bindings for Zig. Used for Linux Wayland support.</p>
+                    <a href="https://codeberg.org/ifreund/zig-wayland" target="_blank">ifreund/zig-wayland</a>
+                </div>
+                <div class="library-card">
+                    <h4>zf</h4>
+                    <p>Fuzzy finder library. Used for fuzzy matching in search and completions.</p>
+                    <a href="https://github.com/natecraddock/zf" target="_blank">natecraddock/zf</a>
+                </div>
+            </div>
+
+            <h2>C Libraries</h2>
+            <p>These are bundled in <code>pkg/</code> with Zig build scripts:</p>
+            <div class="library-grid">
+                <div class="library-card">
+                    <h4>FreeType</h4>
+                    <p>Font rasterization library. Renders font glyphs to bitmaps.</p>
+                    <a href="https://github.com/ghostty-org/ghostty/tree/main/pkg/freetype" target="_blank" class="gh-link"><code>pkg/freetype/</code></a>
+                </div>
+                <div class="library-card">
+                    <h4>HarfBuzz</h4>
+                    <p>Text shaping engine. Handles complex scripts, ligatures, and glyph positioning.</p>
+                    <a href="https://github.com/ghostty-org/ghostty/tree/main/pkg/harfbuzz" target="_blank" class="gh-link"><code>pkg/harfbuzz/</code></a>
+                </div>
+                <div class="library-card">
+                    <h4>Fontconfig</h4>
+                    <p>Font configuration and discovery (Linux). Finds fonts matching descriptions.</p>
+                    <a href="https://github.com/ghostty-org/ghostty/tree/main/pkg/fontconfig" target="_blank" class="gh-link"><code>pkg/fontconfig/</code></a>
+                </div>
+                <div class="library-card">
+                    <h4>Oniguruma</h4>
+                    <p>Regular expression library. Used for URL detection, search, and highlighting.</p>
+                    <a href="https://github.com/ghostty-org/ghostty/tree/main/pkg/oniguruma" target="_blank" class="gh-link"><code>pkg/oniguruma/</code></a>
+                </div>
+                <div class="library-card">
+                    <h4>Highway</h4>
+                    <p>SIMD library. Provides portable SIMD operations for fast parsing.</p>
+                    <a href="https://github.com/ghostty-org/ghostty/tree/main/pkg/highway" target="_blank" class="gh-link"><code>pkg/highway/</code></a>
+                </div>
+                <div class="library-card">
+                    <h4>simdutf</h4>
+                    <p>SIMD-accelerated Unicode validation and conversion.</p>
+                    <a href="https://github.com/ghostty-org/ghostty/tree/main/pkg/simdutf" target="_blank" class="gh-link"><code>pkg/simdutf/</code></a>
+                </div>
+                <div class="library-card">
+                    <h4>libpng / zlib</h4>
+                    <p>PNG image handling (for Kitty graphics protocol and sixel).</p>
+                    <a href="https://github.com/ghostty-org/ghostty/tree/main/pkg/libpng" target="_blank" class="gh-link"><code>pkg/libpng/</code></a>, <a href="https://github.com/ghostty-org/ghostty/tree/main/pkg/zlib" target="_blank" class="gh-link"><code>pkg/zlib/</code></a>
+                </div>
+                <div class="library-card">
+                    <h4>Sentry</h4>
+                    <p>Crash reporting SDK (optional). Users can submit crash reports.</p>
+                    <a href="https://github.com/ghostty-org/ghostty/tree/main/pkg/sentry" target="_blank" class="gh-link"><code>pkg/sentry/</code></a>
+                </div>
+            </div>
+
+            <h2>Graphics Libraries</h2>
+            <div class="library-grid">
+                <div class="library-card">
+                    <h4>Metal (macOS)</h4>
+                    <p>Apple's GPU API. Native, efficient rendering with direct driver access.</p>
+                    <a href="https://github.com/ghostty-org/ghostty/blob/main/src/renderer/Metal.zig" target="_blank" class="gh-link"><code>src/renderer/Metal.zig</code></a>
+                </div>
+                <div class="library-card">
+                    <h4>OpenGL (Linux)</h4>
+                    <p>OpenGL 4.3+ for Linux rendering. Works on X11 and Wayland.</p>
+                    <a href="https://github.com/ghostty-org/ghostty/blob/main/src/renderer/OpenGL.zig" target="_blank" class="gh-link"><code>src/renderer/OpenGL.zig</code></a>
+                </div>
+                <div class="library-card">
+                    <h4>glslang / SPIRV-Cross</h4>
+                    <p>Shader cross-compilation. Allows writing shaders once for multiple backends.</p>
+                    <a href="https://github.com/ghostty-org/ghostty/tree/main/pkg/glslang" target="_blank" class="gh-link"><code>pkg/glslang/</code></a>, <a href="https://github.com/ghostty-org/ghostty/tree/main/pkg/spirv-cross" target="_blank" class="gh-link"><code>pkg/spirv-cross/</code></a>
+                </div>
+            </div>
+
+            <h2>Platform Frameworks</h2>
+            <div class="library-grid">
+                <div class="library-card macos-card">
+                    <h4>macOS</h4>
+                    <ul>
+                        <li><strong>SwiftUI / AppKit:</strong> Native UI framework</li>
+                        <li><strong>CoreText:</strong> Font discovery and rendering hints</li>
+                        <li><strong>Metal:</strong> GPU rendering</li>
+                        <li><strong>IOSurface:</strong> Efficient texture sharing</li>
+                    </ul>
+                </div>
+                <div class="library-card linux-card">
+                    <h4>Linux</h4>
+                    <ul>
+                        <li><strong>GTK4:</strong> Widget toolkit</li>
+                        <li><strong>libadwaita:</strong> GNOME design patterns</li>
+                        <li><strong>Wayland:</strong> Modern display protocol</li>
+                        <li><strong>X11:</strong> Legacy display support</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Zig Intro Section -->
+        <section id="zig-intro" class="section">
+            <h1>Zig Primer for Contributors</h1>
+            <p class="lead">A quick introduction to Zig concepts you'll encounter in the Ghostty codebase.</p>
+
+            <div class="info-card warning">
+                <p><strong>Note:</strong> Ghostty requires Zig 0.15.2+. The language is pre-1.0 and evolves rapidly. Check <a href="https://ziglang.org" target="_blank">ziglang.org</a> for the latest documentation.</p>
+            </div>
+
+            <h2>Key Concepts</h2>
+
+            <div class="zig-concept">
+                <h3>Allocators</h3>
+                <p>Zig has no hidden memory allocation. Every allocation is explicit and requires an allocator:</p>
+                <div class="code-snippet">
+                    <pre><code class="language-zig">// Allocator is passed explicitly - no hidden malloc()
+pub fn create(alloc: std.mem.Allocator) !*App {
+    var app = try alloc.create(App);
+    errdefer alloc.destroy(app);
+    try app.init(alloc);
+    return app;
+}
+
+// Common allocators in Ghostty:
+// - std.heap.c_allocator (wraps malloc/free)
+// - std.heap.GeneralPurposeAllocator (debug allocator)
+// - ArenaAllocator (bulk free, no individual dealloc)</code></pre>
+                </div>
+            </div>
+
+            <div class="zig-concept">
+                <h3>Error Handling</h3>
+                <p>Errors are values, not exceptions. The <code>!</code> operator propagates errors:</p>
+                <div class="code-snippet">
+                    <pre><code class="language-zig">// Function that can fail returns !T (error union)
+pub fn init(self: *App, alloc: Allocator) !void {
+    var font_grid_set = try font.SharedGridSet.init(alloc);
+    errdefer font_grid_set.deinit();  // Cleanup on error
+    // ...
+}
+
+// Caller can propagate with try or handle explicitly
+state.init() catch |err| {
+    std.log.err("failed to init: {}", .{err});
+    return 1;
+};</code></pre>
+                </div>
+            </div>
+
+            <div class="zig-concept">
+                <h3>Comptime (Compile-Time Execution)</h3>
+                <p>Zig can execute code at compile time. Ghostty uses this extensively:</p>
+                <div class="code-snippet">
+                    <pre><code class="language-zig">// Compile-time conditional compilation
+pub const Renderer = switch (build_config.renderer) {
+    .metal => GenericRenderer(Metal),
+    .opengl => GenericRenderer(OpenGL),
+    .webgl => WebGL,
+};
+
+// Comptime parsing for terminal escape sequences
+const table = @import("parse_table.zig").table;
+// ^ This table is built at compile time, not runtime</code></pre>
+                </div>
+            </div>
+
+            <div class="zig-concept">
+                <h3>Optionals and Null Safety</h3>
+                <p>Null pointers are explicitly typed as optionals (<code>?T</code>):</p>
+                <div class="code-snippet">
+                    <pre><code class="language-zig">// Optional type - can be null
+focused_surface: ?*Surface = null,
+
+// Must handle null case explicitly
+pub fn focusedSurface(self: *const App) ?*Surface {
+    const surface = self.focused_surface orelse return null;
+    if (!self.hasSurface(surface)) return null;
+    return surface;
+}
+
+// orelse provides default, .? unwraps (panics if null)
+const value = optional orelse default_value;
+const ptr = optional.?;  // Panic if null</code></pre>
+                </div>
+            </div>
+
+            <div class="zig-concept">
+                <h3>Slices and Arrays</h3>
+                <p>Zig distinguishes between arrays (fixed size) and slices (pointer + length):</p>
+                <div class="code-snippet">
+                    <pre><code class="language-zig">// Array - fixed size, stored inline
+var buffer: [1024]u8 = undefined;
+
+// Slice - pointer + length, can point to any contiguous memory
+fn process(data: []const u8) void {
+    for (data) |byte| {
+        // ...
+    }
+}
+
+// Sentinel-terminated slice (like C strings)
+const c_string: [*:0]const u8 = "hello";
+const zig_slice: [:0]const u8 = "hello";</code></pre>
+                </div>
+            </div>
+
+            <div class="zig-concept">
+                <h3>Structs and Methods</h3>
+                <p>Zig structs can have methods, but there's no implicit <code>this</code>:</p>
+                <div class="code-snippet">
+                    <pre><code class="language-zig">const Surface = @This();  // Gets current struct type
+
+pub const Surface = struct {
+    alloc: Allocator,
+    app: *App,
+    io: termio.Termio,
+
+    // Methods take self explicitly
+    pub fn close(self: *Surface) void {
+        self.io.deinit();
+        self.alloc.destroy(self);
+    }
+
+    // Can have const self for read-only methods
+    pub fn hasFocus(self: *const Surface) bool {
+        return self.focused;
+    }
+};</code></pre>
+                </div>
+            </div>
+
+            <div class="zig-concept">
+                <h3>Tagged Unions</h3>
+                <p>Powerful pattern matching with tagged unions:</p>
+                <div class="code-snippet">
+                    <pre><code class="language-zig">pub const Action = union(enum) {
+    print: u21,           // Associated data
+    execute: u8,
+    csi_dispatch: CSI,
+    esc_dispatch: ESC,
+};
+
+// Switch must be exhaustive
+switch (action) {
+    .print => |codepoint| drawChar(codepoint),
+    .execute => |byte| executeControl(byte),
+    .csi_dispatch => |csi| handleCSI(csi),
+    .esc_dispatch => |esc| handleEscape(esc),
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="zig-concept">
+                <h3>Defer and Errdefer</h3>
+                <p>RAII-like cleanup without destructors:</p>
+                <div class="code-snippet">
+                    <pre><code class="language-zig">pub fn doSomething() !void {
+    const resource = try allocate();
+    defer resource.free();  // Always runs when scope exits
+
+    const another = try allocateMore();
+    errdefer another.free();  // Only runs if error is returned
+
+    try riskyOperation();  // If this fails, errdefer runs
+    // If we get here, defer runs when function returns
+}</code></pre>
+                </div>
+            </div>
+
+            <h2>Common Patterns in Ghostty</h2>
+
+            <div class="pattern-card">
+                <h4>The @This() Pattern</h4>
+                <p>Files that define a single struct often start with:</p>
+                <div class="code-snippet">
+                    <pre><code class="language-zig">const Surface = @This();
+// Now 'Surface' refers to this struct throughout the file</code></pre>
+                </div>
+            </div>
+
+            <div class="pattern-card">
+                <h4>Compile-Time Interface Selection</h4>
+                <p>Ghostty uses comptime switches to select implementations:</p>
+                <div class="code-snippet">
+                    <pre><code class="language-zig">pub const runtime = switch (build_config.artifact) {
+    .exe => switch (build_config.app_runtime) {
+        .none => none,
+        .gtk => gtk,
+    },
+    .lib => embedded,
+    .wasm_module => browser,
+};</code></pre>
+                </div>
+            </div>
+
+            <div class="pattern-card">
+                <h4>Scoped Logging</h4>
+                <p>Each module has its own scoped logger:</p>
+                <div class="code-snippet">
+                    <pre><code class="language-zig">const log = std.log.scoped(.surface);
+
+// Usage:
+log.debug("processing input", .{});
+log.err("failed to render: {}", .{err});</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contributing Section -->
+        <section id="contributing" class="section">
+            <h1>Getting Started as a Contributor</h1>
+            <p class="lead">Ready to contribute? Here's how to get started.</p>
+
+            <h2>Development Setup</h2>
+            <div class="steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <div class="step-content">
+                        <h4>Install Zig 0.15.2+</h4>
+                        <p>Download from <a href="https://ziglang.org/download/" target="_blank">ziglang.org</a> or use your package manager.</p>
+                        <div class="code-snippet">
+                            <pre><code># macOS
+brew install zig
+
+# Check version
+zig version  # Should be 0.15.2 or higher</code></pre>
+                        </div>
+                    </div>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <div class="step-content">
+                        <h4>Clone and Build</h4>
+                        <div class="code-snippet">
+                            <pre><code>git clone https://github.com/ghostty-org/ghostty
+cd ghostty
+
+# Debug build (slow but has safety checks)
+zig build
+
+# Run directly
+zig build run
+
+# Run tests
+zig build test</code></pre>
+                        </div>
+                    </div>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <div class="step-content">
+                        <h4>Platform-Specific Notes</h4>
+                        <p><strong>macOS:</strong> Requires Xcode 26 and macOS 26 SDK (can build on macOS 15).</p>
+                        <p><strong>Linux:</strong> Install <code>blueprint-compiler</code> 0.16.0+ for GTK development.</p>
+                    </div>
+                </div>
+            </div>
+
+            <h2>Finding Issues to Work On</h2>
+            <div class="info-card">
+                <p>All issues in Ghostty are <strong>actionable</strong>. If you see an issue, it's ready to work on.</p>
+                <ul>
+                    <li><a href="https://github.com/ghostty-org/ghostty/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22contributor%20friendly%22" target="_blank">Contributor Friendly Issues</a> - Great starting points</li>
+                    <li><a href="https://github.com/ghostty-org/ghostty/issues/632" target="_blank">xterm Conformance</a> - Terminal behavior fixes</li>
+                    <li><a href="https://github.com/ghostty-org/ghostty/discussions" target="_blank">Discussions</a> - Feature discussions (issues come from approved discussions)</li>
+                </ul>
+            </div>
+
+            <h2>Useful Commands</h2>
+            <div class="code-snippet">
+                <pre><code># Build and run
+zig build run
+
+# Run with specific config
+zig build run -- --font-size=16
+
+# Run tests
+zig build test
+
+# Run specific test
+zig build test -Dtest-filter="Parser"
+
+# Check for memory leaks (Linux)
+zig build run-valgrind
+
+# Format code
+zig fmt .
+
+# Build libghostty-vt only
+zig build lib-vt</code></pre>
+            </div>
+
+            <h2>Key Files to Read First</h2>
+            <table class="files-table">
+                <thead>
+                    <tr>
+                        <th>File</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><a href="https://github.com/ghostty-org/ghostty/blob/main/CONTRIBUTING.md" target="_blank" class="gh-link"><code>CONTRIBUTING.md</code></a></td>
+                        <td>Contribution guidelines, PR process</td>
+                    </tr>
+                    <tr>
+                        <td><a href="https://github.com/ghostty-org/ghostty/blob/main/HACKING.md" target="_blank" class="gh-link"><code>HACKING.md</code></a></td>
+                        <td>Development setup, debugging tips</td>
+                    </tr>
+                    <tr>
+                        <td><a href="https://github.com/ghostty-org/ghostty/blob/main/AGENTS.md" target="_blank" class="gh-link"><code>AGENTS.md</code></a></td>
+                        <td>AI assistance guidelines</td>
+                    </tr>
+                    <tr>
+                        <td><a href="https://github.com/ghostty-org/ghostty/blob/main/src/Surface.zig" target="_blank" class="gh-link"><code>src/Surface.zig</code></a></td>
+                        <td>Core widget, start here to understand data flow</td>
+                    </tr>
+                    <tr>
+                        <td><a href="https://github.com/ghostty-org/ghostty/blob/main/src/terminal/Terminal.zig" target="_blank" class="gh-link"><code>src/terminal/Terminal.zig</code></a></td>
+                        <td>Terminal emulation logic</td>
+                    </tr>
+                    <tr>
+                        <td><a href="https://github.com/ghostty-org/ghostty/blob/main/src/terminal/Parser.zig" target="_blank" class="gh-link"><code>src/terminal/Parser.zig</code></a></td>
+                        <td>VT escape sequence parser</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>AI Assistance Disclosure</h2>
+            <div class="info-card warning">
+                <p><strong>Important:</strong> If you use AI assistance (Claude, ChatGPT, Copilot, etc.), you <strong>must</strong> disclose it in your PR. You're expected to understand the code you submit and answer questions about it.</p>
+                <p>Example disclosure: "This PR was written with Claude Code assistance. I've tested on macOS and verified the behavior."</p>
+            </div>
+
+            <h2>Resources</h2>
+            <ul class="resource-list">
+                <li><a href="https://ghostty.org/docs" target="_blank">Official Documentation</a></li>
+                <li><a href="https://discord.gg/ghostty" target="_blank">Discord Community</a></li>
+                <li><a href="https://ziglang.org/documentation/master/" target="_blank">Zig Language Reference</a></li>
+                <li><a href="https://vt100.net/emu/dec_ansi_parser" target="_blank">VT Parser State Machine</a></li>
+                <li><a href="https://invisible-island.net/xterm/ctlseqs/ctlseqs.html" target="_blank">XTerm Control Sequences</a></li>
+            </ul>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
