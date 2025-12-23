@@ -116,17 +116,17 @@
                         <div class="arch-box macos">
                             <strong>macOS</strong>
                             <span>Swift / SwiftUI / AppKit</span>
-                            <code>macos/Sources/</code>
+                            <a href="https://github.com/ghostty-org/ghostty/tree/main/macos/Sources" target="_blank" class="gh-link"><code>macos/Sources/</code></a>
                         </div>
                         <div class="arch-box linux">
                             <strong>Linux / FreeBSD</strong>
                             <span>GTK4 / libadwaita</span>
-                            <code>src/apprt/gtk/</code>
+                            <a href="https://github.com/ghostty-org/ghostty/tree/main/src/apprt/gtk" target="_blank" class="gh-link"><code>src/apprt/gtk/</code></a>
                         </div>
                         <div class="arch-box wasm">
                             <strong>Web (experimental)</strong>
                             <span>WebGL / WASM</span>
-                            <code>src/apprt/browser/</code>
+                            <a href="https://github.com/ghostty-org/ghostty/tree/main/src/apprt/browser" target="_blank" class="gh-link"><code>src/apprt/browser/</code></a>
                         </div>
                     </div>
                 </div>
@@ -137,7 +137,7 @@
                         <div class="arch-box api">
                             <strong>libghostty</strong>
                             <span>C-compatible API for embedding</span>
-                            <code>src/main_c.zig</code> + <code>include/</code>
+                            <a href="https://github.com/ghostty-org/ghostty/blob/main/src/main_c.zig" target="_blank" class="gh-link"><code>src/main_c.zig</code></a> + <a href="https://github.com/ghostty-org/ghostty/tree/main/include" target="_blank" class="gh-link"><code>include/</code></a>
                         </div>
                     </div>
                 </div>
@@ -147,19 +147,19 @@
                     <div class="arch-boxes">
                         <div class="arch-box core">
                             <strong>Terminal Emulation</strong>
-                            <code>src/terminal/</code>
+                            <a href="https://github.com/ghostty-org/ghostty/tree/main/src/terminal" target="_blank" class="gh-link"><code>src/terminal/</code></a>
                         </div>
                         <div class="arch-box core">
                             <strong>Rendering</strong>
-                            <code>src/renderer/</code>
+                            <a href="https://github.com/ghostty-org/ghostty/tree/main/src/renderer" target="_blank" class="gh-link"><code>src/renderer/</code></a>
                         </div>
                         <div class="arch-box core">
                             <strong>Font Handling</strong>
-                            <code>src/font/</code>
+                            <a href="https://github.com/ghostty-org/ghostty/tree/main/src/font" target="_blank" class="gh-link"><code>src/font/</code></a>
                         </div>
                         <div class="arch-box core">
                             <strong>I/O & PTY</strong>
-                            <code>src/termio/</code>
+                            <a href="https://github.com/ghostty-org/ghostty/tree/main/src/termio" target="_blank" class="gh-link"><code>src/termio/</code></a>
                         </div>
                     </div>
                 </div>
@@ -231,7 +231,7 @@
             <div class="component-grid">
                 <div class="component-card" id="comp-surface">
                     <h3>Surface</h3>
-                    <code class="filepath">src/Surface.zig</code>
+                    <a href="https://github.com/ghostty-org/ghostty/blob/main/src/Surface.zig" target="_blank" class="gh-link"><code class="filepath">src/Surface.zig</code></a>
                     <p>The central "widget" that represents a single terminal. It owns:</p>
                     <ul>
                         <li>Terminal I/O handler (<code>termio.Termio</code>)</li>
@@ -245,7 +245,7 @@
 
                 <div class="component-card" id="comp-terminal">
                     <h3>Terminal</h3>
-                    <code class="filepath">src/terminal/Terminal.zig</code>
+                    <a href="https://github.com/ghostty-org/ghostty/blob/main/src/terminal/Terminal.zig" target="_blank" class="gh-link"><code class="filepath">src/terminal/Terminal.zig</code></a>
                     <p>The primary terminal emulation structure. Manages:</p>
                     <ul>
                         <li>Grid of characters (cells)</li>
@@ -271,7 +271,7 @@
 
                 <div class="component-card" id="comp-parser">
                     <h3>Parser</h3>
-                    <code class="filepath">src/terminal/Parser.zig</code>
+                    <a href="https://github.com/ghostty-org/ghostty/blob/main/src/terminal/Parser.zig" target="_blank" class="gh-link"><code class="filepath">src/terminal/Parser.zig</code></a>
                     <p>VT-series parser based on the <a href="https://vt100.net/emu/dec_ansi_parser" target="_blank">vt100.net state machine</a>. Handles:</p>
                     <ul>
                         <li>ANSI escape sequences</li>
@@ -294,7 +294,7 @@
 
                 <div class="component-card" id="comp-screen">
                     <h3>Screen & PageList</h3>
-                    <code class="filepath">src/terminal/Screen.zig, src/terminal/PageList.zig</code>
+                    <a href="https://github.com/ghostty-org/ghostty/blob/main/src/terminal/Screen.zig" target="_blank" class="gh-link"><code class="filepath">src/terminal/Screen.zig</code></a>, <a href="https://github.com/ghostty-org/ghostty/blob/main/src/terminal/PageList.zig" target="_blank" class="gh-link"><code class="filepath">src/terminal/PageList.zig</code></a>
                     <p>The screen manages the visible grid and scrollback:</p>
                     <ul>
                         <li><strong>Screen:</strong> Current viewport into the scrollback</li>
@@ -306,7 +306,7 @@
 
                 <div class="component-card" id="comp-renderer">
                     <h3>Renderer</h3>
-                    <code class="filepath">src/renderer/</code>
+                    <a href="https://github.com/ghostty-org/ghostty/tree/main/src/renderer" target="_blank" class="gh-link"><code class="filepath">src/renderer/</code></a>
                     <p>Ghostty has a multi-renderer architecture:</p>
                     <table class="mini-table">
                         <tr>
@@ -327,7 +327,7 @@
 
                 <div class="component-card" id="comp-font">
                     <h3>Font System</h3>
-                    <code class="filepath">src/font/</code>
+                    <a href="https://github.com/ghostty-org/ghostty/tree/main/src/font" target="_blank" class="gh-link"><code class="filepath">src/font/</code></a>
                     <p>Comprehensive font handling:</p>
                     <ul>
                         <li><strong>Discovery:</strong> CoreText (macOS), Fontconfig (Linux)</li>
@@ -340,7 +340,7 @@
 
                 <div class="component-card" id="comp-termio">
                     <h3>Terminal I/O (termio)</h3>
-                    <code class="filepath">src/termio/</code>
+                    <a href="https://github.com/ghostty-org/ghostty/tree/main/src/termio" target="_blank" class="gh-link"><code class="filepath">src/termio/</code></a>
                     <p>Handles communication with the PTY:</p>
                     <ul>
                         <li><strong>Backend:</strong> PTY allocation and process management</li>
@@ -352,7 +352,7 @@
 
                 <div class="component-card" id="comp-config">
                     <h3>Configuration</h3>
-                    <code class="filepath">src/config/Config.zig</code>
+                    <a href="https://github.com/ghostty-org/ghostty/blob/main/src/config/Config.zig" target="_blank" class="gh-link"><code class="filepath">src/config/Config.zig</code></a>
                     <p>At ~10,000 lines, the config system is extensive:</p>
                     <ul>
                         <li>200+ configuration options</li>
@@ -526,42 +526,42 @@ window-decoration = false</code></pre>
                 <div class="library-card">
                     <h4>FreeType</h4>
                     <p>Font rasterization library. Renders font glyphs to bitmaps.</p>
-                    <code>pkg/freetype/</code>
+                    <a href="https://github.com/ghostty-org/ghostty/tree/main/pkg/freetype" target="_blank" class="gh-link"><code>pkg/freetype/</code></a>
                 </div>
                 <div class="library-card">
                     <h4>HarfBuzz</h4>
                     <p>Text shaping engine. Handles complex scripts, ligatures, and glyph positioning.</p>
-                    <code>pkg/harfbuzz/</code>
+                    <a href="https://github.com/ghostty-org/ghostty/tree/main/pkg/harfbuzz" target="_blank" class="gh-link"><code>pkg/harfbuzz/</code></a>
                 </div>
                 <div class="library-card">
                     <h4>Fontconfig</h4>
                     <p>Font configuration and discovery (Linux). Finds fonts matching descriptions.</p>
-                    <code>pkg/fontconfig/</code>
+                    <a href="https://github.com/ghostty-org/ghostty/tree/main/pkg/fontconfig" target="_blank" class="gh-link"><code>pkg/fontconfig/</code></a>
                 </div>
                 <div class="library-card">
                     <h4>Oniguruma</h4>
                     <p>Regular expression library. Used for URL detection, search, and highlighting.</p>
-                    <code>pkg/oniguruma/</code>
+                    <a href="https://github.com/ghostty-org/ghostty/tree/main/pkg/oniguruma" target="_blank" class="gh-link"><code>pkg/oniguruma/</code></a>
                 </div>
                 <div class="library-card">
                     <h4>Highway</h4>
                     <p>SIMD library. Provides portable SIMD operations for fast parsing.</p>
-                    <code>pkg/highway/</code>
+                    <a href="https://github.com/ghostty-org/ghostty/tree/main/pkg/highway" target="_blank" class="gh-link"><code>pkg/highway/</code></a>
                 </div>
                 <div class="library-card">
                     <h4>simdutf</h4>
                     <p>SIMD-accelerated Unicode validation and conversion.</p>
-                    <code>pkg/simdutf/</code>
+                    <a href="https://github.com/ghostty-org/ghostty/tree/main/pkg/simdutf" target="_blank" class="gh-link"><code>pkg/simdutf/</code></a>
                 </div>
                 <div class="library-card">
                     <h4>libpng / zlib</h4>
                     <p>PNG image handling (for Kitty graphics protocol and sixel).</p>
-                    <code>pkg/libpng/</code>, <code>pkg/zlib/</code>
+                    <a href="https://github.com/ghostty-org/ghostty/tree/main/pkg/libpng" target="_blank" class="gh-link"><code>pkg/libpng/</code></a>, <a href="https://github.com/ghostty-org/ghostty/tree/main/pkg/zlib" target="_blank" class="gh-link"><code>pkg/zlib/</code></a>
                 </div>
                 <div class="library-card">
                     <h4>Sentry</h4>
                     <p>Crash reporting SDK (optional). Users can submit crash reports.</p>
-                    <code>pkg/sentry/</code>
+                    <a href="https://github.com/ghostty-org/ghostty/tree/main/pkg/sentry" target="_blank" class="gh-link"><code>pkg/sentry/</code></a>
                 </div>
             </div>
 
@@ -570,17 +570,17 @@ window-decoration = false</code></pre>
                 <div class="library-card">
                     <h4>Metal (macOS)</h4>
                     <p>Apple's GPU API. Native, efficient rendering with direct driver access.</p>
-                    <code>src/renderer/Metal.zig</code>
+                    <a href="https://github.com/ghostty-org/ghostty/blob/main/src/renderer/Metal.zig" target="_blank" class="gh-link"><code>src/renderer/Metal.zig</code></a>
                 </div>
                 <div class="library-card">
                     <h4>OpenGL (Linux)</h4>
                     <p>OpenGL 4.3+ for Linux rendering. Works on X11 and Wayland.</p>
-                    <code>src/renderer/OpenGL.zig</code>
+                    <a href="https://github.com/ghostty-org/ghostty/blob/main/src/renderer/OpenGL.zig" target="_blank" class="gh-link"><code>src/renderer/OpenGL.zig</code></a>
                 </div>
                 <div class="library-card">
                     <h4>glslang / SPIRV-Cross</h4>
                     <p>Shader cross-compilation. Allows writing shaders once for multiple backends.</p>
-                    <code>pkg/glslang/</code>, <code>pkg/spirv-cross/</code>
+                    <a href="https://github.com/ghostty-org/ghostty/tree/main/pkg/glslang" target="_blank" class="gh-link"><code>pkg/glslang/</code></a>, <a href="https://github.com/ghostty-org/ghostty/tree/main/pkg/spirv-cross" target="_blank" class="gh-link"><code>pkg/spirv-cross/</code></a>
                 </div>
             </div>
 
@@ -909,27 +909,27 @@ zig build lib-vt</code></pre>
                 </thead>
                 <tbody>
                     <tr>
-                        <td><code>CONTRIBUTING.md</code></td>
+                        <td><a href="https://github.com/ghostty-org/ghostty/blob/main/CONTRIBUTING.md" target="_blank" class="gh-link"><code>CONTRIBUTING.md</code></a></td>
                         <td>Contribution guidelines, PR process</td>
                     </tr>
                     <tr>
-                        <td><code>HACKING.md</code></td>
+                        <td><a href="https://github.com/ghostty-org/ghostty/blob/main/HACKING.md" target="_blank" class="gh-link"><code>HACKING.md</code></a></td>
                         <td>Development setup, debugging tips</td>
                     </tr>
                     <tr>
-                        <td><code>AGENTS.md</code></td>
+                        <td><a href="https://github.com/ghostty-org/ghostty/blob/main/AGENTS.md" target="_blank" class="gh-link"><code>AGENTS.md</code></a></td>
                         <td>AI assistance guidelines</td>
                     </tr>
                     <tr>
-                        <td><code>src/Surface.zig</code></td>
+                        <td><a href="https://github.com/ghostty-org/ghostty/blob/main/src/Surface.zig" target="_blank" class="gh-link"><code>src/Surface.zig</code></a></td>
                         <td>Core widget, start here to understand data flow</td>
                     </tr>
                     <tr>
-                        <td><code>src/terminal/Terminal.zig</code></td>
+                        <td><a href="https://github.com/ghostty-org/ghostty/blob/main/src/terminal/Terminal.zig" target="_blank" class="gh-link"><code>src/terminal/Terminal.zig</code></a></td>
                         <td>Terminal emulation logic</td>
                     </tr>
                     <tr>
-                        <td><code>src/terminal/Parser.zig</code></td>
+                        <td><a href="https://github.com/ghostty-org/ghostty/blob/main/src/terminal/Parser.zig" target="_blank" class="gh-link"><code>src/terminal/Parser.zig</code></a></td>
                         <td>VT escape sequence parser</td>
                     </tr>
                 </tbody>

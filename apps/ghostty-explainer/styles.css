@@ -822,3 +822,51 @@ code {
         max-width: 100%;
     }
 }
+
+/* GitHub Links */
+.gh-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.gh-link:hover {
+    text-decoration: none;
+}
+
+.gh-link:hover code {
+    background-color: var(--accent-blue);
+    color: var(--bg-primary);
+}
+
+.gh-link code {
+    transition: all 0.2s ease;
+}
+
+/* Add GitHub icon after links */
+.gh-link::after {
+    content: "↗";
+    font-size: 0.75em;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+}
+
+.gh-link:hover::after {
+    opacity: 1;
+}
+
+/* Filepath styling in component cards */
+.component-card .gh-link {
+    display: block;
+    margin-bottom: 12px;
+}
+
+.arch-box .gh-link {
+    display: block;
+}
+
+.arch-box .gh-link code {
+    display: block;
+}
