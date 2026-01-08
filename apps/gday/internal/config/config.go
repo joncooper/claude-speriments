@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	configDir     = ".gw"
+	configDir       = ".gday"
 	credentialsFile = "credentials.json"
 	tokenFile       = "token.json"
 )

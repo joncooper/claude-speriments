@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/joncooper/gw/cmd"
+	"github.com/joncooper/gday/cmd"
 )
 
 func main() {

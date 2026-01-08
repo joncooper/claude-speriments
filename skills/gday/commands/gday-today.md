@@ -3,7 +3,7 @@
 Show the user their schedule for today. Run this command:
 
 ```bash
-gw cal today
+gday cal today
 ```
 
 Then present the results clearly:
@@ -12,4 +12,4 @@ Then present the results clearly:
 - Highlight any conflicts or back-to-back meetings
 - If there are no events, let them know they have a free day
 
-If authentication fails, guide them to run `gw auth login`.
+If authentication fails, guide them to run `gday auth login`.

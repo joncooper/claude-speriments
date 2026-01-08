@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/joncooper/gw/internal/auth"
-	gwcal "github.com/joncooper/gw/internal/calendar"
+	"github.com/joncooper/gday/internal/auth"
+	gdaycal "github.com/joncooper/gday/internal/calendar"
 	"github.com/spf13/cobra"
 )
 
@@ -24,11 +24,11 @@ var calListCmd = &cobra.Command{
 	Long: `List upcoming calendar events.
 
 Examples:
-  gw cal list                    # List next 10 events
-  gw cal list -n 20              # List next 20 events
-  gw cal list --days 30          # Events in next 30 days
-  gw cal list --calendar work    # Events from specific calendar
-  gw cal list --all-calendars    # Events from all calendars`,
+  gday cal list                    # List next 10 events
+  gday cal list -n 20              # List next 20 events
+  gday cal list --days 30          # Events in next 30 days
+  gday cal list --calendar work    # Events from specific calendar
+  gday cal list --all-calendars    # Events from all calendars`,
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
 		client, err := auth.GetClient(ctx)
@@ -36,7 +36,7 @@ Examples:
 			exitError("%v", err)
 		}
 
-		srv, err := gwcal.NewService(ctx, client)
+		srv, err := gdaycal.NewService(ctx, client)
 		if err != nil {
 			exitError("%v", err)
 		}
@@ -50,7 +50,7 @@ Examples:
 		timeMin := now
 		timeMax := now.AddDate(0, 0, days)
 
-		var events []*gwcal.Event
+		var events []*gdaycal.Event
 		if allCals {
 			events, err = srv.ListEventsFromAllCalendars(ctx, timeMin, timeMax, n)
 		} else {
@@ -58,6 +58,11 @@ Examples:
 		}
 		if err != nil {
 			exitError("%v", err)
+		}
+
+		if isJSONOutput() {
+			outputJSON(eventsToJSON(events))
+			return
 		}
 
 		if len(events) == 0 {
@@ -79,7 +84,7 @@ var calTodayCmd = &cobra.Command{
 			exitError("%v", err)
 		}
 
-		srv, err := gwcal.NewService(ctx, client)
+		srv, err := gdaycal.NewService(ctx, client)
 		if err != nil {
 			exitError("%v", err)
 		}
@@ -88,6 +93,11 @@ var calTodayCmd = &cobra.Command{
 		events, err := srv.Today(ctx, calID)
 		if err != nil {
 			exitError("%v", err)
+		}
+
+		if isJSONOutput() {
+			outputJSON(eventsToJSON(events))
+			return
 		}
 
 		if len(events) == 0 {
@@ -111,7 +121,7 @@ var calTomorrowCmd = &cobra.Command{
 			exitError("%v", err)
 		}
 
-		srv, err := gwcal.NewService(ctx, client)
+		srv, err := gdaycal.NewService(ctx, client)
 		if err != nil {
 			exitError("%v", err)
 		}
@@ -120,6 +130,11 @@ var calTomorrowCmd = &cobra.Command{
 		events, err := srv.Tomorrow(ctx, calID)
 		if err != nil {
 			exitError("%v", err)
+		}
+
+		if isJSONOutput() {
+			outputJSON(eventsToJSON(events))
+			return
 		}
 
 		if len(events) == 0 {
@@ -143,7 +158,7 @@ var calWeekCmd = &cobra.Command{
 			exitError("%v", err)
 		}
 
-		srv, err := gwcal.NewService(ctx, client)
+		srv, err := gdaycal.NewService(ctx, client)
 		if err != nil {
 			exitError("%v", err)
 		}
@@ -152,6 +167,11 @@ var calWeekCmd = &cobra.Command{
 		events, err := srv.Week(ctx, calID)
 		if err != nil {
 			exitError("%v", err)
+		}
+
+		if isJSONOutput() {
+			outputJSON(eventsToJSON(events))
+			return
 		}
 
 		if len(events) == 0 {
@@ -176,7 +196,7 @@ var calShowCmd = &cobra.Command{
 			exitError("%v", err)
 		}
 
-		srv, err := gwcal.NewService(ctx, client)
+		srv, err := gdaycal.NewService(ctx, client)
 		if err != nil {
 			exitError("%v", err)
 		}
@@ -189,6 +209,11 @@ var calShowCmd = &cobra.Command{
 			exitError("%v", err)
 		}
 
+		if isJSONOutput() {
+			outputJSON(eventToJSON(event))
+			return
+		}
+
 		printEventDetails(event)
 	},
 }
@@ -199,9 +224,9 @@ var calCreateCmd = &cobra.Command{
 	Long: `Create a new calendar event.
 
 Examples:
-  gw cal create --title "Meeting" --start "2024-01-15 14:00" --end "2024-01-15 15:00"
-  gw cal create --title "Birthday" --date "2024-01-20" --all-day
-  gw cal create --quick "Lunch with John tomorrow at noon"`,
+  gday cal create --title "Meeting" --start "2024-01-15 14:00" --end "2024-01-15 15:00"
+  gday cal create --title "Birthday" --date "2024-01-20" --all-day
+  gday cal create --quick "Lunch with John tomorrow at noon"`,
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
 		client, err := auth.GetClient(ctx)
@@ -209,7 +234,7 @@ Examples:
 			exitError("%v", err)
 		}
 
-		srv, err := gwcal.NewService(ctx, client)
+		srv, err := gdaycal.NewService(ctx, client)
 		if err != nil {
 			exitError("%v", err)
 		}
@@ -222,6 +247,10 @@ Examples:
 			event, err := srv.QuickAdd(ctx, calID, quick)
 			if err != nil {
 				exitError("%v", err)
+			}
+			if isJSONOutput() {
+				outputJSON(EventCreatedJSON{ID: event.ID, Summary: event.Summary, HtmlLink: event.HtmlLink, Status: "created"})
+				return
 			}
 			fmt.Printf("Event created: %s\n", event.Summary)
 			fmt.Printf("ID: %s\n", event.ID)
@@ -249,7 +278,7 @@ Examples:
 			exitError("--title or --quick is required")
 		}
 
-		event := &gwcal.Event{
+		event := &gdaycal.Event{
 			Summary:     title,
 			Location:    location,
 			Description: description,
@@ -295,6 +324,11 @@ Examples:
 			exitError("%v", err)
 		}
 
+		if isJSONOutput() {
+			outputJSON(EventCreatedJSON{ID: created.ID, Summary: created.Summary, HtmlLink: created.HtmlLink, Status: "created"})
+			return
+		}
+
 		fmt.Printf("Event created: %s\n", created.Summary)
 		fmt.Printf("ID: %s\n", created.ID)
 		if created.HtmlLink != "" {
@@ -314,7 +348,7 @@ var calDeleteCmd = &cobra.Command{
 			exitError("%v", err)
 		}
 
-		srv, err := gwcal.NewService(ctx, client)
+		srv, err := gdaycal.NewService(ctx, client)
 		if err != nil {
 			exitError("%v", err)
 		}
@@ -324,6 +358,11 @@ var calDeleteCmd = &cobra.Command{
 
 		if err := srv.DeleteEvent(ctx, calID, eventID); err != nil {
 			exitError("%v", err)
+		}
+
+		if isJSONOutput() {
+			outputJSON(StatusJSON{Status: "deleted", Message: "Event deleted successfully"})
+			return
 		}
 
 		fmt.Println("Event deleted")
@@ -336,8 +375,8 @@ var calSearchCmd = &cobra.Command{
 	Long: `Search for calendar events matching a query.
 
 Examples:
-  gw cal search "meeting"
-  gw cal search "John" --days 90`,
+  gday cal search "meeting"
+  gday cal search "John" --days 90`,
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
@@ -346,7 +385,7 @@ Examples:
 			exitError("%v", err)
 		}
 
-		srv, err := gwcal.NewService(ctx, client)
+		srv, err := gdaycal.NewService(ctx, client)
 		if err != nil {
 			exitError("%v", err)
 		}
@@ -363,6 +402,11 @@ Examples:
 		events, err := srv.SearchEvents(ctx, calID, query, timeMin, timeMax, n)
 		if err != nil {
 			exitError("%v", err)
+		}
+
+		if isJSONOutput() {
+			outputJSON(eventsToJSON(events))
+			return
 		}
 
 		if len(events) == 0 {
@@ -385,7 +429,7 @@ var calCalendarsCmd = &cobra.Command{
 			exitError("%v", err)
 		}
 
-		srv, err := gwcal.NewService(ctx, client)
+		srv, err := gdaycal.NewService(ctx, client)
 		if err != nil {
 			exitError("%v", err)
 		}
@@ -393,6 +437,20 @@ var calCalendarsCmd = &cobra.Command{
 		calendars, err := srv.ListCalendars(ctx)
 		if err != nil {
 			exitError("%v", err)
+		}
+
+		if isJSONOutput() {
+			jsonCals := make([]CalendarJSON, 0, len(calendars))
+			for _, c := range calendars {
+				jsonCals = append(jsonCals, CalendarJSON{
+					ID:          c.ID,
+					Summary:     c.Summary,
+					Description: c.Description,
+					Primary:     c.Primary,
+				})
+			}
+			outputJSON(CalendarsListJSON{Calendars: jsonCals})
+			return
 		}
 
 		fmt.Println("Calendars:")
@@ -456,7 +514,7 @@ func init() {
 
 // Helper functions
 
-func printEvents(events []*gwcal.Event) {
+func printEvents(events []*gdaycal.Event) {
 	currentDate := ""
 	for _, e := range events {
 		dateStr := e.Start.Format("Mon Jan 2")
@@ -479,7 +537,7 @@ func printEvents(events []*gwcal.Event) {
 	}
 }
 
-func printEventDetails(e *gwcal.Event) {
+func printEventDetails(e *gdaycal.Event) {
 	fmt.Printf("Event: %s\n", e.Summary)
 	fmt.Printf("ID: %s\n", e.ID)
 
@@ -547,4 +605,31 @@ func min(a, b int) int {
 		return a
 	}
 	return b
+}
+
+// eventToJSON converts a calendar.Event to EventJSON
+func eventToJSON(e *gdaycal.Event) EventJSON {
+	return EventJSON{
+		ID:          e.ID,
+		CalendarID:  e.CalendarID,
+		Summary:     e.Summary,
+		Description: e.Description,
+		Location:    e.Location,
+		Start:       e.Start,
+		End:         e.End,
+		AllDay:      e.AllDay,
+		Attendees:   e.Attendees,
+		Status:      e.Status,
+		HtmlLink:    e.HtmlLink,
+		Recurring:   e.Recurring,
+	}
+}
+
+// eventsToJSON converts a slice of events to JSON format
+func eventsToJSON(events []*gdaycal.Event) EventsListJSON {
+	jsonEvents := make([]EventJSON, 0, len(events))
+	for _, e := range events {
+		jsonEvents = append(jsonEvents, eventToJSON(e))
+	}
+	return EventsListJSON{Count: len(jsonEvents), Events: jsonEvents}
 }

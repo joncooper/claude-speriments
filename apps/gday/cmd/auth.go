@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/joncooper/gw/internal/auth"
-	"github.com/joncooper/gw/internal/config"
+	"github.com/joncooper/gday/internal/auth"
+	"github.com/joncooper/gday/internal/config"
 	"github.com/spf13/cobra"
 )
 
@@ -21,7 +21,7 @@ var authCmd = &cobra.Command{
 var authSetupCmd = &cobra.Command{
 	Use:   "setup",
 	Short: "Configure OAuth credentials",
-	Long: `Configure OAuth credentials for gw.
+	Long: `Configure OAuth credentials for gday.
 
 You need to create OAuth2 credentials in Google Cloud Console:
 
@@ -83,23 +83,39 @@ Then run this command and paste the contents of the credentials file.`,
 
 		configDir, _ := config.GetConfigDir()
 		fmt.Printf("\nCredentials saved to %s/credentials.json\n", configDir)
-		fmt.Println("\nNext, run 'gw auth login' to authenticate with Google.")
+		fmt.Println("\nNext, run 'gday auth login' to authenticate with Google.")
 	},
 }
 
 var authLoginCmd = &cobra.Command{
 	Use:   "login",
 	Short: "Login with Google account",
-	Long:  `Authenticate with Google using OAuth2 flow.`,
+	Long: `Authenticate with Google using OAuth2 flow.
+
+By default, opens a browser for authentication. Use --device for
+headless environments (SSH, containers) where no browser is available.
+
+Examples:
+  gday auth login           # Browser-based authentication
+  gday auth login --device  # Device flow for headless environments`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if !config.CredentialsExist() {
 			fmt.Println("Error: OAuth credentials not configured")
-			fmt.Println("\nRun 'gw auth setup' first to configure credentials")
+			fmt.Println("\nRun 'gday auth setup' first to configure credentials")
 			os.Exit(1)
 		}
 
 		ctx := context.Background()
-		if err := auth.Login(ctx); err != nil {
+		device, _ := cmd.Flags().GetBool("device")
+
+		var err error
+		if device {
+			err = auth.LoginDevice(ctx)
+		} else {
+			err = auth.Login(ctx)
+		}
+
+		if err != nil {
 			fmt.Printf("Error: %v\n", err)
 			os.Exit(1)
 		}
@@ -131,4 +147,7 @@ func init() {
 	authCmd.AddCommand(authLoginCmd)
 	authCmd.AddCommand(authLogoutCmd)
 	authCmd.AddCommand(authStatusCmd)
+
+	// Login flags
+	authLoginCmd.Flags().Bool("device", false, "Use device flow for headless environments (SSH, containers)")
 }

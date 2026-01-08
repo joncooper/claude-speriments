@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/joncooper/gw/internal/auth"
-	gwgmail "github.com/joncooper/gw/internal/gmail"
+	"github.com/joncooper/gday/internal/auth"
+	gdaygmail "github.com/joncooper/gday/internal/gmail"
 	"github.com/spf13/cobra"
 )
 
@@ -26,9 +26,10 @@ var mailListCmd = &cobra.Command{
 	Long: `List recent emails from your inbox.
 
 Examples:
-  gw mail list              # List 10 recent emails
-  gw mail list -n 25        # List 25 recent emails
-  gw mail list --unread     # List only unread emails`,
+  gday mail list              # List 10 recent emails
+  gday mail list -n 25        # List 25 recent emails
+  gday mail list --unread     # List only unread emails
+  gday mail list --json       # Output as JSON`,
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
 		client, err := auth.GetClient(ctx)
@@ -36,7 +37,7 @@ Examples:
 			exitError("%v", err)
 		}
 
-		srv, err := gwgmail.NewService(ctx, client)
+		srv, err := gdaygmail.NewService(ctx, client)
 		if err != nil {
 			exitError("%v", err)
 		}
@@ -53,6 +54,15 @@ Examples:
 		messages, err := srv.ListMessages(ctx, n, query, labels)
 		if err != nil {
 			exitError("%v", err)
+		}
+
+		if isJSONOutput() {
+			jsonMsgs := make([]MessageJSON, 0, len(messages))
+			for _, m := range messages {
+				jsonMsgs = append(jsonMsgs, messageToJSON(m))
+			}
+			outputJSON(MessagesListJSON{Count: len(jsonMsgs), Messages: jsonMsgs})
+			return
 		}
 
 		if len(messages) == 0 {
@@ -81,8 +91,9 @@ var mailReadCmd = &cobra.Command{
 	Long: `Read the contents of an email.
 
 Examples:
-  gw mail read abc123def456     # Read message by ID
-  gw mail read abc123 --raw     # Show raw message without formatting`,
+  gday mail read abc123def456     # Read message by ID
+  gday mail read abc123 --raw     # Show raw message without formatting
+  gday mail read abc123 --json    # Output as JSON`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
@@ -91,7 +102,7 @@ Examples:
 			exitError("%v", err)
 		}
 
-		srv, err := gwgmail.NewService(ctx, client)
+		srv, err := gdaygmail.NewService(ctx, client)
 		if err != nil {
 			exitError("%v", err)
 		}
@@ -103,6 +114,14 @@ Examples:
 		msg, err := srv.GetMessage(ctx, messageID, true)
 		if err != nil {
 			exitError("%v", err)
+		}
+
+		if isJSONOutput() {
+			outputJSON(messageToJSON(msg))
+			if markRead && msg.IsUnread {
+				srv.MarkAsRead(ctx, messageID)
+			}
+			return
 		}
 
 		if raw {
@@ -133,7 +152,8 @@ var mailThreadCmd = &cobra.Command{
 	Long: `Read all messages in a thread.
 
 Examples:
-  gw mail thread abc123def456   # Read all messages in thread`,
+  gday mail thread abc123def456   # Read all messages in thread
+  gday mail thread abc123 --json  # Output as JSON`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
@@ -142,7 +162,7 @@ Examples:
 			exitError("%v", err)
 		}
 
-		srv, err := gwgmail.NewService(ctx, client)
+		srv, err := gdaygmail.NewService(ctx, client)
 		if err != nil {
 			exitError("%v", err)
 		}
@@ -151,6 +171,15 @@ Examples:
 		messages, err := srv.GetThread(ctx, threadID)
 		if err != nil {
 			exitError("%v", err)
+		}
+
+		if isJSONOutput() {
+			jsonMsgs := make([]MessageJSON, 0, len(messages))
+			for _, m := range messages {
+				jsonMsgs = append(jsonMsgs, messageToJSON(m))
+			}
+			outputJSON(ThreadJSON{ThreadID: threadID, Count: len(jsonMsgs), Messages: jsonMsgs})
+			return
 		}
 
 		fmt.Printf("Thread: %s (%d messages)\n", threadID, len(messages))
@@ -171,10 +200,11 @@ var mailSearchCmd = &cobra.Command{
 	Long: `Search emails using Gmail search syntax.
 
 Examples:
-  gw mail search "from:boss@company.com"
-  gw mail search "subject:urgent is:unread"
-  gw mail search "has:attachment larger:5M"
-  gw mail search "after:2024/01/01 before:2024/02/01"`,
+  gday mail search "from:boss@company.com"
+  gday mail search "subject:urgent is:unread"
+  gday mail search "has:attachment larger:5M"
+  gday mail search "after:2024/01/01 before:2024/02/01"
+  gday mail search "from:boss" --json`,
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
@@ -183,7 +213,7 @@ Examples:
 			exitError("%v", err)
 		}
 
-		srv, err := gwgmail.NewService(ctx, client)
+		srv, err := gdaygmail.NewService(ctx, client)
 		if err != nil {
 			exitError("%v", err)
 		}
@@ -194,6 +224,15 @@ Examples:
 		messages, err := srv.SearchMessages(ctx, query, n)
 		if err != nil {
 			exitError("%v", err)
+		}
+
+		if isJSONOutput() {
+			jsonMsgs := make([]MessageJSON, 0, len(messages))
+			for _, m := range messages {
+				jsonMsgs = append(jsonMsgs, messageToJSON(m))
+			}
+			outputJSON(SearchResultJSON{Query: query, Count: len(jsonMsgs), Messages: jsonMsgs})
+			return
 		}
 
 		if len(messages) == 0 {
@@ -223,9 +262,9 @@ var mailSendCmd = &cobra.Command{
 	Long: `Send a new email.
 
 Examples:
-  gw mail send --to user@example.com --subject "Hello" --body "Hi there"
-  gw mail send --to user@example.com --subject "Hello" --body-file message.txt
-  echo "Message" | gw mail send --to user@example.com --subject "Hello" --body-stdin`,
+  gday mail send --to user@example.com --subject "Hello" --body "Hi there"
+  gday mail send --to user@example.com --subject "Hello" --body-file message.txt
+  echo "Message" | gday mail send --to user@example.com --subject "Hello" --body-stdin`,
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
 		client, err := auth.GetClient(ctx)
@@ -233,7 +272,7 @@ Examples:
 			exitError("%v", err)
 		}
 
-		srv, err := gwgmail.NewService(ctx, client)
+		srv, err := gdaygmail.NewService(ctx, client)
 		if err != nil {
 			exitError("%v", err)
 		}
@@ -279,11 +318,19 @@ Examples:
 			if err != nil {
 				exitError("%v", err)
 			}
+			if isJSONOutput() {
+				outputJSON(SendResultJSON{MessageID: id, Status: "draft_created"})
+				return
+			}
 			fmt.Printf("Draft created: %s\n", id)
 		} else {
 			msg, err := srv.SendMessage(ctx, to, subject, body, cc, bcc)
 			if err != nil {
 				exitError("%v", err)
+			}
+			if isJSONOutput() {
+				outputJSON(SendResultJSON{MessageID: msg.ID, Status: "sent"})
+				return
 			}
 			fmt.Printf("Message sent: %s\n", msg.ID)
 		}
@@ -296,8 +343,8 @@ var mailReplyCmd = &cobra.Command{
 	Long: `Reply to an existing email.
 
 Examples:
-  gw mail reply abc123 --body "Thanks for your message"
-  gw mail reply abc123 --body-file reply.txt`,
+  gday mail reply abc123 --body "Thanks for your message"
+  gday mail reply abc123 --body-file reply.txt`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
@@ -306,7 +353,7 @@ Examples:
 			exitError("%v", err)
 		}
 
-		srv, err := gwgmail.NewService(ctx, client)
+		srv, err := gdaygmail.NewService(ctx, client)
 		if err != nil {
 			exitError("%v", err)
 		}
@@ -340,6 +387,10 @@ Examples:
 		if err != nil {
 			exitError("%v", err)
 		}
+		if isJSONOutput() {
+			outputJSON(SendResultJSON{MessageID: msg.ID, Status: "sent"})
+			return
+		}
 		fmt.Printf("Reply sent: %s\n", msg.ID)
 	},
 }
@@ -350,9 +401,9 @@ var mailAttachmentCmd = &cobra.Command{
 	Long: `Download attachments from an email.
 
 Examples:
-  gw mail attachment abc123           # List attachments in message
-  gw mail attachment abc123 att456    # Download specific attachment
-  gw mail attachment abc123 --all     # Download all attachments`,
+  gday mail attachment abc123           # List attachments in message
+  gday mail attachment abc123 att456    # Download specific attachment
+  gday mail attachment abc123 --all     # Download all attachments`,
 	Args: cobra.RangeArgs(1, 2),
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
@@ -361,7 +412,7 @@ Examples:
 			exitError("%v", err)
 		}
 
-		srv, err := gwgmail.NewService(ctx, client)
+		srv, err := gdaygmail.NewService(ctx, client)
 		if err != nil {
 			exitError("%v", err)
 		}
@@ -382,6 +433,22 @@ Examples:
 
 		// List attachments if no specific one requested
 		if len(args) == 1 && !downloadAll {
+			if isJSONOutput() {
+				jsonAtts := make([]AttachmentJSON, 0, len(msg.Attachments))
+				for _, att := range msg.Attachments {
+					jsonAtts = append(jsonAtts, AttachmentJSON{
+						ID:       att.ID,
+						Filename: att.Filename,
+						MimeType: att.MimeType,
+						Size:     att.Size,
+					})
+				}
+				outputJSON(struct {
+					MessageID   string           `json:"message_id"`
+					Attachments []AttachmentJSON `json:"attachments"`
+				}{MessageID: messageID, Attachments: jsonAtts})
+				return
+			}
 			fmt.Printf("Attachments in message %s:\n\n", messageID)
 			for _, att := range msg.Attachments {
 				fmt.Printf("  %s  %-30s  %s  %d bytes\n",
@@ -390,8 +457,8 @@ Examples:
 					att.MimeType,
 					att.Size)
 			}
-			fmt.Println("\nUse 'gw mail attachment <message-id> <attachment-id>' to download")
-			fmt.Println("Or 'gw mail attachment <message-id> --all' to download all")
+			fmt.Println("\nUse 'gday mail attachment <message-id> <attachment-id>' to download")
+			fmt.Println("Or 'gday mail attachment <message-id> --all' to download all")
 			return
 		}
 
@@ -432,7 +499,7 @@ var mailLabelsCmd = &cobra.Command{
 			exitError("%v", err)
 		}
 
-		srv, err := gwgmail.NewService(ctx, client)
+		srv, err := gdaygmail.NewService(ctx, client)
 		if err != nil {
 			exitError("%v", err)
 		}
@@ -440,6 +507,11 @@ var mailLabelsCmd = &cobra.Command{
 		labels, err := srv.GetLabels(ctx)
 		if err != nil {
 			exitError("%v", err)
+		}
+
+		if isJSONOutput() {
+			outputJSON(LabelsJSON{Labels: labels})
+			return
 		}
 
 		fmt.Println("Labels:")
@@ -516,7 +588,7 @@ func formatDate(t time.Time) string {
 	return t.Format("Jan 2, 2006")
 }
 
-func printFormattedMessage(msg *gwgmail.Message) {
+func printFormattedMessage(msg *gdaygmail.Message) {
 	fmt.Printf("From: %s\n", msg.From)
 	fmt.Printf("To: %s\n", msg.To)
 	fmt.Printf("Date: %s\n", msg.Date.Format("Mon, Jan 2, 2006 at 3:04 PM"))
@@ -531,4 +603,31 @@ func printFormattedMessage(msg *gwgmail.Message) {
 
 	fmt.Println("\n" + strings.Repeat("-", 60) + "\n")
 	fmt.Println(msg.Body)
+}
+
+// messageToJSON converts a gmail.Message to MessageJSON
+func messageToJSON(m *gdaygmail.Message) MessageJSON {
+	var attachments []AttachmentJSON
+	for _, att := range m.Attachments {
+		attachments = append(attachments, AttachmentJSON{
+			ID:       att.ID,
+			Filename: att.Filename,
+			MimeType: att.MimeType,
+			Size:     att.Size,
+		})
+	}
+
+	return MessageJSON{
+		ID:          m.ID,
+		ThreadID:    m.ThreadID,
+		Date:        m.Date,
+		From:        m.From,
+		To:          m.To,
+		Subject:     m.Subject,
+		Snippet:     m.Snippet,
+		Body:        m.Body,
+		Labels:      m.Labels,
+		IsUnread:    m.IsUnread,
+		Attachments: attachments,
+	}
 }

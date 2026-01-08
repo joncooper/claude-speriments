@@ -3,7 +3,7 @@
 Check the user's recent unread emails. Run this command:
 
 ```bash
-gw mail list --unread -n 15
+gday mail list --unread -n 15
 ```
 
 Then summarize the results:
@@ -13,4 +13,4 @@ Then summarize the results:
 
 If there are no unread emails, let the user know their inbox is clear.
 
-If authentication fails, guide them to run `gw auth login`.
+If authentication fails, guide them to run `gday auth login`.

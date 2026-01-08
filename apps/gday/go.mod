@@ -1,4 +1,4 @@
-module github.com/joncooper/gw
+module github.com/joncooper/gday
 
 go 1.24.7
 
