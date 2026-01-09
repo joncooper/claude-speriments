@@ -1,3 +1,8 @@
+---
+name: gday
+description: Gmail and Google Calendar CLI for checking inbox, reading/sending emails, viewing calendar events, and creating meetings
+---
+
 # gday - Gmail & Google Calendar CLI
 
 Use this skill when users ask about their Gmail or Google Calendar. This includes:
@@ -10,15 +15,12 @@ Use this skill when users ask about their Gmail or Google Calendar. This include
 
 ## Prerequisites
 
-The `gday` CLI must be built and available. Build it with:
-```bash
-cd /home/user/claude-speriments/apps/gday && go build -o gday .
-```
+The `gday` CLI is installed at `~/.local/bin/gday`.
 
 The user must have authenticated:
 ```bash
-./gday auth status  # Check if authenticated
-./gday auth login   # Authenticate if needed
+gday auth status  # Check if authenticated
+gday auth login   # Authenticate if needed
 ```
 
 ## Gmail Commands
