@@ -466,7 +466,7 @@ function renderPreview(): string {
 
   const renderPreviewEntry = (entry: Entry): string => {
     return `
-      <div class="preview-entry" style="margin-bottom: ${spacing.entryGap}px;">
+      <div class="preview-entry" data-entry-id="${entry.id}" style="margin-bottom: ${spacing.entryGap}px;">
         <div class="preview-entry-header">
           <div class="preview-entry-left">
             <div class="preview-org" style="font-weight: 600;">${escapeHtml(entry.organization)}</div>
@@ -973,6 +973,66 @@ function setupEventDelegation(): void {
 
     store.updateStyleSettings(updates);
   });
+
+  // Preview-Editor Sync Highlighting
+  // When hovering over an entry row, highlight the corresponding preview entry
+  app.addEventListener('mouseenter', (e) => {
+    const target = e.target as HTMLElement;
+
+    // Check if we're entering an entry row
+    const entryRow = target.closest('.entry-row') as HTMLElement | null;
+    if (entryRow) {
+      const entryId = entryRow.dataset.entryId;
+      if (entryId) {
+        // Highlight the corresponding preview entry
+        const previewEntry = document.querySelector(`.preview-entry[data-entry-id="${entryId}"]`);
+        if (previewEntry) {
+          previewEntry.classList.add('sync-highlight');
+        }
+      }
+    }
+
+    // Check if we're entering a preview entry
+    const previewEntry = target.closest('.preview-entry') as HTMLElement | null;
+    if (previewEntry) {
+      const entryId = previewEntry.dataset.entryId;
+      if (entryId) {
+        // Highlight the corresponding entry row
+        const entryRowToHighlight = document.querySelector(`.entry-row[data-entry-id="${entryId}"]`);
+        if (entryRowToHighlight) {
+          entryRowToHighlight.classList.add('sync-highlight');
+        }
+      }
+    }
+  }, true);
+
+  app.addEventListener('mouseleave', (e) => {
+    const target = e.target as HTMLElement;
+
+    // Check if we're leaving an entry row
+    const entryRow = target.closest('.entry-row') as HTMLElement | null;
+    if (entryRow) {
+      const entryId = entryRow.dataset.entryId;
+      if (entryId) {
+        const previewEntry = document.querySelector(`.preview-entry[data-entry-id="${entryId}"]`);
+        if (previewEntry) {
+          previewEntry.classList.remove('sync-highlight');
+        }
+      }
+    }
+
+    // Check if we're leaving a preview entry
+    const previewEntry = target.closest('.preview-entry') as HTMLElement | null;
+    if (previewEntry) {
+      const entryId = previewEntry.dataset.entryId;
+      if (entryId) {
+        const entryRowToRemove = document.querySelector(`.entry-row[data-entry-id="${entryId}"]`);
+        if (entryRowToRemove) {
+          entryRowToRemove.classList.remove('sync-highlight');
+        }
+      }
+    }
+  }, true);
 }
 
 // ============================================================================

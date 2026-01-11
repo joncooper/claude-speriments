@@ -559,9 +559,29 @@ html, body {
 .column-metadata { flex: 0 0 var(--col-metadata-width); }
 .column-content { flex: 1; background: var(--color-bg-primary) !important; }
 
+/* Column transitions for smooth collapse/expand */
+.column-employer,
+.column-role,
+.column-metadata,
+.column-content {
+  transition:
+    flex var(--transition-slow) var(--easing-standard),
+    width var(--transition-slow) var(--easing-standard),
+    padding var(--transition-slow) var(--easing-standard),
+    opacity var(--transition-normal) var(--easing-standard);
+  overflow: hidden;
+}
+
 .column-collapsed {
   flex: 0 0 var(--col-collapsed-width) !important;
   padding: var(--spacing-md) var(--spacing-xs) !important;
+}
+
+/* Hide input contents when collapsed with fade */
+.column-collapsed input {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-fast);
 }
 
 .column-handle {
@@ -831,6 +851,22 @@ html, body {
 
 .preview-entry {
   margin-bottom: 12px;
+  padding: 4px 8px;
+  margin-left: -8px;
+  margin-right: -8px;
+  border-radius: 4px;
+  transition: background-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+/* Preview-Editor Sync Highlighting */
+.preview-entry.sync-highlight {
+  background-color: rgba(37, 99, 235, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.2);
+}
+
+.entry-row.sync-highlight {
+  background-color: rgba(37, 99, 235, 0.04);
+  box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.15);
 }
 
 .preview-entry-header {
