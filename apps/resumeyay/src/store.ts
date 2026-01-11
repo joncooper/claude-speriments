@@ -38,6 +38,81 @@ export function createEntry(): Entry {
   };
 }
 
+// Entry templates for quick start
+export type EntryTemplate = 'blank' | 'software-engineer' | 'product-manager' | 'education' | 'project';
+
+export function createTemplatedEntry(template: EntryTemplate): Entry {
+  const id = uuidv4();
+
+  switch (template) {
+    case 'software-engineer':
+      return {
+        id,
+        organization: '',
+        role: 'Software Engineer',
+        dateStart: '',
+        dateEnd: 'Present',
+        location: '',
+        content: [
+          createContentNode('Led development of [feature/system] resulting in [metric] improvement'),
+          createContentNode('Built [technology] system handling [scale] requests/users'),
+          createContentNode('Collaborated with [teams] to deliver [project] on time'),
+          createContentNode('Mentored [number] junior developers and conducted code reviews'),
+        ],
+      };
+
+    case 'product-manager':
+      return {
+        id,
+        organization: '',
+        role: 'Product Manager',
+        dateStart: '',
+        dateEnd: 'Present',
+        location: '',
+        content: [
+          createContentNode('Defined product roadmap for [product] serving [user count] users'),
+          createContentNode('Increased [metric] by [percentage] through [initiative]'),
+          createContentNode('Led cross-functional team of [number] across engineering, design, and marketing'),
+          createContentNode('Conducted user research with [number]+ customers to inform product decisions'),
+        ],
+      };
+
+    case 'education':
+      return {
+        id,
+        organization: '',
+        role: '',
+        dateStart: '',
+        dateEnd: '',
+        location: '',
+        content: [
+          createContentNode('GPA: X.X/4.0'),
+          createContentNode('Relevant coursework: [courses]'),
+          createContentNode('Activities: [clubs, organizations]'),
+        ],
+      };
+
+    case 'project':
+      return {
+        id,
+        organization: '',
+        role: '',
+        dateStart: '',
+        dateEnd: '',
+        location: 'github.com/username/project',
+        content: [
+          createContentNode('Built [project type] using [technologies]'),
+          createContentNode('[Key feature] enabling users to [benefit]'),
+          createContentNode('[Metric] users/downloads/stars'),
+        ],
+      };
+
+    case 'blank':
+    default:
+      return createEntry();
+  }
+}
+
 // Create a default section
 export function createSection(type: Section['type'] = 'experience', title: string = 'Experience'): Section {
   return {
@@ -272,6 +347,7 @@ class Store {
   private saveResume(): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state.resume));
     this.state.resume.updatedAt = new Date().toISOString();
+    this.notifySave();
   }
 
   private saveStyles(): void {
@@ -552,6 +628,19 @@ class Store {
     return newEntry.id;
   }
 
+  addTemplatedEntry(sectionId: string, template: EntryTemplate): string {
+    this.pushUndo();
+    const newEntry = createTemplatedEntry(template);
+
+    const section = this.state.resume.sections.find(s => s.id === sectionId);
+    if (section) {
+      section.entries.push(newEntry);
+      this.saveResume();
+      this.notify();
+    }
+    return newEntry.id;
+  }
+
   deleteEntry(sectionId: string, entryId: string): void {
     this.pushUndo();
 
@@ -564,6 +653,45 @@ class Store {
         this.notify();
       }
     }
+  }
+
+  duplicateEntry(sectionId: string, entryId: string): string | null {
+    this.pushUndo();
+
+    const section = this.state.resume.sections.find(s => s.id === sectionId);
+    if (section) {
+      const entry = section.entries.find(e => e.id === entryId);
+      if (entry) {
+        // Deep clone the entry with new IDs
+        const cloneContent = (nodes: ContentNode[]): ContentNode[] => {
+          return nodes.map(node => ({
+            id: uuidv4(),
+            text: node.text,
+            children: cloneContent(node.children),
+            collapsed: node.collapsed,
+          }));
+        };
+
+        const newEntry: Entry = {
+          id: uuidv4(),
+          organization: entry.organization,
+          role: entry.role,
+          dateStart: entry.dateStart,
+          dateEnd: entry.dateEnd,
+          location: entry.location,
+          content: cloneContent(entry.content),
+        };
+
+        // Insert after the original
+        const index = section.entries.findIndex(e => e.id === entryId);
+        section.entries.splice(index + 1, 0, newEntry);
+
+        this.saveResume();
+        this.notify();
+        return newEntry.id;
+      }
+    }
+    return null;
   }
 
   moveEntry(sectionId: string, entryId: string, direction: 'up' | 'down'): void {
@@ -795,6 +923,57 @@ class Store {
     this.state.resume = createEmptyResume();
     this.saveResume();
     this.notify();
+  }
+
+  // Export resume as JSON
+  exportJSON(): string {
+    return JSON.stringify({
+      resume: this.state.resume,
+      styleSettings: this.state.styleSettings,
+      exportedAt: new Date().toISOString(),
+      version: '1.0',
+    }, null, 2);
+  }
+
+  // Import resume from JSON
+  importJSON(json: string): boolean {
+    try {
+      const data = JSON.parse(json);
+
+      if (!data.resume || !data.resume.id || !data.resume.header || !data.resume.sections) {
+        throw new Error('Invalid resume data format');
+      }
+
+      this.pushUndo();
+      this.state.resume = data.resume;
+
+      if (data.styleSettings) {
+        this.state.styleSettings = {
+          ...this.state.styleSettings,
+          ...data.styleSettings,
+        };
+        this.saveStyles();
+      }
+
+      this.saveResume();
+      this.notify();
+      return true;
+    } catch (error) {
+      console.error('Import failed:', error);
+      return false;
+    }
+  }
+
+  // Subscribe to save events
+  private saveListeners: Set<() => void> = new Set();
+
+  onSave(listener: () => void): () => void {
+    this.saveListeners.add(listener);
+    return () => this.saveListeners.delete(listener);
+  }
+
+  private notifySave(): void {
+    this.saveListeners.forEach(listener => listener());
   }
 }
 

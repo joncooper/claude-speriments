@@ -1,4 +1,4 @@
-import { store } from './store';
+import { store, type EntryTemplate } from './store';
 import type { Entry, Section, ContentNode, FocusMode, ColumnConfig, StyleSettings } from './types';
 import './style.css';
 
@@ -131,9 +131,63 @@ function truncateText(text: string, maxLength: number): string {
 // KEYBOARD HANDLING
 // ============================================================================
 
+// Helper to find section ID for an entry
+function findSectionForEntry(entryId: string): string | null {
+  const state = store.getState();
+  for (const section of state.resume.sections) {
+    if (section.entries.some(e => e.id === entryId)) {
+      return section.id;
+    }
+  }
+  return null;
+}
+
+// Helper to get all bullets in order for an entry
+function getAllBulletsInOrder(entryId: string): string[] {
+  const state = store.getState();
+  const bullets: string[] = [];
+
+  for (const section of state.resume.sections) {
+    const entry = section.entries.find(e => e.id === entryId);
+    if (entry) {
+      const collectBullets = (nodes: ContentNode[]) => {
+        for (const node of nodes) {
+          bullets.push(node.id);
+          collectBullets(node.children);
+        }
+      };
+      collectBullets(entry.content);
+      break;
+    }
+  }
+  return bullets;
+}
+
+// Helper to get all entries in order
+function getAllEntriesInOrder(): Array<{ entryId: string; sectionId: string }> {
+  const state = store.getState();
+  const entries: Array<{ entryId: string; sectionId: string }> = [];
+
+  for (const section of state.resume.sections) {
+    for (const entry of section.entries) {
+      entries.push({ entryId: entry.id, sectionId: section.id });
+    }
+  }
+  return entries;
+}
+
 function setupKeyboardShortcuts(): void {
   document.addEventListener('keydown', (e) => {
     const state = store.getState();
+
+    // Escape to blur and deselect
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      (document.activeElement as HTMLElement)?.blur();
+      store.setActiveEntry(null);
+      store.setActiveBullet(null);
+      return;
+    }
 
     // Cmd/Ctrl + number for focus modes
     if ((e.metaKey || e.ctrlKey) && !e.shiftKey) {
@@ -162,6 +216,50 @@ function setupKeyboardShortcuts(): void {
           e.preventDefault();
           store.undo();
           return;
+        case 'd':
+        case 'D':
+          // Cmd+D to duplicate entry
+          if (state.activeEntryId) {
+            e.preventDefault();
+            const sectionId = findSectionForEntry(state.activeEntryId);
+            if (sectionId) {
+              const newId = store.duplicateEntry(sectionId, state.activeEntryId);
+              if (newId) {
+                store.setActiveEntry(newId);
+              }
+            }
+          }
+          return;
+        case 'Backspace':
+          // Cmd+Backspace to delete entry
+          if (state.activeEntryId && !document.activeElement?.matches('input')) {
+            e.preventDefault();
+            const sectionId = findSectionForEntry(state.activeEntryId);
+            if (sectionId && confirm('Delete this entry?')) {
+              store.deleteEntry(sectionId, state.activeEntryId);
+              store.setActiveEntry(null);
+            }
+          }
+          return;
+        case 'Enter':
+          // Cmd+Enter to add new entry after current
+          if (state.activeEntryId) {
+            e.preventDefault();
+            const sectionId = findSectionForEntry(state.activeEntryId);
+            if (sectionId) {
+              const newId = store.addEntry(sectionId, state.activeEntryId);
+              if (newId) {
+                store.setActiveEntry(newId);
+                // Focus the first field of the new entry
+                setTimeout(() => {
+                  const newRow = document.querySelector(`.entry-row[data-entry-id="${newId}"]`);
+                  const firstInput = newRow?.querySelector('input') as HTMLInputElement;
+                  if (firstInput) firstInput.focus();
+                }, 50);
+              }
+            }
+          }
+          return;
       }
     }
 
@@ -181,11 +279,53 @@ function setupKeyboardShortcuts(): void {
       }
     }
 
+    // Arrow key navigation (without Cmd/Ctrl)
+    if (!e.metaKey && !e.ctrlKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+      const activeEl = document.activeElement;
+
+      // Navigate between bullets
+      if (activeEl?.classList.contains('bullet-input') && state.activeEntryId && state.activeBulletId) {
+        const bullets = getAllBulletsInOrder(state.activeEntryId);
+        const currentIndex = bullets.indexOf(state.activeBulletId);
+
+        if (currentIndex !== -1) {
+          const nextIndex = e.key === 'ArrowUp' ? currentIndex - 1 : currentIndex + 1;
+
+          if (nextIndex >= 0 && nextIndex < bullets.length) {
+            e.preventDefault();
+            const nextBulletId = bullets[nextIndex];
+            store.setActiveBullet(nextBulletId);
+            setTimeout(() => {
+              const nextInput = document.querySelector(`.bullet-input[data-bullet-id="${nextBulletId}"]`) as HTMLInputElement;
+              if (nextInput) nextInput.focus();
+            }, 0);
+            return;
+          }
+        }
+      }
+
+      // Navigate between entries when not in an input
+      if (!activeEl?.matches('input') && state.activeEntryId) {
+        const entries = getAllEntriesInOrder();
+        const currentIndex = entries.findIndex(e => e.entryId === state.activeEntryId);
+
+        if (currentIndex !== -1) {
+          const nextIndex = e.key === 'ArrowUp' ? currentIndex - 1 : currentIndex + 1;
+
+          if (nextIndex >= 0 && nextIndex < entries.length) {
+            e.preventDefault();
+            store.setActiveEntry(entries[nextIndex].entryId);
+            return;
+          }
+        }
+      }
+    }
+
     // Handle bullet-specific shortcuts
     const activeBulletId = state.activeBulletId;
     const activeEntryId = state.activeEntryId;
     if (activeBulletId && activeEntryId) {
-      const bulletInput = document.querySelector(`[data-bullet-id="${activeBulletId}"] input`) as HTMLInputElement;
+      const bulletInput = document.querySelector(`.bullet-input[data-bullet-id="${activeBulletId}"]`) as HTMLInputElement;
       if (bulletInput && document.activeElement === bulletInput) {
         // Tab to indent
         if (e.key === 'Tab' && !e.shiftKey) {
@@ -206,7 +346,7 @@ function setupKeyboardShortcuts(): void {
           if (newId) {
             store.setActiveBullet(newId);
             setTimeout(() => {
-              const newInput = document.querySelector(`[data-bullet-id="${newId}"] input`) as HTMLInputElement;
+              const newInput = document.querySelector(`.bullet-input[data-bullet-id="${newId}"]`) as HTMLInputElement;
               if (newInput) newInput.focus();
             }, 50);
           }
@@ -225,7 +365,7 @@ function setupKeyboardShortcuts(): void {
           if (prevId) {
             store.setActiveBullet(prevId);
             setTimeout(() => {
-              const prevInput = document.querySelector(`[data-bullet-id="${prevId}"] input`) as HTMLInputElement;
+              const prevInput = document.querySelector(`.bullet-input[data-bullet-id="${prevId}"]`) as HTMLInputElement;
               if (prevInput) {
                 prevInput.focus();
                 prevInput.setSelectionRange(prevInput.value.length, prevInput.value.length);
@@ -384,7 +524,16 @@ function renderSection(section: Section): string {
                  placeholder="Section Title" data-field="section.title" />
         </h2>
         <div class="section-actions">
-          <button class="btn-add-entry" data-section-id="${section.id}">+ Add Entry</button>
+          <div class="add-entry-dropdown">
+            <button class="btn-add-entry" data-section-id="${section.id}">+ Add Entry</button>
+            <div class="template-dropdown" data-section-id="${section.id}">
+              <button class="template-option" data-template="blank">Blank Entry</button>
+              <button class="template-option" data-template="software-engineer">Software Engineer</button>
+              <button class="template-option" data-template="product-manager">Product Manager</button>
+              <button class="template-option" data-template="education">Education</button>
+              <button class="template-option" data-template="project">Project</button>
+            </div>
+          </div>
         </div>
       </div>
       <div class="entries-container">
@@ -448,6 +597,43 @@ function renderFloatingHeader(): string {
   return '';
 }
 
+// Helper to count words and estimate page fit
+function getResumeStats(): { wordCount: number; bulletCount: number; estimatedPages: number } {
+  const { resume } = store.getState();
+
+  let wordCount = 0;
+  let bulletCount = 0;
+
+  // Count header words
+  wordCount += (resume.header.name || '').split(/\s+/).filter(Boolean).length;
+
+  // Count section content
+  for (const section of resume.sections) {
+    wordCount += (section.title || '').split(/\s+/).filter(Boolean).length;
+
+    for (const entry of section.entries) {
+      wordCount += (entry.organization || '').split(/\s+/).filter(Boolean).length;
+      wordCount += (entry.role || '').split(/\s+/).filter(Boolean).length;
+      wordCount += (entry.location || '').split(/\s+/).filter(Boolean).length;
+
+      const countBullets = (nodes: ContentNode[]) => {
+        for (const node of nodes) {
+          bulletCount++;
+          wordCount += (node.text || '').split(/\s+/).filter(Boolean).length;
+          countBullets(node.children);
+        }
+      };
+      countBullets(entry.content);
+    }
+  }
+
+  // Rough estimate: ~400-500 words per page, adjusted for formatting
+  // More bullets = more space used
+  const estimatedPages = Math.max(1, Math.ceil((wordCount + bulletCount * 5) / 450));
+
+  return { wordCount, bulletCount, estimatedPages };
+}
+
 function renderPreview(): string {
   const { resume, styleSettings, isPreviewVisible } = store.getState();
   const { typography, spacing, layout, colors } = styleSettings;
@@ -500,11 +686,21 @@ function renderPreview(): string {
     `;
   };
 
+  const stats = getResumeStats();
+  const pageWarning = stats.estimatedPages > 1;
+
   return `
     <div class="preview-pane">
       <div class="preview-header">
         <span class="preview-title">Preview</span>
         <span class="preview-status">&bull; Live</span>
+        <div class="preview-stats">
+          <span class="stat-item" title="Word count">${stats.wordCount} words</span>
+          <span class="stat-item" title="Bullet points">${stats.bulletCount} bullets</span>
+          <span class="stat-item ${pageWarning ? 'warning' : ''}" title="${pageWarning ? 'Consider trimming to fit 1 page' : 'Fits on 1 page'}">
+            ~${stats.estimatedPages} ${stats.estimatedPages === 1 ? 'page' : 'pages'}
+          </span>
+        </div>
         <div class="preview-controls">
           <button class="btn-export" title="Export PDF">Export</button>
         </div>
@@ -622,6 +818,27 @@ function renderStyleStudio(): string {
   `;
 }
 
+// Auto-save indicator state
+let saveIndicatorTimeout: ReturnType<typeof setTimeout> | null = null;
+
+function showSaveIndicator(status: 'saving' | 'saved'): void {
+  const indicator = document.querySelector('.save-indicator');
+  if (!indicator) return;
+
+  if (saveIndicatorTimeout) {
+    clearTimeout(saveIndicatorTimeout);
+  }
+
+  indicator.textContent = status === 'saving' ? 'Saving...' : 'Saved';
+  indicator.classList.add('visible');
+
+  if (status === 'saved') {
+    saveIndicatorTimeout = setTimeout(() => {
+      indicator.classList.remove('visible');
+    }, 2000);
+  }
+}
+
 function renderToolbar(): string {
   const { focusMode, isPreviewVisible } = store.getState();
 
@@ -629,6 +846,7 @@ function renderToolbar(): string {
     <div class="toolbar">
       <div class="toolbar-left">
         <span class="app-title">resumeyay</span>
+        <span class="save-indicator">Saved</span>
       </div>
       <div class="toolbar-center">
         <div class="focus-modes">
@@ -658,6 +876,10 @@ function renderToolbar(): string {
         <button class="btn-toolbar" id="btn-style-studio" title="Style Studio (Cmd+Shift+S)">
           Style
         </button>
+        <div class="toolbar-separator"></div>
+        <button class="btn-toolbar" id="btn-import" title="Import JSON">Import</button>
+        <button class="btn-toolbar" id="btn-export-json" title="Export JSON">Export</button>
+        <div class="toolbar-separator"></div>
         <button class="btn-toolbar" id="btn-new">New</button>
         <button class="btn-toolbar" id="btn-sample">Sample</button>
       </div>
@@ -750,12 +972,48 @@ function setupEventDelegation(): void {
       return;
     }
 
-    // Add entry buttons
+    // Add entry buttons - toggle dropdown
     const addEntryBtn = target.closest('.btn-add-entry') as HTMLElement | null;
     if (addEntryBtn) {
-      const sectionId = addEntryBtn.dataset.sectionId!;
-      store.addEntry(sectionId);
+      const dropdown = addEntryBtn.nextElementSibling as HTMLElement;
+      if (dropdown?.classList.contains('template-dropdown')) {
+        // Close other dropdowns
+        document.querySelectorAll('.template-dropdown.visible').forEach(d => {
+          if (d !== dropdown) d.classList.remove('visible');
+        });
+        dropdown.classList.toggle('visible');
+      }
       return;
+    }
+
+    // Template option selection
+    const templateOption = target.closest('.template-option') as HTMLElement | null;
+    if (templateOption) {
+      const dropdown = templateOption.closest('.template-dropdown') as HTMLElement;
+      const sectionId = dropdown?.dataset.sectionId!;
+      const template = templateOption.dataset.template as EntryTemplate;
+
+      if (sectionId && template) {
+        const newId = store.addTemplatedEntry(sectionId, template);
+        store.setActiveEntry(newId);
+
+        // Focus the first input of the new entry
+        setTimeout(() => {
+          const newRow = document.querySelector(`.entry-row[data-entry-id="${newId}"]`);
+          const firstInput = newRow?.querySelector('input') as HTMLInputElement;
+          if (firstInput) firstInput.focus();
+        }, 50);
+      }
+
+      dropdown?.classList.remove('visible');
+      return;
+    }
+
+    // Close dropdowns when clicking elsewhere
+    if (!target.closest('.add-entry-dropdown')) {
+      document.querySelectorAll('.template-dropdown.visible').forEach(d => {
+        d.classList.remove('visible');
+      });
     }
 
     // Add section button
@@ -805,7 +1063,7 @@ function setupEventDelegation(): void {
       return;
     }
 
-    // Export button
+    // Export PDF button
     if (target.closest('.btn-export')) {
       const previewContent = document.querySelector('.preview-content') as HTMLElement | null;
       if (!previewContent) return;
@@ -823,6 +1081,45 @@ function setupEventDelegation(): void {
         console.error('Export failed:', error);
         alert('Export failed. Please try again.');
       });
+      return;
+    }
+
+    // Export JSON button
+    if (target.closest('#btn-export-json')) {
+      const json = store.exportJSON();
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `resume-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      return;
+    }
+
+    // Import JSON button
+    if (target.closest('#btn-import')) {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json,application/json';
+      input.onchange = (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const json = e.target?.result as string;
+            if (store.importJSON(json)) {
+              alert('Resume imported successfully!');
+            } else {
+              alert('Import failed. Please check the file format.');
+            }
+          };
+          reader.readAsText(file);
+        }
+      };
+      input.click();
       return;
     }
   });
@@ -1043,6 +1340,11 @@ function init(): void {
   // Subscribe to store changes - skip render when typing (handled by shouldSkipRender)
   store.subscribe(() => {
     render();
+  });
+
+  // Subscribe to save events for the save indicator
+  store.onSave(() => {
+    showSaveIndicator('saved');
   });
 
   // Setup keyboard shortcuts

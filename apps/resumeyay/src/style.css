@@ -119,6 +119,25 @@ html, body {
   letter-spacing: -0.02em;
 }
 
+.save-indicator {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  margin-left: var(--spacing-md);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.save-indicator.visible {
+  opacity: 1;
+}
+
+.toolbar-separator {
+  width: 1px;
+  height: 20px;
+  background: var(--color-border);
+  margin: 0 var(--spacing-xs);
+}
+
 .toolbar-center {
   display: flex;
   align-items: center;
@@ -453,6 +472,58 @@ html, body {
 .btn-add-entry:hover {
   background: #EBF5FF;
   border-color: var(--color-accent);
+}
+
+/* Entry Template Dropdown */
+.add-entry-dropdown {
+  position: relative;
+}
+
+.template-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 100;
+  min-width: 180px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  box-shadow: var(--shadow-lg);
+  margin-top: 4px;
+  padding: 4px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: all var(--transition-fast);
+}
+
+.template-dropdown.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.template-option {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.template-option:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.template-option:first-child {
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 4px;
+  padding-bottom: 8px;
 }
 
 /* ============================================================================
@@ -791,6 +862,24 @@ html, body {
 .preview-status {
   font-size: 12px;
   color: var(--color-success);
+}
+
+.preview-stats {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.stat-item {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  padding: 2px 8px;
+  background: var(--color-bg-tertiary);
+  border-radius: 4px;
+}
+
+.stat-item.warning {
+  color: var(--color-warning);
+  background: #FEF3C7;
 }
 
 .preview-controls {
