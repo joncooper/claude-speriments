@@ -476,6 +476,74 @@ describe('Undo/Redo', () => {
   });
 });
 
+describe('Batch Undo', () => {
+  test('batch mode groups multiple updates into single undo entry', () => {
+    const originalName = store.getState().resume.header.name;
+    const undoStackSize = store.getState().undoStack.length;
+
+    // Start batch mode (simulates typing)
+    store.startBatch();
+
+    // Make multiple changes (simulates typing each character)
+    store.updateHeader({ name: 'T' });
+    store.updateHeader({ name: 'Te' });
+    store.updateHeader({ name: 'Tes' });
+    store.updateHeader({ name: 'Test' });
+
+    // End batch mode
+    store.endBatch();
+
+    expect(store.getState().resume.header.name).toBe('Test');
+
+    // Should only have added ONE entry to undo stack
+    expect(store.getState().undoStack.length).toBe(undoStackSize + 1);
+
+    // Single undo should revert all batched changes
+    store.undo();
+    expect(store.getState().resume.header.name).toBe(originalName);
+  });
+
+  test('empty batch does not add to undo stack', () => {
+    const undoStackSize = store.getState().undoStack.length;
+
+    store.startBatch();
+    // No changes made
+    store.endBatch();
+
+    expect(store.getState().undoStack.length).toBe(undoStackSize);
+  });
+
+  test('batch with identical start/end state does not add to undo stack', () => {
+    store.updateHeader({ name: 'Original' });
+    const undoStackSize = store.getState().undoStack.length;
+
+    store.startBatch();
+    store.updateHeader({ name: 'Temp' });
+    store.updateHeader({ name: 'Original' }); // Back to original
+    store.endBatch();
+
+    // No net change, so nothing added to undo stack
+    expect(store.getState().undoStack.length).toBe(undoStackSize);
+  });
+
+  test('nested startBatch calls only create one batch', () => {
+    const originalName = store.getState().resume.header.name;
+    const undoStackSize = store.getState().undoStack.length;
+
+    store.startBatch();
+    store.updateHeader({ name: 'First' });
+    store.startBatch(); // Should be ignored
+    store.updateHeader({ name: 'Second' });
+    store.endBatch();
+
+    expect(store.getState().resume.header.name).toBe('Second');
+    expect(store.getState().undoStack.length).toBe(undoStackSize + 1);
+
+    store.undo();
+    expect(store.getState().resume.header.name).toBe(originalName);
+  });
+});
+
 describe('Style Settings', () => {
   test('updateStyleSettings updates typography', () => {
     store.updateStyleSettings({

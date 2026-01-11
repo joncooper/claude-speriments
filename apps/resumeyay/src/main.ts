@@ -3,6 +3,100 @@ import type { Entry, Section, ContentNode, FocusMode, ColumnConfig, StyleSetting
 import './style.css';
 
 // ============================================================================
+// INPUT PRESERVATION & DEBOUNCING
+// ============================================================================
+
+// Track active input to prevent re-render during typing
+let activeInputInfo: {
+  type: 'header' | 'entry' | 'bullet' | 'section' | 'style';
+  field?: string;
+  entryId?: string;
+  sectionId?: string;
+  bulletId?: string;
+  cursorPos?: number;
+} | null = null;
+
+// Debounce timers for different input types
+const debounceTimers: Map<string, ReturnType<typeof setTimeout>> = new Map();
+
+// Batch undo: accumulate changes during typing, commit as single undo entry
+let undoBatchTimeout: ReturnType<typeof setTimeout> | null = null;
+let undoBatchInProgress = false;
+
+function debounce(key: string, fn: () => void, delay: number = 300): void {
+  const existingTimer = debounceTimers.get(key);
+  if (existingTimer) {
+    clearTimeout(existingTimer);
+  }
+  debounceTimers.set(key, setTimeout(() => {
+    debounceTimers.delete(key);
+    fn();
+  }, delay));
+}
+
+function startUndoBatch(): void {
+  if (!undoBatchInProgress) {
+    undoBatchInProgress = true;
+    store.startBatch();
+  }
+  if (undoBatchTimeout) {
+    clearTimeout(undoBatchTimeout);
+  }
+  // Commit the batch after 1 second of inactivity
+  undoBatchTimeout = setTimeout(() => {
+    if (undoBatchInProgress) {
+      store.endBatch();
+      undoBatchInProgress = false;
+    }
+  }, 1000);
+}
+
+// Check if we should skip re-render (user is typing)
+function shouldSkipRender(): boolean {
+  if (!activeInputInfo) return false;
+
+  // Find the active element
+  const activeEl = document.activeElement;
+  if (!activeEl || !(activeEl instanceof HTMLInputElement || activeEl instanceof HTMLSelectElement)) {
+    activeInputInfo = null;
+    return false;
+  }
+
+  return true;
+}
+
+// Restore focus after a render
+function restoreFocus(): void {
+  if (!activeInputInfo) return;
+
+  setTimeout(() => {
+    let selector = '';
+
+    if (activeInputInfo!.type === 'header' && activeInputInfo!.field) {
+      selector = `[data-field="${activeInputInfo!.field}"]`;
+    } else if (activeInputInfo!.type === 'bullet' && activeInputInfo!.bulletId) {
+      selector = `.bullet-input[data-bullet-id="${activeInputInfo!.bulletId}"]`;
+    } else if (activeInputInfo!.type === 'entry' && activeInputInfo!.field) {
+      selector = `.entry-row[data-entry-id="${activeInputInfo!.entryId}"] [data-field="${activeInputInfo!.field}"]`;
+    } else if (activeInputInfo!.type === 'section' && activeInputInfo!.sectionId) {
+      selector = `.section[data-section-id="${activeInputInfo!.sectionId}"] [data-field="section.title"]`;
+    }
+
+    if (selector) {
+      const input = document.querySelector(selector) as HTMLInputElement;
+      if (input) {
+        input.focus();
+        if (activeInputInfo!.cursorPos !== undefined) {
+          input.setSelectionRange(activeInputInfo!.cursorPos, activeInputInfo!.cursorPos);
+        }
+      }
+    }
+
+    activeInputInfo = null;
+  }, 0);
+}
+
+// ============================================================================
 // UTILITY FUNCTIONS
 // ============================================================================
 
@@ -571,7 +665,15 @@ function renderToolbar(): string {
   `;
 }
 
-function render(): void {
+// Track if event delegation is set up
+let eventDelegationSetup = false;
+
+function render(force: boolean = false): void {
+  // Skip render if user is actively typing (unless forced)
+  if (!force && shouldSkipRender()) {
+    return;
+  }
+
   const { isPreviewVisible, focusMode } = store.getState();
 
   const app = document.querySelector<HTMLDivElement>('#app')!;
@@ -589,206 +691,287 @@ function render(): void {
     </div>
   `;
 
-  attachEventListeners();
+  // Set up event delegation once
+  if (!eventDelegationSetup) {
+    setupEventDelegation();
+    eventDelegationSetup = true;
+  }
+
+  // Restore focus if needed
+  restoreFocus();
 }
 
 // ============================================================================
-// EVENT HANDLERS
+// EVENT DELEGATION (Single listeners on app container)
 // ============================================================================
 
-function attachEventListeners(): void {
+function setupEventDelegation(): void {
   const app = document.querySelector<HTMLDivElement>('#app')!;
 
-  // Focus mode buttons
-  app.querySelectorAll('.btn-mode').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const mode = (btn as HTMLElement).dataset.mode as FocusMode;
+  // Handle all clicks via delegation
+  app.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+
+    // Focus mode buttons
+    const modeBtn = target.closest('.btn-mode') as HTMLElement | null;
+    if (modeBtn) {
+      const mode = modeBtn.dataset.mode as FocusMode;
       store.setFocusMode(mode);
-    });
-  });
+      return;
+    }
 
-  // Column header clicks (toggle collapse)
-  app.querySelectorAll('.column-header').forEach(header => {
-    header.addEventListener('click', () => {
-      const column = (header as HTMLElement).dataset.column as keyof ColumnConfig;
+    // Column header clicks (toggle collapse)
+    const columnHeader = target.closest('.column-header') as HTMLElement | null;
+    if (columnHeader) {
+      const column = columnHeader.dataset.column as keyof ColumnConfig;
       store.toggleColumn(column);
-    });
-  });
+      return;
+    }
 
-  // Entry row clicks (set active)
-  app.querySelectorAll('.entry-row').forEach(row => {
-    row.addEventListener('click', () => {
-      const entryId = (row as HTMLElement).dataset.entryId!;
-      store.setActiveEntry(entryId);
-    });
-  });
-
-  // Header field inputs
-  app.querySelectorAll('.header-editor input').forEach(input => {
-    input.addEventListener('input', (e) => {
-      const field = (e.target as HTMLInputElement).dataset.field;
-      const value = (e.target as HTMLInputElement).value;
-      if (field === 'header.name') store.updateHeader({ name: value });
-      else if (field === 'header.email') store.updateHeader({ email: value });
-      else if (field === 'header.phone') store.updateHeader({ phone: value });
-      else if (field === 'header.location') store.updateHeader({ location: value });
-    });
-  });
-
-  // Entry field inputs
-  app.querySelectorAll('.entry-row input[data-field]').forEach(input => {
-    input.addEventListener('input', (e) => {
-      const inputEl = e.target as HTMLInputElement;
-      const field = inputEl.dataset.field;
-      const row = inputEl.closest('.entry-row') as HTMLElement;
-      const entryId = row.dataset.entryId!;
-      const sectionId = row.dataset.sectionId!;
-      const value = inputEl.value;
-
-      if (field && entryId && sectionId) {
-        store.updateEntry(sectionId, entryId, { [field]: value } as Partial<Entry>);
+    // Entry row clicks (set active) - but not when clicking inputs
+    if (!target.matches('input, button')) {
+      const entryRow = target.closest('.entry-row') as HTMLElement | null;
+      if (entryRow) {
+        const entryId = entryRow.dataset.entryId!;
+        store.setActiveEntry(entryId);
+        return;
       }
-    });
-  });
+    }
 
-  // Bullet inputs
-  app.querySelectorAll('.bullet-input').forEach(input => {
-    const inputEl = input as HTMLInputElement;
-
-    inputEl.addEventListener('focus', () => {
-      const bulletId = inputEl.dataset.bulletId!;
-      const entryId = inputEl.dataset.entryId!;
-      store.setActiveBullet(bulletId);
-      store.setActiveEntry(entryId);
-    });
-
-    inputEl.addEventListener('input', () => {
-      const bulletId = inputEl.dataset.bulletId!;
-      const entryId = inputEl.dataset.entryId!;
-      store.updateBullet(entryId, bulletId, inputEl.value);
-    });
-  });
-
-  // Add bullet buttons
-  app.querySelectorAll('.btn-add-bullet').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const entryId = (btn as HTMLElement).dataset.entryId!;
+    // Add bullet buttons
+    const addBulletBtn = target.closest('.btn-add-bullet') as HTMLElement | null;
+    if (addBulletBtn) {
+      const entryId = addBulletBtn.dataset.entryId!;
       const newId = store.addBullet(entryId, null);
       setTimeout(() => {
-        const newInput = document.querySelector(`[data-bullet-id="${newId}"] input`) as HTMLInputElement;
+        const newInput = document.querySelector(`.bullet-input[data-bullet-id="${newId}"]`) as HTMLInputElement;
         if (newInput) newInput.focus();
       }, 50);
-    });
-  });
+      return;
+    }
 
-  // Add entry buttons
-  app.querySelectorAll('.btn-add-entry').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const sectionId = (btn as HTMLElement).dataset.sectionId!;
+    // Add entry buttons
+    const addEntryBtn = target.closest('.btn-add-entry') as HTMLElement | null;
+    if (addEntryBtn) {
+      const sectionId = addEntryBtn.dataset.sectionId!;
       store.addEntry(sectionId);
-    });
-  });
+      return;
+    }
 
-  // Add section button
-  app.querySelector('.btn-add-section')?.addEventListener('click', () => {
-    store.addSection('experience', 'New Section');
-  });
+    // Add section button
+    if (target.closest('.btn-add-section')) {
+      store.addSection('experience', 'New Section');
+      return;
+    }
 
-  // Toggle preview
-  app.querySelector('#btn-toggle-preview')?.addEventListener('click', () => {
-    store.togglePreview();
-  });
+    // Toggle preview
+    if (target.closest('#btn-toggle-preview')) {
+      store.togglePreview();
+      return;
+    }
 
-  // Style studio
-  app.querySelector('#btn-style-studio')?.addEventListener('click', () => {
-    store.toggleStyleStudio();
-  });
+    // Style studio
+    if (target.closest('#btn-style-studio')) {
+      store.toggleStyleStudio();
+      return;
+    }
 
-  app.querySelector('.btn-close-studio')?.addEventListener('click', () => {
-    store.toggleStyleStudio();
-  });
+    if (target.closest('.btn-close-studio')) {
+      store.toggleStyleStudio();
+      return;
+    }
 
-  // Style presets
-  app.querySelectorAll('.btn-preset').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const preset = (btn as HTMLElement).dataset.preset as 'classic' | 'modern' | 'minimal' | 'dense';
+    // Style presets
+    const presetBtn = target.closest('.btn-preset') as HTMLElement | null;
+    if (presetBtn) {
+      const preset = presetBtn.dataset.preset as 'classic' | 'modern' | 'minimal' | 'dense';
       store.applyStylePreset(preset);
-    });
-  });
+      return;
+    }
 
-  // Style controls
-  app.querySelectorAll('[data-style]').forEach(control => {
-    control.addEventListener('change', (e) => {
-      const path = (e.target as HTMLElement).dataset.style!;
-      const [category, field] = path.split('.') as [keyof StyleSettings, string];
-      const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
-      const state = store.getState();
-
-      const updates: Partial<StyleSettings> = {};
-      if (category === 'typography') {
-        updates.typography = {
-          ...state.styleSettings.typography,
-          [field]: field === 'baseSize' || field === 'lineHeight' || field === 'nameScale' || field === 'sectionHeaderScale'
-            ? parseFloat(value)
-            : value,
-        };
-      } else if (category === 'spacing') {
-        updates.spacing = {
-          ...state.styleSettings.spacing,
-          [field]: parseFloat(value),
-        };
-      } else if (category === 'layout') {
-        updates.layout = {
-          ...state.styleSettings.layout,
-          [field]: value,
-        };
-      } else if (category === 'colors') {
-        updates.colors = {
-          ...state.styleSettings.colors,
-          [field]: value,
-        };
+    // New resume
+    if (target.closest('#btn-new')) {
+      if (confirm('Create a new blank resume? Your current data will be preserved in undo history.')) {
+        store.newResume();
       }
+      return;
+    }
 
-      store.updateStyleSettings(updates);
-    });
-  });
+    // Load sample
+    if (target.closest('#btn-sample')) {
+      if (confirm('Load sample resume data? Your current data will be preserved in undo history.')) {
+        store.resetToSample();
+      }
+      return;
+    }
 
-  // New resume
-  app.querySelector('#btn-new')?.addEventListener('click', () => {
-    if (confirm('Create a new blank resume? Your current data will be preserved in undo history.')) {
-      store.newResume();
+    // Export button
+    if (target.closest('.btn-export')) {
+      const previewContent = document.querySelector('.preview-content') as HTMLElement | null;
+      if (!previewContent) return;
+
+      import('html2pdf.js').then(({ default: html2pdf }) => {
+        const options = {
+          margin: 0,
+          filename: 'resume.pdf',
+          image: { type: 'jpeg' as const, quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: 'in' as const, format: 'letter' as const, orientation: 'portrait' as const }
+        };
+        html2pdf().set(options).from(previewContent).save();
+      }).catch((error) => {
+        console.error('Export failed:', error);
+        alert('Export failed. Please try again.');
+      });
+      return;
     }
   });
 
-  // Load sample
-  app.querySelector('#btn-sample')?.addEventListener('click', () => {
-    if (confirm('Load sample resume data? Your current data will be preserved in undo history.')) {
-      store.resetToSample();
-    }
-  });
+  // Handle all input events via delegation with debouncing
+  app.addEventListener('input', (e) => {
+    const target = e.target as HTMLInputElement;
+    if (!target.matches('input')) return;
 
-  // Export button
-  app.querySelector('.btn-export')?.addEventListener('click', async () => {
-    const previewContent = document.querySelector('.preview-content') as HTMLElement | null;
-    if (!previewContent) return;
+    // Header field inputs
+    const headerEditor = target.closest('.header-editor');
+    if (headerEditor) {
+      const field = target.dataset.field;
+      const value = target.value;
 
-    try {
-      // Dynamic import of html2pdf
-      const html2pdf = (await import('html2pdf.js')).default;
-
-      const options = {
-        margin: 0,
-        filename: 'resume.pdf',
-        image: { type: 'jpeg' as const, quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'in' as const, format: 'letter' as const, orientation: 'portrait' as const }
+      // Track active input for preservation
+      activeInputInfo = {
+        type: 'header',
+        field: field,
+        cursorPos: target.selectionStart ?? undefined,
       };
 
-      html2pdf().set(options).from(previewContent).save();
-    } catch (error) {
-      console.error('Export failed:', error);
-      alert('Export failed. Please try again.');
+      // Start batch for undo grouping
+      startUndoBatch();
+
+      // Debounce the store update
+      debounce(`header.${field}`, () => {
+        if (field === 'header.name') store.updateHeader({ name: value });
+        else if (field === 'header.email') store.updateHeader({ email: value });
+        else if (field === 'header.phone') store.updateHeader({ phone: value });
+        else if (field === 'header.location') store.updateHeader({ location: value });
+      }, 150);
+      return;
     }
+
+    // Entry field inputs
+    const entryRow = target.closest('.entry-row') as HTMLElement | null;
+    if (entryRow && target.dataset.field) {
+      const field = target.dataset.field;
+      const entryId = entryRow.dataset.entryId!;
+      const sectionId = entryRow.dataset.sectionId!;
+      const value = target.value;
+
+      // Track active input for preservation
+      activeInputInfo = {
+        type: 'entry',
+        field: field,
+        entryId: entryId,
+        sectionId: sectionId,
+        cursorPos: target.selectionStart ?? undefined,
+      };
+
+      // Start batch for undo grouping
+      startUndoBatch();
+
+      // Debounce the store update
+      debounce(`entry.${entryId}.${field}`, () => {
+        if (field && entryId && sectionId) {
+          store.updateEntry(sectionId, entryId, { [field]: value } as Partial<Entry>);
+        }
+      }, 150);
+      return;
+    }
+
+    // Bullet inputs
+    if (target.classList.contains('bullet-input')) {
+      const bulletId = target.dataset.bulletId!;
+      const entryId = target.dataset.entryId!;
+      const value = target.value;
+
+      // Track active input for preservation
+      activeInputInfo = {
+        type: 'bullet',
+        bulletId: bulletId,
+        entryId: entryId,
+        cursorPos: target.selectionStart ?? undefined,
+      };
+
+      // Start batch for undo grouping
+      startUndoBatch();
+
+      // Debounce the store update
+      debounce(`bullet.${bulletId}`, () => {
+        store.updateBullet(entryId, bulletId, value);
+      }, 150);
+      return;
+    }
+  });
+
+  // Handle focus events for bullet inputs
+  app.addEventListener('focus', (e) => {
+    const target = e.target as HTMLInputElement;
+    if (target.classList.contains('bullet-input')) {
+      const bulletId = target.dataset.bulletId!;
+      const entryId = target.dataset.entryId!;
+      store.setActiveBullet(bulletId);
+      store.setActiveEntry(entryId);
+    }
+  }, true);
+
+  // Handle blur events to clear active input tracking
+  app.addEventListener('blur', (e) => {
+    const target = e.target as HTMLElement;
+    if (target.matches('input')) {
+      // Clear active input after a short delay (allow debounced updates to complete)
+      setTimeout(() => {
+        if (document.activeElement !== target) {
+          activeInputInfo = null;
+        }
+      }, 200);
+    }
+  }, true);
+
+  // Handle style control changes via delegation
+  app.addEventListener('change', (e) => {
+    const target = e.target as HTMLInputElement | HTMLSelectElement;
+    if (!target.dataset.style) return;
+
+    const path = target.dataset.style;
+    const [category, field] = path.split('.') as [keyof StyleSettings, string];
+    const value = target.value;
+    const state = store.getState();
+
+    const updates: Partial<StyleSettings> = {};
+    if (category === 'typography') {
+      updates.typography = {
+        ...state.styleSettings.typography,
+        [field]: field === 'baseSize' || field === 'lineHeight' || field === 'nameScale' || field === 'sectionHeaderScale'
+          ? parseFloat(value)
+          : value,
+      };
+    } else if (category === 'spacing') {
+      updates.spacing = {
+        ...state.styleSettings.spacing,
+        [field]: parseFloat(value),
+      };
+    } else if (category === 'layout') {
+      updates.layout = {
+        ...state.styleSettings.layout,
+        [field]: value,
+      };
+    } else if (category === 'colors') {
+      updates.colors = {
+        ...state.styleSettings.colors,
+        [field]: value,
+      };
+    }
+
+    store.updateStyleSettings(updates);
   });
 }
 
@@ -797,7 +980,7 @@ function attachEventListeners(): void {
 // ============================================================================
 
 function init(): void {
-  // Subscribe to store changes
+  // Subscribe to store changes - skip render when typing (handled by shouldSkipRender)
   store.subscribe(() => {
     render();
   });
@@ -805,8 +988,8 @@ function init(): void {
   // Setup keyboard shortcuts
   setupKeyboardShortcuts();
 
-  // Initial render
-  render();
+  // Initial render (forced to ensure it happens)
+  render(true);
 }
 
 // Start the app

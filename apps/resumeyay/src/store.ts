@@ -194,9 +194,34 @@ type Listener = () => void;
 class Store {
   private state: EditorState;
   private listeners: Set<Listener> = new Set();
+  private batchMode: boolean = false;
+  private batchStartSnapshot: Resume | null = null;
 
   constructor() {
     this.state = this.loadState();
+  }
+
+  // Batch mode for grouping changes into a single undo entry
+  startBatch(): void {
+    if (!this.batchMode) {
+      this.batchMode = true;
+      this.batchStartSnapshot = JSON.parse(JSON.stringify(this.state.resume));
+    }
+  }
+
+  endBatch(): void {
+    if (this.batchMode && this.batchStartSnapshot) {
+      // Only add to undo if something actually changed
+      if (JSON.stringify(this.batchStartSnapshot) !== JSON.stringify(this.state.resume)) {
+        this.state.undoStack.push(this.batchStartSnapshot);
+        if (this.state.undoStack.length > 50) {
+          this.state.undoStack.shift();
+        }
+        this.state.redoStack = [];
+      }
+      this.batchMode = false;
+      this.batchStartSnapshot = null;
+    }
   }
 
   private loadState(): EditorState {
@@ -254,6 +279,9 @@ class Store {
   }
 
   private pushUndo(): void {
+    // Skip if we're in batch mode - the batch will handle undo
+    if (this.batchMode) return;
+
     this.state.undoStack.push(JSON.parse(JSON.stringify(this.state.resume)));
     if (this.state.undoStack.length > 50) {
       this.state.undoStack.shift();
