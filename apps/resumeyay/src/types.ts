@@ -364,3 +364,99 @@ export interface EditorStateV2 extends EditorState {
   activeJobDescriptionId: string | null;
   activeAnalysisId: string | null;
 }
+
+// ============================================================================
+// FIT COACH - LLM-Assisted Resume Refinement
+// ============================================================================
+
+/**
+ * A parsed requirement from a job description.
+ * Tracks coverage status against the resume content.
+ */
+export interface JDRequirement {
+  id: string;
+  text: string;
+  category: 'required' | 'preferred' | 'nice-to-have';
+  keywords: string[];
+  matchedBulletIds: string[];  // Bullets that address this requirement
+  matchedEntryIds: string[];   // Entries that address this requirement
+  coverageStatus: 'strong' | 'partial' | 'missing' | 'not-me';
+  userNotes?: string;          // User's notes about this requirement
+  notMeReason?: string;        // Why user marked this as "not me"
+}
+
+/**
+ * A message in the Fit Coach conversation.
+ */
+export interface FitCoachMessage {
+  id: string;
+  role: 'coach' | 'user';
+  content: string;
+  timestamp: string;
+  relatedRequirementId?: string;  // If discussing a specific requirement
+  suggestedBullets?: string[];    // Coach-suggested bullet points
+}
+
+/**
+ * A Fit Session tracks the iterative refinement process
+ * for matching a resume variant to a job description.
+ */
+export interface FitSession {
+  id: string;
+  jobDescriptionId: string;
+  variantId: string;
+  requirements: JDRequirement[];
+  conversationHistory: FitCoachMessage[];
+  overallFitScore: number;       // 0-100, calculated from requirement coverage
+  coverageBreakdown: {
+    strong: number;
+    partial: number;
+    missing: number;
+    notMe: number;
+  };
+  createdAt: string;
+  updatedAt: string;
+  isActive: boolean;
+}
+
+/**
+ * Heat map data for highlighting keywords in the preview.
+ */
+export interface HeatMapHighlight {
+  bulletId: string;
+  keywords: string[];
+  matchStrength: 'high' | 'medium' | 'low';
+  requirementIds: string[];      // Which requirements this bullet addresses
+}
+
+/**
+ * Parsed job description with structured requirements.
+ */
+export interface ParsedJobDescription {
+  id: string;
+  originalJobDescriptionId: string;
+  title: string;
+  company: string;
+  requirements: JDRequirement[];
+  parsedAt: string;
+  rawText: string;
+}
+
+/**
+ * Extended workspace to include Fit Coach sessions.
+ */
+export interface ResumeWorkspaceV2 extends ResumeWorkspace {
+  fitSessions: FitSession[];
+  activeFitSessionId: string | null;
+  parsedJobDescriptions: ParsedJobDescription[];
+}
+
+/**
+ * Extended editor state for Fit Coach mode.
+ */
+export interface EditorStateV3 extends EditorStateV2 {
+  workspaceV2: ResumeWorkspaceV2;
+  isFitCoachOpen: boolean;
+  heatMapHighlights: HeatMapHighlight[];
+  showHeatMap: boolean;
+}

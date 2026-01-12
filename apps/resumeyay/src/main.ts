@@ -1,5 +1,6 @@
 import { store, workspaceStore, type EntryTemplate } from './store';
 import type { Entry, Section, ContentNode, FocusMode, ColumnConfig, StyleSettings } from './types';
+import { fitCoachStore, renderFitCoachPanel, getHeatMapClass } from './fit-coach';
 import './style.css';
 
 // ============================================================================
@@ -641,13 +642,16 @@ function renderPreview(): string {
   if (!isPreviewVisible) return '';
 
   const renderPreviewBullets = (nodes: ContentNode[], depth: number = 0): string => {
-    return nodes.map(node => `
-      <div class="preview-bullet" style="margin-left: ${depth * spacing.bulletIndent}px; margin-bottom: ${spacing.bulletSpacing}px;">
-        <span class="preview-bullet-symbol">${getBulletSymbol(depth)}</span>
-        ${escapeHtml(node.text)}
-      </div>
-      ${node.children.length > 0 ? renderPreviewBullets(node.children, depth + 1) : ''}
-    `).join('');
+    return nodes.map(node => {
+      const heatMapClass = getHeatMapClass(node.id);
+      return `
+        <div class="preview-bullet ${heatMapClass}" data-bullet-id="${node.id}" style="margin-left: ${depth * spacing.bulletIndent}px; margin-bottom: ${spacing.bulletSpacing}px;">
+          <span class="preview-bullet-symbol">${getBulletSymbol(depth)}</span>
+          ${escapeHtml(node.text)}
+        </div>
+        ${node.children.length > 0 ? renderPreviewBullets(node.children, depth + 1) : ''}
+      `;
+    }).join('');
   };
 
   const renderPreviewEntry = (entry: Entry): string => {
@@ -917,6 +921,7 @@ function renderJobPanel(): string {
                 <div class="job-actions">
                   <button class="btn-icon btn-select-job" data-job-id="${job.id}" title="Select">&#10003;</button>
                   <button class="btn-icon btn-analyze-job" data-job-id="${job.id}" title="Analyze">&#9783;</button>
+                  <button class="btn-icon btn-start-fit-coach" data-job-id="${job.id}" title="Start Fit Coach">&#127919;</button>
                   <button class="btn-icon btn-delete-job" data-job-id="${job.id}" title="Delete">&times;</button>
                 </div>
               </div>
@@ -1136,6 +1141,9 @@ function renderToolbar(): string {
         <button class="btn-toolbar ${isAnalysisPanelOpen ? 'active' : ''}" id="btn-analysis" title="Resume Analysis">
           Analyze
         </button>
+        <button class="btn-toolbar ${fitCoachStore.getState().isCoachPanelOpen ? 'active' : ''}" id="btn-fit-coach" title="Fit Coach">
+          Fit Coach
+        </button>
         <div class="toolbar-separator"></div>
         <button class="btn-toolbar ${isPreviewVisible ? 'active' : ''}"
                 id="btn-toggle-preview" title="Toggle Preview (Cmd+\\)">
@@ -1181,6 +1189,7 @@ function render(force: boolean = false): void {
       ${renderVariantPanel()}
       ${renderJobPanel()}
       ${renderAnalysisPanel()}
+      ${renderFitCoachPanel()}
     </div>
   `;
 
@@ -1593,6 +1602,118 @@ function setupEventDelegation(): void {
       workspaceStore.applySuggestion(analysisId, suggestionId);
       return;
     }
+
+    // ============================================================================
+    // FIT COACH PANEL HANDLERS
+    // ============================================================================
+
+    // Open Fit Coach panel
+    if (target.closest('#btn-fit-coach')) {
+      fitCoachStore.toggleCoachPanel();
+      return;
+    }
+
+    // Close Fit Coach panel
+    const closeFitCoachBtn = target.closest('.btn-close-panel[data-panel="fit-coach"]');
+    if (closeFitCoachBtn) {
+      fitCoachStore.closeCoachPanel();
+      return;
+    }
+
+    // Save Gemini API key
+    if (target.closest('.btn-save-api-key')) {
+      const input = document.getElementById('gemini-api-key') as HTMLInputElement;
+      if (input && input.value && input.value !== '••••••••••••') {
+        fitCoachStore.setApiKey(input.value);
+        alert('API key saved!');
+      }
+      return;
+    }
+
+    // Select requirement in coverage grid
+    const requirementItem = target.closest('.requirement-item') as HTMLElement | null;
+    if (requirementItem && !target.closest('button')) {
+      const reqId = requirementItem.dataset.requirementId!;
+      fitCoachStore.selectRequirement(reqId);
+      return;
+    }
+
+    // Focus on requirement
+    const focusReqBtn = target.closest('.btn-focus-req') as HTMLElement | null;
+    if (focusReqBtn) {
+      const reqId = focusReqBtn.dataset.requirementId!;
+      fitCoachStore.selectRequirement(reqId);
+      // Scroll to conversation and start coaching about this requirement
+      const conversationEl = document.querySelector('.coach-conversation');
+      if (conversationEl) {
+        conversationEl.scrollIntoView({ behavior: 'smooth' });
+      }
+      return;
+    }
+
+    // Mark requirement as "Not me"
+    const notMeBtn = target.closest('.btn-not-me') as HTMLElement | null;
+    if (notMeBtn) {
+      const reqId = notMeBtn.dataset.requirementId!;
+      const reason = prompt('Optional: Why is this not applicable to you?');
+      fitCoachStore.markNotMe(reqId, reason || undefined);
+      return;
+    }
+
+    // Undo "Not me"
+    const undoNotMeBtn = target.closest('.btn-undo-not-me') as HTMLElement | null;
+    if (undoNotMeBtn) {
+      const reqId = undoNotMeBtn.dataset.requirementId!;
+      fitCoachStore.updateRequirementStatus(reqId, 'missing');
+      return;
+    }
+
+    // Send message to coach
+    if (target.closest('.btn-send-message')) {
+      const input = document.getElementById('coach-message-input') as HTMLTextAreaElement;
+      if (input && input.value.trim()) {
+        const activeVariant = workspaceStore.getActiveVariant();
+        const wsState = workspaceStore.getState();
+        if (activeVariant) {
+          fitCoachStore.sendMessage(input.value.trim(), wsState.workspace.contentPool, activeVariant);
+          input.value = '';
+        }
+      }
+      return;
+    }
+
+    // Refresh coverage
+    if (target.closest('.btn-refresh-coverage')) {
+      const activeVariant = workspaceStore.getActiveVariant();
+      const wsState = workspaceStore.getState();
+      if (activeVariant) {
+        fitCoachStore.refreshCoverage(wsState.workspace.contentPool, activeVariant);
+      }
+      return;
+    }
+
+    // End session
+    if (target.closest('.btn-end-session')) {
+      if (confirm('End this Fit Coach session?')) {
+        fitCoachStore.endSession();
+      }
+      return;
+    }
+
+    // Start Fit Coach from job panel
+    const startFitCoachBtn = target.closest('.btn-start-fit-coach') as HTMLElement | null;
+    if (startFitCoachBtn) {
+      const jobId = startFitCoachBtn.dataset.jobId!;
+      const job = workspaceStore.getState().workspace.jobDescriptions.find(j => j.id === jobId);
+      const activeVariant = workspaceStore.getActiveVariant();
+      const wsState = workspaceStore.getState();
+
+      if (job && activeVariant) {
+        workspaceStore.toggleJobPanel();
+        fitCoachStore.startFitSession(job, wsState.workspace.contentPool, activeVariant);
+      }
+      return;
+    }
   });
 
   // Handle all input events via delegation with debouncing
@@ -1714,6 +1835,12 @@ function setupEventDelegation(): void {
       return;
     }
 
+    // Heat map toggle
+    if (target.id === 'show-heatmap') {
+      fitCoachStore.toggleHeatMap();
+      return;
+    }
+
     // Style controls
     if (!target.dataset.style) return;
 
@@ -1825,6 +1952,11 @@ function init(): void {
 
   // Subscribe to workspace store changes
   workspaceStore.subscribe(() => {
+    render();
+  });
+
+  // Subscribe to fit coach store changes
+  fitCoachStore.subscribe(() => {
     render();
   });
 

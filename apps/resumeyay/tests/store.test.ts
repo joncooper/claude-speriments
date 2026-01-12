@@ -22,6 +22,8 @@ beforeEach(async () => {
   createSection = module.createSection;
   createSampleResume = module.createSampleResume;
   createEmptyResume = module.createEmptyResume;
+  // Reset store state after clearing localStorage
+  store.__test_reset__();
 });
 
 describe('Factory Functions', () => {

@@ -407,6 +407,14 @@ class Store {
     this.state = this.loadState();
   }
 
+  // Reset state to defaults - for testing
+  __test_reset__(): void {
+    this.state = this.loadState();
+    this.batchMode = false;
+    this.batchStartSnapshot = null;
+    this.listeners.clear();
+  }
+
   // Batch mode for grouping changes into a single undo entry
   startBatch(): void {
     if (!this.batchMode) {
