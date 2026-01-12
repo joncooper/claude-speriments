@@ -1,5 +1,5 @@
 /**
- * Gemini Client for Fit Coach
+ * Claude Client for Fit Coach
  *
  * Handles:
  * 1. Job description parsing into structured requirements
@@ -18,20 +18,21 @@ import type {
 } from './types';
 import { v4 as uuid } from 'uuid';
 
-// Gemini API types
-interface GeminiResponse {
-  candidates: Array<{
-    content: {
-      parts: Array<{ text: string }>;
-    };
+// Claude API types
+interface ClaudeResponse {
+  content: Array<{
+    type: string;
+    text: string;
   }>;
 }
 
 // Configuration
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages';
+const CLAUDE_MODEL = 'claude-sonnet-4-20250514';
+const ANTHROPIC_VERSION = '2023-06-01';
 
 /**
- * Parse a job description into structured requirements using Gemini.
+ * Parse a job description into structured requirements using Claude.
  */
 export async function parseJobDescription(
   jobDescription: JobDescription,
@@ -65,24 +66,26 @@ Important:
 - Keywords should be searchable terms to find in a resume`;
 
   try {
-    const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+    const response = await fetch(CLAUDE_API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': ANTHROPIC_VERSION,
+      },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.1,
-          maxOutputTokens: 4096,
-        },
+        model: CLAUDE_MODEL,
+        max_tokens: 4096,
+        messages: [{ role: 'user', content: prompt }],
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`Gemini API error: ${response.status}`);
+      throw new Error(`Claude API error: ${response.status}`);
     }
 
-    const data: GeminiResponse = await response.json();
-    const text = data.candidates[0]?.content?.parts[0]?.text || '{}';
+    const data: ClaudeResponse = await response.json();
+    const text = data.content[0]?.text || '{}';
 
     // Extract JSON from response (might have markdown code blocks)
     const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -175,9 +178,17 @@ export async function generateCoachingMessage(
   // Get relevant resume content
   const relevantBullets = getRelevantBullets(resume, variant, requirement);
 
-  const prompt = `You are a resume Fit Coach helping someone improve their resume for a specific job.
+  const systemPrompt = `You are a resume Fit Coach helping someone improve their resume for a specific job. Your role is to guide and coach, never to write content for them.
 
-REQUIREMENT TO ADDRESS:
+Guidelines:
+- Be encouraging but honest
+- Ask ONE focused question at a time
+- Help the user recall specific accomplishments, metrics, technologies used
+- NEVER write bullets for them - coach them to write their own
+- Suggest what TYPE of content would help, not the exact words
+- Keep responses to 2-3 sentences`;
+
+  const userPrompt = `REQUIREMENT TO ADDRESS:
 "${requirement.text}"
 Category: ${requirement.category}
 Keywords to include: ${requirement.keywords.join(', ')}
@@ -189,39 +200,30 @@ ${relevantBullets.map(b => `- ${b}`).join('\n') || 'None found'}
 CONVERSATION HISTORY:
 ${conversationHistory.slice(-6).map(m => `${m.role}: ${m.content}`).join('\n')}
 
-Your task:
-1. If the resume already covers this requirement well, acknowledge it
-2. If partially covered, ask probing questions to help the user recall specific achievements
-3. If missing, guide the user to think about relevant experiences
-
-Important guidelines:
-- Be encouraging but honest
-- Ask ONE focused question at a time
-- Help the user recall specific accomplishments, metrics, technologies used
-- NEVER write bullets for them - coach them to write their own
-- Suggest what TYPE of content would help, not the exact words
-
-Respond conversationally in 2-3 sentences.`;
+Based on the above, provide coaching guidance. If the resume already covers this well, acknowledge it. If partially covered, ask probing questions. If missing, help them think of relevant experiences.`;
 
   try {
-    const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+    const response = await fetch(CLAUDE_API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': ANTHROPIC_VERSION,
+      },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 500,
-        },
+        model: CLAUDE_MODEL,
+        max_tokens: 500,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }],
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`Gemini API error: ${response.status}`);
+      throw new Error(`Claude API error: ${response.status}`);
     }
 
-    const data: GeminiResponse = await response.json();
-    const text = data.candidates[0]?.content?.parts[0]?.text || '';
+    const data: ClaudeResponse = await response.json();
+    const text = data.content[0]?.text || '';
 
     return {
       id: uuid(),
@@ -475,7 +477,7 @@ function findMatches(
 }
 
 /**
- * Check if Gemini API key is configured.
+ * Check if Claude API key is configured.
  */
 export function hasApiKey(): boolean {
   return !!getApiKey();
@@ -485,12 +487,12 @@ export function hasApiKey(): boolean {
  * Get API key from localStorage.
  */
 export function getApiKey(): string | null {
-  return localStorage.getItem('gemini-api-key');
+  return localStorage.getItem('claude-api-key');
 }
 
 /**
  * Set API key in localStorage.
  */
 export function setApiKey(key: string): void {
-  localStorage.setItem('gemini-api-key', key);
+  localStorage.setItem('claude-api-key', key);
 }

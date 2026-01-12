@@ -23,7 +23,7 @@ import {
   calculateFitScore,
   getApiKey,
   setApiKey,
-} from './gemini-client';
+} from './claude-client';
 import { v4 as uuid } from 'uuid';
 
 // ============================================================================
@@ -473,9 +473,9 @@ export function renderFitCoachPanel(): string {
               </ul>
             </div>
             <div class="fit-coach-api-key">
-              <h4>Gemini API Key (optional)</h4>
-              <p>For AI-powered job parsing and coaching, enter your Gemini API key:</p>
-              <input type="password" id="gemini-api-key" placeholder="Enter Gemini API key..."
+              <h4>Claude API Key (optional)</h4>
+              <p>For AI-powered job parsing and coaching, enter your Claude API key:</p>
+              <input type="password" id="claude-api-key" placeholder="Enter Claude API key..."
                      value="${fitCoachStore.hasApiKey() ? '••••••••••••' : ''}" />
               <button class="btn-secondary btn-save-api-key">Save Key</button>
               <p class="api-note">Without an API key, basic keyword matching will be used.</p>

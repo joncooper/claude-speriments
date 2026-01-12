@@ -1620,9 +1620,9 @@ function setupEventDelegation(): void {
       return;
     }
 
-    // Save Gemini API key
+    // Save Claude API key
     if (target.closest('.btn-save-api-key')) {
-      const input = document.getElementById('gemini-api-key') as HTMLInputElement;
+      const input = document.getElementById('claude-api-key') as HTMLInputElement;
       if (input && input.value && input.value !== '••••••••••••') {
         fitCoachStore.setApiKey(input.value);
         alert('API key saved!');
