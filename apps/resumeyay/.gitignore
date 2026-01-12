@@ -22,3 +22,14 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment files (contain secrets)
+.env
+.env.local
+.env.*.local
+
+# Firebase service account (contains private key)
+server/firebase-service-account.json
+
+# Data directory (local development storage)
+data/

@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "server": "bun run server/storage-server.ts",
+    "server": "bun run --watch server/index.ts",
     "dev:full": "bun run server & vite",
     "build": "tsc && vite build",
+    "build:server": "bun build server/index.ts --outdir dist/server --target bun",
     "preview": "vite preview",
     "test": "bun test",
     "test:watch": "bun test --watch",
@@ -20,6 +21,7 @@
     "vite": "^7.2.4"
   },
   "dependencies": {
+    "hono": "^4.11.3",
     "html2pdf.js": "^0.13.0",
     "uuid": "^13.0.0"
   }

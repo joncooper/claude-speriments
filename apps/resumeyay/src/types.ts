@@ -460,3 +460,65 @@ export interface EditorStateV3 extends EditorStateV2 {
   heatMapHighlights: HeatMapHighlight[];
   showHeatMap: boolean;
 }
+
+// ============================================================================
+// BULLET BANK - Draft Content Management
+// ============================================================================
+
+/**
+ * A draft bullet is content being developed but not yet added to the resume.
+ * Created during Fit Coach sessions when exploring how to address requirements.
+ */
+export interface DraftBullet {
+  id: string;
+  text: string;
+  createdAt: string;
+  updatedAt: string;
+  status: 'draft' | 'refined' | 'ready' | 'promoted';
+
+  // Context for where this came from
+  sourceRequirementId?: string;    // The JD requirement this addresses
+  sourceFitSessionId?: string;     // The Fit Coach session that inspired it
+  sourceJobId?: string;            // The job description it targets
+
+  // User annotations
+  notes?: string;
+  tags?: string[];                 // e.g., ["leadership", "technical", "metrics"]
+
+  // If promoted, where did it go?
+  promotedToEntryId?: string;
+  promotedToBulletId?: string;
+  promotedAt?: string;
+}
+
+/**
+ * A talking point for interview prep, derived from Fit Coach sessions.
+ */
+export interface TalkingPoint {
+  id: string;
+  requirementText: string;         // The requirement this addresses
+  resumeBullet?: string;           // The resume bullet that supports this
+  elaboration: string;             // How to talk about this in an interview
+  metrics?: string;                // Specific numbers/results to mention
+  story?: string;                  // STAR format story if applicable
+  keywords: string[];              // Keywords to naturally include
+  createdAt: string;
+}
+
+/**
+ * The Bullet Bank holds all draft content and talking points.
+ */
+export interface BulletBank {
+  drafts: DraftBullet[];
+  talkingPoints: TalkingPoint[];
+  // Quick access by requirement
+  draftsByRequirement: Record<string, string[]>;  // requirementId -> draftIds
+}
+
+/**
+ * Final workspace type including Bullet Bank.
+ */
+export interface ResumeWorkspaceV3 extends ResumeWorkspaceV2 {
+  bulletBank: BulletBank;
+}
+
