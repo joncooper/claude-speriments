@@ -15,14 +15,21 @@ This repository is a collection of experiments exploring Claude Code's capabilit
 
 ```
 claude-speriments/
-├── README.md                    # Public-facing documentation
+├── README.md                    # Repository index (quick reference table + brief descriptions)
 ├── CLAUDE.md                    # This file - guidance for Claude Code
 ├── apps/                        # Collaborative applications
-│   └── twitter-data-analyzer/   # Full-featured CLI applications
+│   ├── twitter-data-analyzer/   # CLI tool to audit Twitter profiles
+│   ├── visual-sound-mirror/     # Gesture-controlled music instrument
+│   ├── 3d-scan-viewer/          # 3D room planner for iPhone scans
+│   ├── dbt-daily-logger/        # Flutter DBT diary tracker
+│   └── ...                      # And more
+├── agents/                      # Agent configurations and workflows
+│   ├── forensic-accounting/     # Beneish M-Score analysis
+│   └── equity-mgmt-integrity/   # Management credibility tracking
 ├── skills/                      # Slash commands and skills
 │   ├── verbalized-sampling/     # Prompting technique experiments
 │   └── cialdini-persuasion/     # Prompting technique experiments
-└── [future directories]/        # agents/, hooks/, mcp/, etc.
+└── [future directories]/        # hooks/, mcp/, etc.
 ```
 
 ### Directory Organization
@@ -96,13 +103,33 @@ skills/
 - Include citations for research papers
 - Test commands before committing
 
+#### `agents/` - Agent Configurations
+
+**Purpose:** Specialized agents for specific analytical or research tasks.
+
+**What goes here:**
+- Agents that use MCP servers for data access
+- Multi-step analytical workflows
+- Slash commands that invoke complex agent behavior
+
+**Structure:**
+```
+agents/
+└── agent-name/
+    ├── README.md              # Comprehensive usage guide
+    ├── TESTING.md             # Testing instructions
+    ├── commands/              # Slash commands
+    ├── lib/                   # Python analysis library
+    └── data/                  # Generated reports and data
+```
+
+**Examples:**
+- `agents/forensic-accounting/` - Beneish M-Score and red flag detection
+- `agents/equity-mgmt-integrity/` - Management credibility analysis
+
 #### Future Directories
 
 As the repository grows, we'll add:
-
-- **`agents/`** - Agent configurations and workflows
-  - Specialized agent setups for specific tasks
-  - Agent orchestration patterns
 
 - **`hooks/`** - Session hooks and automation
   - SessionStart hooks for project setup
@@ -111,6 +138,46 @@ As the repository grows, we'll add:
 - **`mcp/`** - Model Context Protocol servers
   - Custom MCP implementations
   - Tool servers and integrations
+
+## README Documentation Strategy
+
+This repository uses a **two-tier documentation approach**:
+
+### Main README (Repository Index)
+The root `README.md` serves as a **quick reference index**, not comprehensive documentation:
+
+- **Quick Reference Table** - Scannable table with name, type, one-line description, status
+- **Brief Descriptions** - 2-3 sentences per project with status and "Learn more" link
+- **No Feature Lists** - Detailed features belong in project READMEs
+- **No Directory Trees** - Avoid redundant structure documentation
+
+**Rationale:** The main README should help users quickly find what they're looking for and navigate to project-specific documentation. It's an index, not a manual.
+
+### Project READMEs (Comprehensive Documentation)
+Each project's `README.md` contains **all the details**:
+
+- Complete feature lists and capabilities
+- Installation and setup instructions
+- Usage examples and commands
+- Technical architecture and design decisions
+- Troubleshooting guides
+- Project structure diagrams
+
+**Rationale:** Detailed documentation lives where the code lives. This keeps docs in sync and makes projects self-contained.
+
+### When Adding a New Project
+
+1. **Create a comprehensive project README** with all details users need
+2. **Add a brief entry to the main README**:
+   - One row in the Quick Reference table
+   - One short section (2-3 sentences + status + link)
+3. **Never duplicate** detailed information between the two
+
+### README Maintenance
+
+- When updating features, update the **project README only**
+- The main README description should rarely change
+- Update the main README's "Last updated" date when adding new projects
 
 ## Working with This Repository
 
@@ -338,4 +405,4 @@ When in doubt, ask the user for guidance on organization.
 
 ---
 
-**Last updated:** November 2025
+**Last updated:** January 2026
