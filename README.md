@@ -104,6 +104,41 @@ An **interactive music instrument** controlled entirely by hand gestures. No key
 
 ---
 
+#### 🏠 [3D Room Planner](./apps/3d-scan-viewer/)
+
+An **interactive room planning tool** for iPhone RoomPlanner scans. Remove furniture, paint walls, and try virtual furniture arrangements with real dimensions.
+
+**What it does:** Load USDZ room scans, edit them by removing/painting/adding furniture, and export modified versions for visualization and planning.
+
+**Room Editing Features:**
+- **Object Classification** - Automatically identifies walls, floor, and furniture from USDZ metadata
+- **Furniture Removal** - Click to select and delete furniture objects
+- **Wall Painting** - Change wall colors with a color picker
+- **Virtual Furniture** - Add furniture blocks with real dimensions (meters)
+- **Transform Controls** - Move, rotate, and scale virtual furniture
+- **Export** - Save modified rooms as GLTF files
+
+**Supported Formats:**
+- **Primary**: USDZ (iPhone RoomPlanner with metadata)
+- **Also supports**: FBX, OBJ, GLB/GLTF, PLY
+
+**Key features:**
+- **View & Edit Modes** - Toggle between viewing and editing
+- **Object Selection** - Click objects to select, see classification (wall/floor/furniture)
+- **Furniture Presets** - Quick-add common furniture (sofa, table, chair, bed)
+- **Real Dimensions** - Input actual sizes in meters for accurate planning
+- **Keyboard Shortcuts** - T/R/S for translate/rotate/scale, Delete to remove, ESC to deselect
+- **Auto-framing** - Rooms automatically centered and scaled
+- **Performance-optimized** - Smooth 60fps rendering
+
+**Tech stack:** Three.js, TypeScript, Vite, Bun
+
+**Try it:** [Live demo on GitHub Pages](https://joncooper.github.io/claude-speriments/3d-scan-viewer/)
+
+**Status:** ✅ Complete (v2.0.0)
+
+---
+
 ### Agents
 
 #### 🔍 [Forensic Accounting Agent](./agents/forensic-accounting/)
