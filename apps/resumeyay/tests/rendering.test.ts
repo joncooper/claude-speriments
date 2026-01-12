@@ -264,7 +264,7 @@ describe('Preview Pane', () => {
         </div>
         <div class="preview-content">
           <div class="preview-resume-header">
-            <div class="preview-name">Jane Developer</div>
+            <div class="preview-name">Jon Cooper</div>
           </div>
         </div>
       </div>

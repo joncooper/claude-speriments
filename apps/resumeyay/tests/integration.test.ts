@@ -417,6 +417,6 @@ describe('Edge Cases', () => {
 
     // State should be unchanged
     const state = store.getState();
-    expect(state.resume.header.name).toBe('Jane Developer');
+    expect(state.resume.header.name).toBe('Jon Cooper');
   });
 });

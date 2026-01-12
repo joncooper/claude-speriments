@@ -1,4 +1,4 @@
-import { store, type EntryTemplate } from './store';
+import { store, workspaceStore, type EntryTemplate } from './store';
 import type { Entry, Section, ContentNode, FocusMode, ColumnConfig, StyleSettings } from './types';
 import './style.css';
 
@@ -818,6 +818,254 @@ function renderStyleStudio(): string {
   `;
 }
 
+// ============================================================================
+// VARIANT & ANALYSIS PANELS
+// ============================================================================
+
+function renderVariantPanel(): string {
+  const wsState = workspaceStore.getState();
+  if (!wsState.isVariantPanelOpen) return '';
+
+  const { workspace } = wsState;
+  const activeVariant = workspaceStore.getActiveVariant();
+
+  return `
+    <div class="panel-overlay variant-panel-overlay">
+      <div class="panel variant-panel">
+        <div class="panel-header">
+          <h2>Resume Variants</h2>
+          <button class="btn-close-panel" data-panel="variant">&times;</button>
+        </div>
+        <div class="panel-content">
+          <div class="variant-list">
+            ${workspace.variants.map(variant => `
+              <div class="variant-item ${variant.id === workspace.activeVariantId ? 'active' : ''}" data-variant-id="${variant.id}">
+                <div class="variant-info">
+                  <div class="variant-name">${escapeHtml(variant.name)} ${variant.isDefault ? '<span class="badge">Master</span>' : ''}</div>
+                  ${variant.targetRole ? `<div class="variant-target">${escapeHtml(variant.targetRole)}${variant.targetCompany ? ` @ ${escapeHtml(variant.targetCompany)}` : ''}</div>` : ''}
+                  <div class="variant-meta">${variant.includedEntryIds.length} entries, ${variant.snapshots.length} snapshots</div>
+                </div>
+                <div class="variant-actions">
+                  <button class="btn-icon btn-select-variant" data-variant-id="${variant.id}" title="Select">&#10003;</button>
+                  <button class="btn-icon btn-duplicate-variant" data-variant-id="${variant.id}" title="Duplicate">&#9113;</button>
+                  ${!variant.isDefault ? `<button class="btn-icon btn-delete-variant" data-variant-id="${variant.id}" title="Delete">&times;</button>` : ''}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="variant-create">
+            <h3>Create New Variant</h3>
+            <input type="text" id="new-variant-name" placeholder="Variant name (e.g., Tech Lead at FAANG)" />
+            <input type="text" id="new-variant-role" placeholder="Target role (optional)" />
+            <input type="text" id="new-variant-company" placeholder="Target company (optional)" />
+            <button class="btn-primary btn-create-variant">Create Variant</button>
+          </div>
+          ${activeVariant && !activeVariant.isDefault ? `
+            <div class="variant-snapshots">
+              <h3>Snapshots for "${escapeHtml(activeVariant.name)}"</h3>
+              ${activeVariant.snapshots.length > 0 ? `
+                <div class="snapshot-list">
+                  ${activeVariant.snapshots.map(snapshot => `
+                    <div class="snapshot-item" data-snapshot-id="${snapshot.id}">
+                      <div class="snapshot-info">
+                        <div class="snapshot-name">${escapeHtml(snapshot.name)}</div>
+                        <div class="snapshot-date">${new Date(snapshot.createdAt).toLocaleDateString()}</div>
+                      </div>
+                      <div class="snapshot-actions">
+                        <button class="btn-sm btn-restore-snapshot" data-snapshot-id="${snapshot.id}">Restore</button>
+                        <button class="btn-sm btn-delete-snapshot" data-snapshot-id="${snapshot.id}">&times;</button>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              ` : '<p class="empty-state">No snapshots yet</p>'}
+              <div class="snapshot-create">
+                <input type="text" id="new-snapshot-name" placeholder="Snapshot name" />
+                <button class="btn-secondary btn-create-snapshot">Save Snapshot</button>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderJobPanel(): string {
+  const wsState = workspaceStore.getState();
+  if (!wsState.isJobPanelOpen) return '';
+
+  const { workspace, activeJobDescriptionId } = wsState;
+  const activeJob = workspace.jobDescriptions.find(j => j.id === activeJobDescriptionId);
+
+  return `
+    <div class="panel-overlay job-panel-overlay">
+      <div class="panel job-panel">
+        <div class="panel-header">
+          <h2>Job Descriptions</h2>
+          <button class="btn-close-panel" data-panel="job">&times;</button>
+        </div>
+        <div class="panel-content">
+          <div class="job-list">
+            ${workspace.jobDescriptions.length > 0 ? workspace.jobDescriptions.map(job => `
+              <div class="job-item ${job.id === activeJobDescriptionId ? 'active' : ''}" data-job-id="${job.id}">
+                <div class="job-info">
+                  <div class="job-title">${escapeHtml(job.title)}</div>
+                  <div class="job-company">${escapeHtml(job.company)}</div>
+                  <div class="job-keywords">${job.keywords.length} keywords</div>
+                </div>
+                <div class="job-actions">
+                  <button class="btn-icon btn-select-job" data-job-id="${job.id}" title="Select">&#10003;</button>
+                  <button class="btn-icon btn-analyze-job" data-job-id="${job.id}" title="Analyze">&#9783;</button>
+                  <button class="btn-icon btn-delete-job" data-job-id="${job.id}" title="Delete">&times;</button>
+                </div>
+              </div>
+            `).join('') : '<p class="empty-state">No job descriptions yet</p>'}
+          </div>
+          <div class="job-editor">
+            <h3>${activeJob ? 'Edit Job Description' : 'Add Job Description'}</h3>
+            <input type="text" id="job-title" placeholder="Job Title" value="${activeJob ? escapeHtml(activeJob.title) : ''}" />
+            <input type="text" id="job-company" placeholder="Company" value="${activeJob ? escapeHtml(activeJob.company) : ''}" />
+            <textarea id="job-description" placeholder="Paste job description here..." rows="8">${activeJob ? escapeHtml(activeJob.description) : ''}</textarea>
+            <input type="text" id="job-keywords" placeholder="Keywords (comma separated)" value="${activeJob ? escapeHtml(activeJob.keywords.join(', ')) : ''}" />
+            <div class="job-editor-actions">
+              ${activeJob ? `
+                <button class="btn-secondary btn-update-job">Update</button>
+                <button class="btn-primary btn-new-job">New Job</button>
+              ` : `
+                <button class="btn-primary btn-add-job">Add Job</button>
+              `}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderAnalysisPanel(): string {
+  const wsState = workspaceStore.getState();
+  if (!wsState.isAnalysisPanelOpen) return '';
+
+  const analysis = workspaceStore.getActiveAnalysis();
+  const { workspace } = wsState;
+
+  if (!analysis) {
+    return `
+      <div class="panel-overlay analysis-panel-overlay">
+        <div class="panel analysis-panel">
+          <div class="panel-header">
+            <h2>Resume Analysis</h2>
+            <button class="btn-close-panel" data-panel="analysis">&times;</button>
+          </div>
+          <div class="panel-content">
+            <p class="empty-state">No analysis yet. Select a job description and click "Analyze" to see how your resume matches.</p>
+            ${workspace.analyses.length > 0 ? `
+              <div class="analysis-history">
+                <h3>Previous Analyses</h3>
+                ${workspace.analyses.slice(-5).reverse().map(a => {
+                  const job = workspace.jobDescriptions.find(j => j.id === a.jobDescriptionId);
+                  const variant = workspace.variants.find(v => v.id === a.variantId);
+                  return `
+                    <div class="analysis-history-item" data-analysis-id="${a.id}">
+                      <div class="analysis-history-info">
+                        <span class="analysis-score score-${getScoreClass(a.overallScore)}">${a.overallScore}%</span>
+                        <span class="analysis-job">${job ? escapeHtml(job.title) : 'Unknown'}</span>
+                        <span class="analysis-variant">${variant ? escapeHtml(variant.name) : 'Unknown'}</span>
+                      </div>
+                      <button class="btn-sm btn-view-analysis" data-analysis-id="${a.id}">View</button>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  const job = workspace.jobDescriptions.find(j => j.id === analysis.jobDescriptionId);
+  const variant = workspace.variants.find(v => v.id === analysis.variantId);
+
+  return `
+    <div class="panel-overlay analysis-panel-overlay">
+      <div class="panel analysis-panel analysis-panel-full">
+        <div class="panel-header">
+          <h2>Resume Analysis</h2>
+          <button class="btn-close-panel" data-panel="analysis">&times;</button>
+        </div>
+        <div class="panel-content">
+          <div class="analysis-header">
+            <div class="analysis-score-large score-${getScoreClass(analysis.overallScore)}">
+              <span class="score-number">${analysis.overallScore}</span>
+              <span class="score-label">Match Score</span>
+            </div>
+            <div class="analysis-meta">
+              <div><strong>Job:</strong> ${job ? escapeHtml(job.title) + ' @ ' + escapeHtml(job.company) : 'Unknown'}</div>
+              <div><strong>Variant:</strong> ${variant ? escapeHtml(variant.name) : 'Unknown'}</div>
+              <div><strong>Analyzed:</strong> ${new Date(analysis.createdAt).toLocaleString()}</div>
+            </div>
+          </div>
+
+          ${analysis.strongPoints.length > 0 ? `
+            <div class="analysis-section">
+              <h3>Strong Points</h3>
+              <ul class="strong-points-list">
+                ${analysis.strongPoints.map(p => `<li class="strong-point">${escapeHtml(p)}</li>`).join('')}
+              </ul>
+            </div>
+          ` : ''}
+
+          ${analysis.missingSkills.length > 0 ? `
+            <div class="analysis-section">
+              <h3>Missing Skills</h3>
+              <div class="missing-skills">
+                ${analysis.missingSkills.map(s => `<span class="skill-tag missing">${escapeHtml(s)}</span>`).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          <div class="analysis-section">
+            <h3>Keyword Matches</h3>
+            <div class="keyword-matches">
+              ${analysis.keywordMatches.map(k => `
+                <span class="keyword-tag ${k.found ? 'found' : 'missing'} importance-${k.importance}" title="${k.importance} priority">
+                  ${escapeHtml(k.keyword)}
+                  ${k.found ? '&#10003;' : '&#10007;'}
+                </span>
+              `).join('')}
+            </div>
+          </div>
+
+          ${analysis.suggestions.length > 0 ? `
+            <div class="analysis-section">
+              <h3>Suggestions</h3>
+              <div class="suggestions-list">
+                ${analysis.suggestions.map(s => `
+                  <div class="suggestion-item priority-${s.priority} ${s.applied ? 'applied' : ''}">
+                    <div class="suggestion-type">${s.type.toUpperCase()}</div>
+                    <div class="suggestion-reason">${escapeHtml(s.reason)}</div>
+                    ${s.suggestedText ? `<div class="suggestion-text">"${escapeHtml(s.suggestedText)}"</div>` : ''}
+                    ${!s.applied ? `<button class="btn-sm btn-apply-suggestion" data-analysis-id="${analysis.id}" data-suggestion-id="${s.id}">Mark Done</button>` : '<span class="applied-badge">Applied</span>'}
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function getScoreClass(score: number): string {
+  if (score >= 80) return 'excellent';
+  if (score >= 60) return 'good';
+  if (score >= 40) return 'fair';
+  return 'poor';
+}
+
 // Auto-save indicator state
 let saveIndicatorTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -841,12 +1089,25 @@ function showSaveIndicator(status: 'saving' | 'saved'): void {
 
 function renderToolbar(): string {
   const { focusMode, isPreviewVisible } = store.getState();
+  const wsState = workspaceStore.getState();
+  const { workspace, isVariantPanelOpen, isJobPanelOpen, isAnalysisPanelOpen } = wsState;
 
   return `
     <div class="toolbar">
       <div class="toolbar-left">
         <span class="app-title">resumeyay</span>
         <span class="save-indicator">Saved</span>
+        <div class="toolbar-separator"></div>
+        <div class="variant-switcher">
+          <select id="variant-select" title="Active Variant">
+            ${workspace.variants.map(v => `
+              <option value="${v.id}" ${v.id === workspace.activeVariantId ? 'selected' : ''}>
+                ${escapeHtml(v.name)}${v.isDefault ? ' (Master)' : ''}
+              </option>
+            `).join('')}
+          </select>
+          <button class="btn-icon btn-variants ${isVariantPanelOpen ? 'active' : ''}" id="btn-variants" title="Manage Variants">&#9776;</button>
+        </div>
       </div>
       <div class="toolbar-center">
         <div class="focus-modes">
@@ -869,6 +1130,13 @@ function renderToolbar(): string {
         </div>
       </div>
       <div class="toolbar-right">
+        <button class="btn-toolbar ${isJobPanelOpen ? 'active' : ''}" id="btn-jobs" title="Job Descriptions">
+          Jobs
+        </button>
+        <button class="btn-toolbar ${isAnalysisPanelOpen ? 'active' : ''}" id="btn-analysis" title="Resume Analysis">
+          Analyze
+        </button>
+        <div class="toolbar-separator"></div>
         <button class="btn-toolbar ${isPreviewVisible ? 'active' : ''}"
                 id="btn-toggle-preview" title="Toggle Preview (Cmd+\\)">
           Preview
@@ -910,6 +1178,9 @@ function render(force: boolean = false): void {
         ${renderPreview()}
       </div>
       ${renderStyleStudio()}
+      ${renderVariantPanel()}
+      ${renderJobPanel()}
+      ${renderAnalysisPanel()}
     </div>
   `;
 
@@ -1122,6 +1393,206 @@ function setupEventDelegation(): void {
       input.click();
       return;
     }
+
+    // ============================================================================
+    // VARIANT PANEL HANDLERS
+    // ============================================================================
+
+    // Open variants panel
+    if (target.closest('#btn-variants')) {
+      workspaceStore.toggleVariantPanel();
+      return;
+    }
+
+    // Open jobs panel
+    if (target.closest('#btn-jobs')) {
+      workspaceStore.toggleJobPanel();
+      return;
+    }
+
+    // Open analysis panel
+    if (target.closest('#btn-analysis')) {
+      workspaceStore.toggleAnalysisPanel();
+      return;
+    }
+
+    // Close panels
+    const closeBtn = target.closest('.btn-close-panel') as HTMLElement | null;
+    if (closeBtn) {
+      const panel = closeBtn.dataset.panel;
+      if (panel === 'variant') workspaceStore.toggleVariantPanel();
+      else if (panel === 'job') workspaceStore.toggleJobPanel();
+      else if (panel === 'analysis') workspaceStore.toggleAnalysisPanel();
+      return;
+    }
+
+    // Select variant
+    const selectVariantBtn = target.closest('.btn-select-variant') as HTMLElement | null;
+    if (selectVariantBtn) {
+      const variantId = selectVariantBtn.dataset.variantId!;
+      workspaceStore.setActiveVariant(variantId);
+      return;
+    }
+
+    // Duplicate variant
+    const duplicateVariantBtn = target.closest('.btn-duplicate-variant') as HTMLElement | null;
+    if (duplicateVariantBtn) {
+      const variantId = duplicateVariantBtn.dataset.variantId!;
+      workspaceStore.duplicateVariant(variantId);
+      return;
+    }
+
+    // Delete variant
+    const deleteVariantBtn = target.closest('.btn-delete-variant') as HTMLElement | null;
+    if (deleteVariantBtn) {
+      const variantId = deleteVariantBtn.dataset.variantId!;
+      if (confirm('Delete this variant?')) {
+        workspaceStore.deleteVariant(variantId);
+      }
+      return;
+    }
+
+    // Create variant
+    if (target.closest('.btn-create-variant')) {
+      const name = (document.getElementById('new-variant-name') as HTMLInputElement)?.value.trim();
+      const role = (document.getElementById('new-variant-role') as HTMLInputElement)?.value.trim();
+      const company = (document.getElementById('new-variant-company') as HTMLInputElement)?.value.trim();
+      if (name) {
+        workspaceStore.createVariant(name, role || undefined, company || undefined);
+      }
+      return;
+    }
+
+    // Create snapshot
+    if (target.closest('.btn-create-snapshot')) {
+      const name = (document.getElementById('new-snapshot-name') as HTMLInputElement)?.value.trim();
+      const activeVariant = workspaceStore.getActiveVariant();
+      if (name && activeVariant) {
+        workspaceStore.createSnapshot(activeVariant.id, name);
+      }
+      return;
+    }
+
+    // Restore snapshot
+    const restoreSnapshotBtn = target.closest('.btn-restore-snapshot') as HTMLElement | null;
+    if (restoreSnapshotBtn) {
+      const snapshotId = restoreSnapshotBtn.dataset.snapshotId!;
+      const activeVariant = workspaceStore.getActiveVariant();
+      if (activeVariant && confirm('Restore this snapshot? Current selection will be replaced.')) {
+        workspaceStore.restoreSnapshot(activeVariant.id, snapshotId);
+      }
+      return;
+    }
+
+    // Delete snapshot
+    const deleteSnapshotBtn = target.closest('.btn-delete-snapshot') as HTMLElement | null;
+    if (deleteSnapshotBtn) {
+      const snapshotId = deleteSnapshotBtn.dataset.snapshotId!;
+      const activeVariant = workspaceStore.getActiveVariant();
+      if (activeVariant && confirm('Delete this snapshot?')) {
+        workspaceStore.deleteSnapshot(activeVariant.id, snapshotId);
+      }
+      return;
+    }
+
+    // ============================================================================
+    // JOB PANEL HANDLERS
+    // ============================================================================
+
+    // Select job
+    const selectJobBtn = target.closest('.btn-select-job') as HTMLElement | null;
+    if (selectJobBtn) {
+      const jobId = selectJobBtn.dataset.jobId!;
+      workspaceStore.setActiveJobDescription(jobId);
+      return;
+    }
+
+    // Delete job
+    const deleteJobBtn = target.closest('.btn-delete-job') as HTMLElement | null;
+    if (deleteJobBtn) {
+      const jobId = deleteJobBtn.dataset.jobId!;
+      if (confirm('Delete this job description?')) {
+        workspaceStore.deleteJobDescription(jobId);
+      }
+      return;
+    }
+
+    // Add job
+    if (target.closest('.btn-add-job')) {
+      const title = (document.getElementById('job-title') as HTMLInputElement)?.value.trim();
+      const company = (document.getElementById('job-company') as HTMLInputElement)?.value.trim();
+      const description = (document.getElementById('job-description') as HTMLTextAreaElement)?.value.trim();
+      const keywordsStr = (document.getElementById('job-keywords') as HTMLInputElement)?.value.trim();
+      const keywords = keywordsStr ? keywordsStr.split(',').map(k => k.trim()).filter(Boolean) : workspaceStore.extractKeywords(description);
+
+      if (title && company) {
+        workspaceStore.addJobDescription({
+          title,
+          company,
+          description,
+          requirements: [],
+          keywords,
+        });
+      }
+      return;
+    }
+
+    // Update job
+    if (target.closest('.btn-update-job')) {
+      const wsState = workspaceStore.getState();
+      const jobId = wsState.activeJobDescriptionId;
+      if (jobId) {
+        const title = (document.getElementById('job-title') as HTMLInputElement)?.value.trim();
+        const company = (document.getElementById('job-company') as HTMLInputElement)?.value.trim();
+        const description = (document.getElementById('job-description') as HTMLTextAreaElement)?.value.trim();
+        const keywordsStr = (document.getElementById('job-keywords') as HTMLInputElement)?.value.trim();
+        const keywords = keywordsStr ? keywordsStr.split(',').map(k => k.trim()).filter(Boolean) : [];
+
+        workspaceStore.updateJobDescription(jobId, { title, company, description, keywords });
+      }
+      return;
+    }
+
+    // New job (clear form)
+    if (target.closest('.btn-new-job')) {
+      workspaceStore.setActiveJobDescription(null);
+      return;
+    }
+
+    // Analyze job
+    const analyzeJobBtn = target.closest('.btn-analyze-job') as HTMLElement | null;
+    if (analyzeJobBtn) {
+      const jobId = analyzeJobBtn.dataset.jobId!;
+      const activeVariant = workspaceStore.getActiveVariant();
+      if (activeVariant) {
+        workspaceStore.analyzeResumeVsJob(activeVariant.id, jobId).then(() => {
+          workspaceStore.toggleJobPanel();
+          workspaceStore.toggleAnalysisPanel();
+        });
+      }
+      return;
+    }
+
+    // ============================================================================
+    // ANALYSIS PANEL HANDLERS
+    // ============================================================================
+
+    // View analysis
+    const viewAnalysisBtn = target.closest('.btn-view-analysis') as HTMLElement | null;
+    if (viewAnalysisBtn) {
+      const analysisId = viewAnalysisBtn.dataset.analysisId!;
+      workspaceStore.setActiveAnalysis(analysisId);
+      return;
+    }
+
+    // Apply suggestion
+    const applySuggestionBtn = target.closest('.btn-apply-suggestion') as HTMLElement | null;
+    if (applySuggestionBtn) {
+      const analysisId = applySuggestionBtn.dataset.analysisId!;
+      const suggestionId = applySuggestionBtn.dataset.suggestionId!;
+      workspaceStore.applySuggestion(analysisId, suggestionId);
+      return;
+    }
   });
 
   // Handle all input events via delegation with debouncing
@@ -1233,9 +1704,17 @@ function setupEventDelegation(): void {
     }
   }, true);
 
-  // Handle style control changes via delegation
+  // Handle style control and other select changes via delegation
   app.addEventListener('change', (e) => {
     const target = e.target as HTMLInputElement | HTMLSelectElement;
+
+    // Variant select dropdown
+    if (target.id === 'variant-select') {
+      workspaceStore.setActiveVariant(target.value);
+      return;
+    }
+
+    // Style controls
     if (!target.dataset.style) return;
 
     const path = target.dataset.style;
@@ -1339,11 +1818,22 @@ function setupEventDelegation(): void {
 function init(): void {
   // Subscribe to store changes - skip render when typing (handled by shouldSkipRender)
   store.subscribe(() => {
+    // Sync content pool changes to workspace
+    workspaceStore.syncContentPool(store.getState().resume);
+    render();
+  });
+
+  // Subscribe to workspace store changes
+  workspaceStore.subscribe(() => {
     render();
   });
 
   // Subscribe to save events for the save indicator
   store.onSave(() => {
+    showSaveIndicator('saved');
+  });
+
+  workspaceStore.onSave(() => {
     showSaveIndicator('saved');
   });
 

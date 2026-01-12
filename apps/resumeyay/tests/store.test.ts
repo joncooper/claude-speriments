@@ -61,10 +61,11 @@ describe('Factory Functions', () => {
   test('createSampleResume creates a resume with sample data', () => {
     const resume = createSampleResume();
     expect(resume.id).toBeDefined();
-    expect(resume.header.name).toBe('Jane Developer');
-    expect(resume.header.email).toBe('jane@example.com');
+    expect(resume.header.name).toBe('Jon Cooper');
+    expect(resume.header.email).toBe('jon.cooper@gmail.com');
     expect(resume.sections.length).toBeGreaterThan(0);
-    expect(resume.sections[0].type).toBe('experience');
+    // First section is Summary (custom type)
+    expect(resume.sections[0].type).toBe('custom');
   });
 
   test('createEmptyResume creates a blank resume', () => {
@@ -656,7 +657,7 @@ describe('Resume Reset', () => {
     store.resetToSample();
 
     const state = store.getState();
-    expect(state.resume.header.name).toBe('Jane Developer');
+    expect(state.resume.header.name).toBe('Jon Cooper');
   });
 
   test('newResume creates a blank resume', () => {

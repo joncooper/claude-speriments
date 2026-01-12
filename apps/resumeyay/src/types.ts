@@ -257,3 +257,110 @@ export interface CellPosition {
   column: 'employer' | 'role' | 'metadata' | 'content';
   bulletIndex?: number;
 }
+
+// ============================================================================
+// RESUME DNA - Variant System Types
+// ============================================================================
+
+/**
+ * A Snapshot is a point-in-time save of a variant's configuration.
+ * Useful for versioning different iterations of a resume variant.
+ */
+export interface Snapshot {
+  id: string;
+  name: string;
+  createdAt: string;
+  includedEntryIds: string[];  // Which entries from content pool are included
+  includedBulletIds: string[]; // Which bullets within entries are included
+  notes?: string;
+}
+
+/**
+ * A Variant is a configuration of the resume content pool for a specific purpose.
+ * For example: "Tech Lead at FAANG" vs "Engineering Manager at Startup"
+ */
+export interface ResumeVariant {
+  id: string;
+  name: string;
+  targetRole?: string;
+  targetCompany?: string;
+  createdAt: string;
+  updatedAt: string;
+  includedEntryIds: string[];  // Which entries from content pool are included
+  includedBulletIds: string[]; // Which bullets within entries are included
+  snapshots: Snapshot[];
+  isDefault?: boolean;
+}
+
+/**
+ * A Job Description for targeting the resume.
+ */
+export interface JobDescription {
+  id: string;
+  title: string;
+  company: string;
+  description: string;
+  requirements: string[];
+  keywords: string[];
+  url?: string;
+  createdAt: string;
+}
+
+/**
+ * Analysis result from LLM evaluation of resume vs job description.
+ */
+export interface ResumeAnalysis {
+  id: string;
+  variantId: string;
+  jobDescriptionId: string;
+  createdAt: string;
+  overallScore: number; // 0-100
+  keywordMatches: KeywordMatch[];
+  suggestions: Suggestion[];
+  missingSkills: string[];
+  strongPoints: string[];
+}
+
+export interface KeywordMatch {
+  keyword: string;
+  found: boolean;
+  inEntryIds: string[];
+  importance: 'high' | 'medium' | 'low';
+}
+
+export interface Suggestion {
+  id: string;
+  type: 'add' | 'modify' | 'remove' | 'reorder';
+  targetEntryId?: string;
+  targetBulletId?: string;
+  currentText?: string;
+  suggestedText?: string;
+  reason: string;
+  priority: 'high' | 'medium' | 'low';
+  applied?: boolean;
+}
+
+/**
+ * The Resume Workspace contains the content pool and all variants.
+ * This is the new top-level data structure.
+ */
+export interface ResumeWorkspace {
+  id: string;
+  contentPool: Resume;           // Master content (all entries/bullets)
+  variants: ResumeVariant[];     // Different configurations of the content
+  activeVariantId: string;       // Currently selected variant
+  jobDescriptions: JobDescription[];
+  analyses: ResumeAnalysis[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Extended EditorState to support variants
+export interface EditorStateV2 extends EditorState {
+  workspace: ResumeWorkspace;
+  isVariantPanelOpen: boolean;
+  isJobPanelOpen: boolean;
+  isAnalysisPanelOpen: boolean;
+  activeJobDescriptionId: string | null;
+  activeAnalysisId: string | null;
+}
