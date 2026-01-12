@@ -104,6 +104,35 @@ An **interactive music instrument** controlled entirely by hand gestures. No key
 
 ---
 
+#### 💼 [Investor Due Diligence Management System](./apps/investor-dd-system/)
+
+An **AI-powered system** to streamline hedge fund LP due diligence processes, transforming time-consuming DDQ completion into an efficient, consistent, and auditable workflow.
+
+**What it does:** Manages the two core DD workflows - initial onboarding DDQs (100-500 questions) and periodic/recurring DD (annual updates, ad-hoc requests) - using LLMs, RAG, and agentic approaches.
+
+**Key features:**
+- **AI-Powered Drafting**: Generate answers using RAG over firm documents with 70%+ auto-draft rate
+- **Consistency Engine**: Automatic detection of contradictions across all investor communications
+- **Smart Routing**: Questions auto-classified and routed to appropriate subject matter experts
+- **Master Answer Library**: Build institutional knowledge that improves over time
+- **Complete Audit Trail**: Track who said what, when, to whom for compliance
+
+**Architecture:**
+- RAG pipeline with document embeddings and semantic search
+- Multi-LLM support (Claude + OpenAI) for reliability
+- PostgreSQL with pgvector for structured + vector data
+- FastAPI backend, Next.js frontend
+- Human-in-the-loop approval workflows
+
+**Target outcomes:**
+- Initial DDQ: 2-4 weeks → 3-5 days
+- Time per question: 15-30 min → 2-5 min
+- Consistency rate: >99%
+
+**Status:** 📋 Planning Phase (comprehensive plan complete)
+
+---
+
 #### 🏠 [3D Room Planner](./apps/3d-scan-viewer/)
 
 An **interactive room planning tool** for iPhone RoomPlanner scans. Remove furniture, paint walls, and try virtual furniture arrangements with real dimensions.
@@ -277,13 +306,16 @@ claude-speriments/
 │   │   ├── backend/             # Express + Puppeteer API server
 │   │   ├── frontend/            # React + Vite + Tailwind UI
 │   │   └── package.json         # Root scripts
-│   └── visual-sound-mirror/     # Interactive art piece with camera and audio
-│       ├── README.md            # Usage guide
-│       ├── NOTES.md             # Implementation notes
-│       ├── ICEBOX.md            # Future enhancements
-│       ├── index.html           # Main application
-│       ├── app.js               # Application logic
-│       └── styles.css           # Styling
+│   ├── visual-sound-mirror/     # Interactive art piece with camera and audio
+│   │   ├── README.md            # Usage guide
+│   │   ├── NOTES.md             # Implementation notes
+│   │   ├── ICEBOX.md            # Future enhancements
+│   │   ├── index.html           # Main application
+│   │   ├── app.js               # Application logic
+│   │   └── styles.css           # Styling
+│   └── investor-dd-system/      # Investor DD Management System (planning phase)
+│       ├── README.md            # Project overview
+│       └── PLAN.md              # Comprehensive product and technical plan
 ├── agents/                      # Agent configurations and workflows
 │   ├── forensic-accounting/     # Forensic Accounting Agent
 │   │   ├── README.md            # Usage guide and installation
@@ -318,7 +350,7 @@ claude-speriments/
 
 This repository is organized to support various types of Claude Code experiments:
 
-- **`apps/`** - Collaborative applications built with Claude (e.g., Twitter Data Analyzer, Analyst Workspace, AuctionNinja Nearby Finder, Visual Sound Mirror)
+- **`apps/`** - Collaborative applications built with Claude (e.g., Twitter Data Analyzer, Analyst Workspace, Investor DD System, Visual Sound Mirror)
 - **`agents/`** - Agent configurations and workflows (e.g., Forensic Accounting Agent)
 - **`skills/`** - Slash commands and skills for Claude Code (e.g., Verbalized Sampling, Cialdini Persuasion)
 - **Future directories** - As the repository grows, we'll add more specialized directories (hooks/, mcp/, etc.)
