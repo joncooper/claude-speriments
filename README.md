@@ -168,6 +168,43 @@ An **interactive room planning tool** for iPhone RoomPlanner scans. Remove furni
 
 ---
 
+#### 🎙️ [Audio Transcription CLI](./apps/audio-transcription-cli/)
+
+A **powerful command-line tool** for transcribing audio files using local AI models with speaker diarization and voice activity detection.
+
+**What it does:** Transcribe m4a, mp3, wav, and other audio files using state-of-the-art local models with automatic speaker detection and beautiful CLI output.
+
+**Multi-Model Support:**
+- **Whisper Large v3 Turbo** (default) - 8x faster, ~6GB VRAM, best for quick transcriptions
+- **IBM Granite Speech 3.3 8B** - Highest accuracy, multilingual (EN/FR/DE/ES/PT), ~16GB VRAM
+- **NVIDIA Canary-Qwen 2.5B** - Very fast (418 RTFx), English-only, ~10GB VRAM
+
+**Key features:**
+- **Speaker Diarization** - Automatically detect and label different speakers using pyannote.audio
+- **Voice Activity Detection (VAD)** - Skip silent portions for faster processing
+- **Beautiful CLI** - Rich progress bars, formatted output, model comparison table
+- **Markdown Output** - Formatted transcripts with timestamps and speaker labels
+- **Privacy-First** - All processing happens locally, no data sent to cloud services
+- **GPU & CPU Support** - Automatic device detection with memory optimization
+
+**Usage examples:**
+```bash
+# Quick transcription
+uv run python -m src audio.m4a
+
+# With speaker diarization
+uv run python -m src interview.m4a --diarize -o transcript.md
+
+# Choose model
+uv run python -m src audio.m4a --model granite --language es
+```
+
+**Tech stack:** Python 3.11+, typer + rich, faster-whisper, transformers, pyannote.audio, torch
+
+**Status:** ✅ Complete
+
+---
+
 ### Agents
 
 #### 🔍 [Forensic Accounting Agent](./agents/forensic-accounting/)
@@ -306,16 +343,25 @@ claude-speriments/
 │   │   ├── backend/             # Express + Puppeteer API server
 │   │   ├── frontend/            # React + Vite + Tailwind UI
 │   │   └── package.json         # Root scripts
-│   ├── visual-sound-mirror/     # Interactive art piece with camera and audio
+│   ├── audio-transcription-cli/ # Audio Transcription CLI
 │   │   ├── README.md            # Usage guide
+│   │   ├── QUICKSTART.md        # 5-minute setup guide
 │   │   ├── NOTES.md             # Implementation notes
 │   │   ├── ICEBOX.md            # Future enhancements
-│   │   ├── index.html           # Main application
-│   │   ├── app.js               # Application logic
-│   │   └── styles.css           # Styling
-│   └── investor-dd-system/      # Investor DD Management System (planning phase)
-│       ├── README.md            # Project overview
-│       └── PLAN.md              # Comprehensive product and technical plan
+│   │   ├── src/                 # Python package
+│   │   ├── examples/            # Usage examples
+│   │   ├── pyproject.toml       # Project metadata & dependencies
+│   │   └── requirements.txt     # Legacy pip support
+│   ├── investor-dd-system/      # Investor DD Management System (planning phase)
+│   │   ├── README.md            # Project overview
+│   │   └── PLAN.md              # Comprehensive product and technical plan
+│   └── visual-sound-mirror/     # Interactive art piece with camera and audio
+│       ├── README.md            # Usage guide
+│       ├── NOTES.md             # Implementation notes
+│       ├── ICEBOX.md            # Future enhancements
+│       ├── index.html           # Main application
+│       ├── app.js               # Application logic
+│       └── styles.css           # Styling
 ├── agents/                      # Agent configurations and workflows
 │   ├── forensic-accounting/     # Forensic Accounting Agent
 │   │   ├── README.md            # Usage guide and installation
@@ -350,8 +396,8 @@ claude-speriments/
 
 This repository is organized to support various types of Claude Code experiments:
 
-- **`apps/`** - Collaborative applications built with Claude (e.g., Twitter Data Analyzer, Analyst Workspace, Investor DD System, Visual Sound Mirror)
-- **`agents/`** - Agent configurations and workflows (e.g., Forensic Accounting Agent)
+- **`apps/`** - Collaborative applications built with Claude (e.g., Twitter Data Analyzer, Analyst Workspace, AuctionNinja Nearby Finder, Audio Transcription CLI, Investor DD System, Visual Sound Mirror)
+- **`agents/`** - Agent configurations and workflows (e.g., Forensic Accounting Agent, Management Integrity Agent)
 - **`skills/`** - Slash commands and skills for Claude Code (e.g., Verbalized Sampling, Cialdini Persuasion)
 - **Future directories** - As the repository grows, we'll add more specialized directories (hooks/, mcp/, etc.)
 
@@ -375,5 +421,4 @@ If you use any of these experiments in research or writing, please cite the orig
 
 ---
 
-**Repository maintained by:** [Your details]
-**Last updated:** October 2025
+**Last updated:** January 2026
