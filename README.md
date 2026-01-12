@@ -7,7 +7,7 @@ A collection of applications, agents, and skills exploring Claude Code's capabil
 | Name | Type | Description | Status |
 |------|------|-------------|--------|
 | [Twitter Data Analyzer](./apps/twitter-data-analyzer/) | App | CLI to audit Twitter profiles with AI analysis | Complete |
-| [Analyst Workspace](./apps/analyst-workspace/) | App | Claude-powered equity research tools | In Development |
+| [Analyst Workspace](./apps/analyst-workspace/) | App | Claude-powered equity research tools | Iterating |
 | [AuctionNinja Finder](./apps/auction-ninja-app/) | App | Find nearby auctions ending soon | Complete |
 | [Visual Sound Mirror](./apps/visual-sound-mirror/) | App | Gesture-controlled music instrument | Complete |
 | [3D Room Planner](./apps/3d-scan-viewer/) | App | Edit iPhone room scans, add virtual furniture | Complete |
@@ -15,7 +15,7 @@ A collection of applications, agents, and skills exploring Claude Code's capabil
 | [DBT Daily Logger](./apps/dbt-daily-logger/) | App | Flutter app for DBT diary tracking | Complete |
 | [Sideshow](./apps/gist-app-highlight/) | App | Annotated markdown viewer with Firebase | Complete |
 | [Ghostty Explainer](./apps/ghostty-explainer/) | App | Interactive contributor's guide to Ghostty | Complete |
-| [Email-to-LLM](./apps/email-llm-poc/) | App | Email conversations with AI via SendGrid | In Development |
+| [Email-to-LLM](./apps/email-llm-poc/) | App | Email conversations with AI via SendGrid | Initial Spike |
 | [Investor DD System](./apps/investor-dd-system/) | App | AI-powered due diligence for hedge funds | Planning |
 | [Forensic Accounting](./agents/forensic-accounting/) | Agent | Detect earnings manipulation with Beneish M-Score | Complete |
 | [Management Integrity](./agents/equity-mgmt-integrity/) | Agent | Track if management keeps commitments | Complete |
@@ -32,7 +32,7 @@ CLI to download, store, and analyze your Twitter/X data using DuckDB and Google 
 
 ### Analyst Workspace
 Claude Code-powered tools for equity research analysts. Autonomous agents perform deep-dive company research, saving 4-6 hours of manual work per analysis.
-**Status:** In Development | [Learn more](./apps/analyst-workspace/)
+**Status:** Iterating | [Learn more](./apps/analyst-workspace/)
 
 ### AuctionNinja Nearby Finder
 Full-stack web app to find auctions on AuctionNinja.com ending soon within a specified radius. React + Express + Puppeteer with beautiful responsive UI.
@@ -64,7 +64,7 @@ Interactive explainer website for developers wanting to contribute to Ghostty te
 
 ### Email-to-LLM Conversation System
 Proof-of-concept enabling turn-by-turn conversations with an LLM via email. Firebase + SendGrid + Gemini with proper threading and context preservation.
-**Status:** In Development | [Learn more](./apps/email-llm-poc/)
+**Status:** Initial Spike | [Learn more](./apps/email-llm-poc/)
 
 ### Investor Due Diligence Management System
 AI-powered system to streamline hedge fund LP due diligence. RAG-based answer drafting, consistency checking, smart routing to SMEs, and complete audit trail.

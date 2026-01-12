@@ -2,6 +2,24 @@
 
 This document provides guidance for working with the `claude-speriments` repository in Claude Code. It explains the repository structure, conventions, and best practices for adding new experiments and applications.
 
+**Audience:** Claude Code sessions working in this repository. Read this file at the start of any session.
+
+## Table of Contents
+
+- [Repository Purpose](#repository-purpose)
+- [Repository Structure](#repository-structure)
+- [Directory Organization](#directory-organization)
+- [README Documentation Strategy](#readme-documentation-strategy)
+- [Project Status Conventions](#project-status-conventions)
+- [Standard Project Files](#standard-project-files)
+- [Working with This Repository](#working-with-this-repository)
+- [Conventions by Language](#conventions-by-language)
+- [Common Patterns](#common-patterns)
+- [Tips for Claude Code Sessions](#tips-for-claude-code-sessions)
+- [Questions and Feedback](#questions-and-feedback)
+
+---
+
 ## Repository Purpose
 
 This repository is a collection of experiments exploring Claude Code's capabilities, including:
@@ -29,47 +47,48 @@ claude-speriments/
 ├── skills/                      # Slash commands and skills
 │   ├── verbalized-sampling/     # Prompting technique experiments
 │   └── cialdini-persuasion/     # Prompting technique experiments
+├── docs/                        # GitHub Pages deployments
 └── [future directories]/        # hooks/, mcp/, etc.
 ```
 
-### Directory Organization
+## Directory Organization
 
-#### `apps/` - Collaborative Applications
+### `apps/` - Collaborative Applications
 
 **Purpose:** Full-featured applications built collaboratively with Claude Code.
 
 **What goes here:**
 - Complete CLI tools and utilities
-- Web applications
+- Web applications (client-side or full-stack)
+- Mobile applications (Flutter, React Native)
 - Desktop applications
 - Scripts that solve specific problems
-- Production-ready or near-production code
 
 **Structure:**
 ```
-apps/
-└── app-name/
-    ├── README.md              # Usage guide
-    ├── NOTES.md               # Implementation notes
-    ├── ICEBOX.md              # Future enhancement backlog
-    ├── src/                   # Source code
-    ├── tests/                 # Tests (if applicable)
-    ├── docs/                  # Additional documentation
-    └── pyproject.toml         # Dependencies (Python projects)
+apps/app-name/
+├── README.md              # Comprehensive usage guide
+├── NOTES.md               # Implementation decisions and learnings
+├── ICEBOX.md              # Future enhancement backlog
+├── src/                   # Source code
+├── prompts/               # External prompt files (if AI-powered)
+├── tests/                 # Tests (if applicable)
+└── [config files]         # pyproject.toml, package.json, pubspec.yaml, etc.
 ```
 
 **Examples:**
-- `apps/twitter-data-analyzer/` - CLI tool to audit Twitter profiles (Python)
-- `apps/gist-app-highlight/` - Annotated markdown viewer with Firebase (TypeScript + Vite + bun)
+- `apps/twitter-data-analyzer/` - Python CLI with DuckDB and Gemini
+- `apps/gist-app-highlight/` - TypeScript + Vite + Firebase web app
+- `apps/dbt-daily-logger/` - Flutter mobile app with Firebase
 
 **Best practices:**
 - Each app should be self-contained with its own README
-- Use modern package managers (uv for Python, bun for JavaScript/TypeScript)
-- Include comprehensive documentation
-- Store prompts in external files (prompts/ directory)
-- Maintain an ICEBOX.md for future ideas
+- Use modern package managers (uv for Python, bun for JS/TS, flutter for Dart)
+- Store prompts in external files (`prompts/` directory) for easy iteration
+- Include `.env.example` for any required configuration
+- Maintain ICEBOX.md for future ideas that arise during development
 
-#### `skills/` - Slash Commands and Skills
+### `skills/` - Slash Commands and Skills
 
 **Purpose:** Slash commands and skills for Claude Code, including prompting techniques and research implementations.
 
@@ -78,66 +97,69 @@ apps/
 - Prompting technique demonstrations
 - Research paper implementations
 - Technique showcases
-- Custom skills for Claude Code
 
 **Structure:**
 ```
-skills/
-└── skill-name/
-    ├── README.md              # Usage guide
-    ├── NOTES.md               # Implementation notes
-    ├── PAPER_SUMMARY.md       # Research summary (if applicable)
-    ├── commands/              # Slash commands
-    │   ├── command1.md
-    │   └── command2.md
-    └── examples/              # Example outputs
+skills/skill-name/
+├── README.md              # Usage guide with examples
+├── NOTES.md               # Implementation notes
+├── PAPER_SUMMARY.md       # Research summary (if based on a paper)
+├── commands/              # Slash command files
+│   ├── command1.md
+│   └── command2.md
+└── examples/              # Example outputs
 ```
 
 **Examples:**
-- `skills/verbalized-sampling/` - Implements research on improving LLM diversity
-- `skills/cialdini-persuasion/` - Applies psychological principles to prompts
+- `skills/verbalized-sampling/` - Research paper implementation (arXiv:2510.01171)
+- `skills/cialdini-persuasion/` - Psychology-based prompting techniques
 
 **Best practices:**
 - Document the research or technique being explored
 - Provide clear examples and usage instructions
 - Include citations for research papers
-- Test commands before committing
+- Test commands manually before committing
+- Show before/after comparisons when demonstrating techniques
 
-#### `agents/` - Agent Configurations
+### `agents/` - Agent Configurations
 
-**Purpose:** Specialized agents for specific analytical or research tasks.
+**Purpose:** Specialized agents for specific analytical or research tasks, typically using MCP servers for data access.
 
 **What goes here:**
-- Agents that use MCP servers for data access
+- Agents that use MCP servers for external data
 - Multi-step analytical workflows
 - Slash commands that invoke complex agent behavior
+- Domain-specific analysis tools
 
 **Structure:**
 ```
-agents/
-└── agent-name/
-    ├── README.md              # Comprehensive usage guide
-    ├── TESTING.md             # Testing instructions
-    ├── commands/              # Slash commands
-    ├── lib/                   # Python analysis library
-    └── data/                  # Generated reports and data
+agents/agent-name/
+├── README.md              # Comprehensive usage guide with examples
+├── TESTING.md             # Testing instructions and sample tickers/inputs
+├── commands/              # Slash commands that invoke the agent
+├── lib/                   # Python analysis library (if applicable)
+└── data/                  # Generated reports and cached data
 ```
 
 **Examples:**
-- `agents/forensic-accounting/` - Beneish M-Score and red flag detection
-- `agents/equity-mgmt-integrity/` - Management credibility analysis
+- `agents/forensic-accounting/` - SEC EDGAR analysis with Beneish M-Score
+- `agents/equity-mgmt-integrity/` - Management credibility tracking from filings
 
-#### Future Directories
+**Best practices:**
+- Document MCP server dependencies clearly in README
+- Include sample inputs for testing (e.g., known-good ticker symbols)
+- Store generated reports in `data/` with clear naming conventions
+- Provide TESTING.md with step-by-step verification instructions
+- Handle API errors gracefully with informative messages
+
+### Future Directories
 
 As the repository grows, we'll add:
 
-- **`hooks/`** - Session hooks and automation
-  - SessionStart hooks for project setup
-  - Custom hook implementations
+- **`hooks/`** - Session hooks and automation (SessionStart, etc.)
+- **`mcp/`** - Custom Model Context Protocol server implementations
 
-- **`mcp/`** - Model Context Protocol servers
-  - Custom MCP implementations
-  - Tool servers and integrations
+---
 
 ## README Documentation Strategy
 
@@ -151,7 +173,7 @@ The root `README.md` serves as a **quick reference index**, not comprehensive do
 - **No Feature Lists** - Detailed features belong in project READMEs
 - **No Directory Trees** - Avoid redundant structure documentation
 
-**Rationale:** The main README should help users quickly find what they're looking for and navigate to project-specific documentation. It's an index, not a manual.
+**Rationale:** The main README helps users quickly find what they're looking for and navigate to project-specific documentation. It's an index, not a manual.
 
 ### Project READMEs (Comprehensive Documentation)
 Each project's `README.md` contains **all the details**:
@@ -161,7 +183,6 @@ Each project's `README.md` contains **all the details**:
 - Usage examples and commands
 - Technical architecture and design decisions
 - Troubleshooting guides
-- Project structure diagrams
 
 **Rationale:** Detailed documentation lives where the code lives. This keeps docs in sync and makes projects self-contained.
 
@@ -176,230 +197,209 @@ Each project's `README.md` contains **all the details**:
 ### README Maintenance
 
 - When updating features, update the **project README only**
-- The main README description should rarely change
+- The main README description should rarely change after initial creation
 - Update the main README's "Last updated" date when adding new projects
+
+---
+
+## Project Status Conventions
+
+Use these status labels consistently across READMEs:
+
+| Status | Meaning |
+|--------|---------|
+| **Planning** | Idea documented, not yet started. May have design docs or specs. |
+| **Initial Spike** | First working version in progress. Core functionality being built. |
+| **Iterating** | Working version exists. Actively improving based on usage. |
+| **Complete** | Stable, documented, ready for use. May receive maintenance updates. |
+
+Update status in both the Quick Reference table and the project section when it changes.
+
+---
+
+## Standard Project Files
+
+### NOTES.md - Implementation Decisions
+
+Use NOTES.md to document:
+- **Why** decisions were made (not just what)
+- Trade-offs considered and rejected approaches
+- Lessons learned during implementation
+- Technical debt acknowledged but deferred
+- Links to relevant documentation or research
+
+This creates institutional memory for future sessions.
+
+### ICEBOX.md - Future Ideas
+
+Use ICEBOX.md to capture:
+- Feature ideas that arose during development
+- Nice-to-haves that aren't critical
+- User requests for future consideration
+- Refactoring ideas for later
+- Integration possibilities
+
+This prevents scope creep while preserving good ideas.
+
+---
 
 ## Working with This Repository
 
 ### Adding a New Application
 
-1. Create a new directory under `apps/`
-2. Set up the project structure with README, NOTES, and ICEBOX
-3. Use modern tooling (uv for Python, etc.)
-4. Store prompts in `prompts/` subdirectory
-5. Include comprehensive documentation
-6. Commit with descriptive messages
+1. Create directory under `apps/` with kebab-case name
+2. Initialize with appropriate tooling (see [Conventions by Language](#conventions-by-language))
+3. Create README.md with comprehensive documentation
+4. Create NOTES.md and ICEBOX.md (can start empty)
+5. Add brief entry to main README (table row + short section)
+6. Commit with descriptive message
 
 ### Adding a New Skill
 
-1. Create a new directory under `skills/` with a descriptive name
-2. Add README with overview and usage
-3. Add NOTES.md with implementation details
-4. Create `commands/` directory for slash commands
-5. Include examples and test cases
-6. Document any research or techniques used
+1. Create directory under `skills/` with descriptive name
+2. Create README.md with overview, installation, and usage
+3. Create `commands/` directory with slash command `.md` files
+4. Add NOTES.md documenting the technique or research
+5. Include examples showing the technique in action
+6. Add brief entry to main README
+7. Test commands before committing
 
-### Conventions
+### Adding a New Agent
 
-#### Python Projects
-- Use **uv** as the primary package manager (10-100x faster than pip)
-- Include both `pyproject.toml` (modern) and `requirements.txt` (legacy support)
-- Use `.python-version` to specify Python version
-- Store configuration in `.env` files (with `.env.example` templates)
-- Follow PEP 8 style guidelines
+1. Create directory under `agents/` with descriptive name
+2. Document MCP server dependencies in README.md
+3. Create `commands/` directory with slash command files
+4. Add TESTING.md with verification steps and sample inputs
+5. Create `lib/` for any Python analysis code
+6. Create `data/` directory for generated reports (gitignore large files)
+7. Add brief entry to main README
+8. Test with known-good inputs before committing
 
-#### JavaScript/TypeScript Projects
-- Use **bun** as the primary package manager (10-100x faster than npm)
-- All-in-one tool: package manager + runtime + bundler + test runner
-- Use **Vite** for modern web applications with fast HMR and optimized builds
-- Include `package.json` and `bun.lock` for dependencies
-- Use TypeScript for type safety and better developer experience
-- Store sensitive config in `.env` files (gitignored) with `.env.example` templates
-- Use `.gitignore` to exclude `node_modules/`, build outputs, and config files with secrets
+---
 
-**Installation:**
-```bash
-# Install bun (if not available)
-npm install -g bun
+## Conventions by Language
 
-# Or use curl (on macOS/Linux)
-curl -fsSL https://bun.sh/install | bash
-```
+### Python Projects
 
-**Common commands:**
-```bash
-# Create new Vite project
-bun create vite my-app --template vanilla-ts
+**Package manager:** [uv](https://docs.astral.sh/uv/) (10-100x faster than pip)
 
-# Install dependencies
-bun install
-
-# Add packages
-bun add package-name
-bun add -d @types/package-name  # Dev dependencies
-
-# Run scripts
-bun run dev
-bun run build
-bun run preview
-
-# Run files directly
-bun run script.ts
-```
-
-#### Documentation
-- Every project/experiment needs a README.md
-- Use NOTES.md for implementation details and decisions
-- Use ICEBOX.md for future enhancement backlogs
-- Store prompts in separate `.md` files for easy iteration
-- Include QUICKSTART.md for complex projects
-
-#### Git Practices
-- Use descriptive commit messages
-- Develop on feature branches (claude/*)
-- Reference the session in branch names
-- Push regularly to track progress
-- Keep working tree clean between features
-
-#### LLM Integration
-- Prefer external prompt files over inline prompts
-- Add observability/logging for AI-powered features
-- Use DIY approaches (DuckDB, SQLite) before external services
-- Document API keys and configuration clearly
-- Consider local LLM alternatives for privacy
-
-## Common Patterns
-
-### Project Setup
-
-**Python projects:**
 ```bash
 cd apps/new-project/
 uv init
 uv add package-name
-uv run script.py
+uv run python script.py
 ```
 
-**JavaScript/TypeScript projects:**
+**Standards:**
+- `pyproject.toml` for dependencies and project config
+- `.python-version` to pin Python version
+- `.env` for configuration (with `.env.example` template)
+- Follow PEP 8 style guidelines
+
+### JavaScript/TypeScript Projects
+
+**Package manager:** [bun](https://bun.sh/) (all-in-one: package manager + runtime + bundler)
+
 ```bash
 cd apps/
 bun create vite new-project --template vanilla-ts
 cd new-project/
 bun install
-bun add firebase marked dompurify  # Example dependencies
-bun add -d @types/dompurify        # Type definitions
-bun run dev                        # Start development server
-bun run build                      # Build for production
+bun add firebase marked        # Example dependencies
+bun add -d @types/marked       # Dev dependencies
+bun run dev                    # Development server
+bun run build                  # Production build
 ```
 
+**Standards:**
+- TypeScript preferred for type safety
+- Vite for web applications
+- `package.json` + `bun.lock` for dependencies
+- `.env` for configuration (gitignored) with `.env.example`
+
+### Flutter/Dart Projects
+
+**Package manager:** Flutter SDK
+
+```bash
+flutter create new_project
+cd new_project/
+flutter pub add firebase_core
+flutter pub add cloud_firestore
+flutter run
+```
+
+**Standards:**
+- `pubspec.yaml` for dependencies
+- Follow Flutter style guide
+- Use Material Design 3 components
+- Separate business logic from UI
+
+### Other Languages
+
+For languages not covered above, follow the ecosystem's standard practices and document any special setup in the project README.
+
+---
+
+## Common Patterns
+
 ### Prompt Management
+
+For AI-powered applications, store prompts externally:
+
 ```
 prompts/
 ├── README.md              # Guide to customizing prompts
 ├── system_prompt.md       # Main system prompt
-├── analysis_prompt.md     # Specific task prompts
+├── analysis_prompt.md     # Task-specific prompts
 └── templates/             # Reusable templates
 ```
 
-### Observability
+This allows prompt iteration without code changes.
+
+### Observability for AI Features
+
 - Use local databases (DuckDB, SQLite) for logging
-- Track: timestamps, API calls, tokens, latency, errors
+- Track: timestamps, API calls, tokens used, latency, errors
 - Build simple CLI commands to view logs (`logs`, `stats`)
-- Prefer DIY over external services (Langfuse, Phoenix)
+- Prefer DIY over external services initially
 
-### Testing
-- Test slash commands manually before committing
-- Include example inputs/outputs in documentation
-- For apps, consider adding automated tests
-- Document known issues and limitations
+### Deploying to GitHub Pages
 
-### Deploying Web Apps to GitHub Pages
+Web apps can be deployed to GitHub Pages via the `/docs` directory:
 
-For web applications that should be publicly accessible, we use GitHub Pages with the `/docs` directory as the publishing source.
+1. **Develop** in `apps/app-name/`
+2. **Build** to `/docs/app-name/` (use a deploy script or build config)
+3. **Update** `/docs/index.html` to list the new experiment
 
-**Directory structure:**
-```
-/docs/
-├── index.html              # Landing page listing all experiments
-├── experiment-1/           # First experiment
-│   ├── index.html
-│   ├── app.js
-│   └── styles.css
-└── experiment-2/           # Second experiment
-    └── ...
-```
+See `apps/visual-sound-mirror/deploy-to-pages.sh` for an example deploy script.
 
-**Deployment pattern for simple client-side apps:**
-
-1. **Develop in `apps/app-name/`** - Keep the source of truth in the apps directory
-2. **Create a deploy script** - Add `deploy-to-pages.sh` in the app directory:
-   ```bash
-   #!/bin/bash
-   # Deploy to GitHub Pages
-   set -e
-   APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-   REPO_ROOT="$(cd "$APP_DIR/../.." && pwd)"
-   DOCS_DIR="$REPO_ROOT/docs/app-name"
-
-   # Remove old deployment and copy fresh
-   rm -rf "$DOCS_DIR"
-   mkdir -p "$DOCS_DIR"
-   cp -r "$APP_DIR"/* "$DOCS_DIR/"
-
-   # Remove documentation files (not needed for web)
-   find "$DOCS_DIR" -type f -name '*.md' -delete
-   rm -f "$DOCS_DIR/deploy-to-pages.sh"
-
-   echo "✅ Deployed to /docs/app-name/"
-   ```
-3. **Make it executable** - `chmod +x deploy-to-pages.sh`
-4. **Run to deploy** - `./deploy-to-pages.sh`
-5. **Update `/docs/index.html`** - Add a card for the new experiment
-
-**For apps with build steps:**
-- Use a build process (Vite, Webpack, etc.) that outputs to `/docs/app-name/`
-- Document the build command in the app's README
-- Consider a GitHub Action for automated deployments
-
-**Benefits of this pattern:**
-- Source and deployment are separate (apps/ vs docs/)
-- Documentation stays in the source directory
-- Simple to add new experiments
-- Easy to preview locally (`python3 -m http.server 8000` in `/docs`)
-- Repeatable process for all web experiments
-
-**Example apps using this pattern:**
-- `apps/visual-sound-mirror/` → `/docs/visual-sound-mirror/`
+---
 
 ## Tips for Claude Code Sessions
 
 1. **Start with context:** Read README.md and CLAUDE.md at session start
-2. **Check structure:** Use `ls` to understand the current organization
+2. **Check structure:** Use `ls` to understand current organization
 3. **Read before edit:** Always read files before modifying them
 4. **Document decisions:** Update NOTES.md with important implementation choices
 5. **Track progress:** Use TodoWrite for multi-step tasks
 6. **Commit often:** Small, focused commits with clear messages
-7. **Update docs:** Keep README and other docs in sync with code
-8. **Think about users:** Applications should be well-documented and easy to use
+7. **Update docs:** Keep README current with code changes
+8. **Capture ideas:** Add future ideas to ICEBOX.md rather than implementing immediately
 
-## Repository Evolution
-
-This repository will continue to evolve as we:
-- Build more collaborative applications
-- Explore new prompting techniques
-- Test Claude Code features (skills, agents, MCP)
-- Implement research papers and novel ideas
-- Create reusable tools and utilities
-
-The structure is designed to be flexible and accommodate new types of experiments while maintaining clear organization.
+---
 
 ## Questions and Feedback
 
-If you have questions about where something should go or how to organize a new experiment, consider:
-- Is it a complete application? → `apps/`
-- Is it a prompting technique or slash commands? → `skills/` directory
-- Is it an agent configuration? → Future `agents/` directory
-- Is it configuration or tooling? → Consider if it belongs in an existing project
+If you have questions about where something should go:
+
+| Type | Location |
+|------|----------|
+| Complete application | `apps/` |
+| Slash commands or prompting techniques | `skills/` |
+| Agent with MCP integration | `agents/` |
+| Session hooks | Future `hooks/` |
+| Custom MCP server | Future `mcp/` |
 
 When in doubt, ask the user for guidance on organization.
 
