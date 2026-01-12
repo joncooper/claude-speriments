@@ -21,6 +21,7 @@
     "vite": "^7.2.4"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.2",
     "hono": "^4.11.3",
     "html2pdf.js": "^0.13.0",
     "uuid": "^13.0.0"

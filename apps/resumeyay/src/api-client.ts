@@ -1,10 +1,8 @@
 /**
  * API Client
  *
- * Handles all communication with the server, including:
- * - Firebase authentication
- * - Workspace CRUD
- * - Fit Coach operations
+ * Handles all communication with the server.
+ * Uses Firebase Auth for authentication.
  */
 
 import type {
@@ -16,227 +14,13 @@ import type {
   Resume,
   ResumeVariant,
 } from './types';
+import { getIdToken } from './firebase';
 
 // ============================================================================
 // CONFIGURATION
 // ============================================================================
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-
-interface AuthConfig {
-  apiKey: string | null;
-  projectId: string | null;
-  authDomain: string | null;
-  configured: boolean;
-  devMode: boolean;
-}
-
-interface AuthUser {
-  id: string;
-  email: string;
-  displayName: string;
-  photoURL?: string;
-}
-
-interface AuthState {
-  user: AuthUser | null;
-  token: string | null;
-  loading: boolean;
-  error: string | null;
-}
-
-// ============================================================================
-// AUTH STATE
-// ============================================================================
-
-let authState: AuthState = {
-  user: null,
-  token: null,
-  loading: true,
-  error: null,
-};
-
-let authConfig: AuthConfig | null = null;
-const authListeners: Set<(state: AuthState) => void> = new Set();
-
-function notifyAuthListeners() {
-  authListeners.forEach(listener => listener(authState));
-}
-
-export function subscribeToAuth(listener: (state: AuthState) => void): () => void {
-  authListeners.add(listener);
-  listener(authState); // Immediate callback with current state
-  return () => authListeners.delete(listener);
-}
-
-export function getAuthState(): AuthState {
-  return authState;
-}
-
-// ============================================================================
-// AUTH METHODS
-// ============================================================================
-
-/**
- * Initialize auth - fetch config and restore session
- */
-export async function initAuth(): Promise<void> {
-  try {
-    // Fetch auth config from server
-    const response = await fetch(`${API_BASE_URL}/auth/config`);
-    authConfig = await response.json();
-
-    // Check for stored token
-    const storedToken = localStorage.getItem('auth_token');
-    const storedUser = localStorage.getItem('auth_user');
-
-    if (storedToken && storedUser) {
-      authState = {
-        user: JSON.parse(storedUser),
-        token: storedToken,
-        loading: false,
-        error: null,
-      };
-      notifyAuthListeners();
-
-      // Verify token is still valid
-      try {
-        await apiRequest('GET', '/auth/me');
-      } catch {
-        // Token invalid, clear it
-        await signOut();
-      }
-    } else if (authConfig?.devMode) {
-      // In dev mode, auto-login with dev user
-      await devLogin();
-    } else {
-      authState = { ...authState, loading: false };
-      notifyAuthListeners();
-    }
-  } catch (error) {
-    console.error('Failed to initialize auth:', error);
-    authState = {
-      user: null,
-      token: null,
-      loading: false,
-      error: 'Failed to connect to server',
-    };
-    notifyAuthListeners();
-  }
-}
-
-/**
- * Sign in with Google (Firebase Auth)
- */
-export async function signInWithGoogle(): Promise<void> {
-  if (!authConfig?.configured) {
-    throw new Error('Firebase not configured');
-  }
-
-  authState = { ...authState, loading: true, error: null };
-  notifyAuthListeners();
-
-  try {
-    // Note: Full OAuth flow requires Firebase SDK or custom implementation
-    // For now, we show an error directing users to the setup guide
-
-    // Create a popup for Google sign-in (placeholder)
-    const popup = window.open(
-      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=${authConfig.apiKey}`,
-      'Google Sign In',
-      'width=500,height=600'
-    );
-
-    if (!popup) {
-      throw new Error('Popup blocked. Please allow popups for this site.');
-    }
-
-    // This is a simplified flow - in production, use Firebase SDK
-    throw new Error('Please install Firebase SDK for Google sign-in. See FIREBASE_SETUP.md');
-  } catch (error) {
-    authState = {
-      ...authState,
-      loading: false,
-      error: error instanceof Error ? error.message : 'Sign in failed',
-    };
-    notifyAuthListeners();
-    throw error;
-  }
-}
-
-/**
- * Dev mode login (bypasses Firebase)
- */
-export async function devLogin(): Promise<void> {
-  authState = { ...authState, loading: true, error: null };
-  notifyAuthListeners();
-
-  try {
-    const response = await fetch(`${API_BASE_URL}/auth/dev-login`, {
-      method: 'POST',
-    });
-
-    if (!response.ok) {
-      throw new Error('Dev login not available');
-    }
-
-    const data = await response.json() as { user: AuthUser; token: string };
-
-    authState = {
-      user: data.user,
-      token: data.token,
-      loading: false,
-      error: null,
-    };
-
-    localStorage.setItem('auth_token', data.token);
-    localStorage.setItem('auth_user', JSON.stringify(data.user));
-
-    notifyAuthListeners();
-  } catch (error) {
-    authState = {
-      ...authState,
-      loading: false,
-      error: error instanceof Error ? error.message : 'Login failed',
-    };
-    notifyAuthListeners();
-    throw error;
-  }
-}
-
-/**
- * Sign out
- */
-export async function signOut(): Promise<void> {
-  localStorage.removeItem('auth_token');
-  localStorage.removeItem('auth_user');
-
-  authState = {
-    user: null,
-    token: null,
-    loading: false,
-    error: null,
-  };
-
-  notifyAuthListeners();
-}
-
-/**
- * Set auth from Firebase SDK (call this after Firebase signInWithPopup)
- */
-export async function setAuthFromFirebase(idToken: string, user: AuthUser): Promise<void> {
-  authState = {
-    user,
-    token: idToken,
-    loading: false,
-    error: null,
-  };
-
-  localStorage.setItem('auth_token', idToken);
-  localStorage.setItem('auth_user', JSON.stringify(user));
-
-  notifyAuthListeners();
-}
 
 // ============================================================================
 // API REQUEST HELPER
@@ -251,13 +35,13 @@ async function apiRequest<T>(
     'Content-Type': 'application/json',
   };
 
-  // Add auth header
-  if (authState.token) {
-    if (authConfig?.devMode && authState.token === 'dev-token-not-real') {
-      headers['X-Dev-Auth'] = 'true';
-    } else {
-      headers['Authorization'] = `Bearer ${authState.token}`;
-    }
+  // Get auth token
+  const token = await getIdToken();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  } else {
+    // Dev mode fallback
+    headers['X-Dev-Auth'] = 'true';
   }
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
