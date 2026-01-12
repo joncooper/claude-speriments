@@ -57,6 +57,48 @@ A **command-line utility** to download, store, and analyze your Twitter/X data u
 
 ---
 
+#### 📋 [DDQ Management System](./apps/ddq-management/)
+
+**AI-powered due diligence questionnaire management for hedge funds** - Transform manual, error-prone DDQ processes into intelligent, auditable workflows.
+
+**What it does:** Maintain a "golden source" of authoritative DDQ answers, automatically map new investor questions to existing vetted answers using semantic understanding, orchestrate multi-stakeholder review workflows, and generate completed DDQs in each investor's required format.
+
+**Key features:**
+- **Intelligent Question Mapping** - Semantic matching of new questions to knowledge base
+- **Golden Source Management** - Single source of truth with version history
+- **AI-Assisted Drafting** - Generate answers for new questions with RAG grounding
+- **Consistency Checking** - Cross-validate answers to prevent contradictions
+- **Workflow Orchestration** - Route to SMEs, track approvals, manage deadlines
+- **Audit Trail** - Complete provenance for compliance requirements
+- **Multi-format Output** - Generate in any investor's required format
+
+**Problem solved:** Hedge funds spend 40+ hours per DDQ manually searching past submissions and copy-pasting answers across dozens of investor variations of the AIMA standard. System reduces this to 8-15 hours with 80%+ time savings while improving consistency and compliance.
+
+**User archetypes:**
+- Investor Relations Manager (coordinates responses)
+- Subject Matter Experts (Legal, Compliance, Operations, Risk)
+- Chief Compliance Officer (final approval)
+- Operations Team (data providers)
+
+**Architecture:**
+- Multi-agent AI system (Intake, Match, Draft, Consistency, QA, Format agents)
+- RAG with vector embeddings for semantic search
+- LLM-powered generation and analysis
+- Workflow engine for approvals
+- Immutable audit trail
+
+**Expected outcomes:**
+- 60-80% reduction in time-to-complete
+- 70-85% auto-match rate for questions
+- >95% consistency across submissions
+- Zero audit findings
+
+**Tech stack:** Python (FastAPI), PostgreSQL, Vector DB (Pinecone/pgvector), OpenAI/Anthropic LLMs, React/Vue frontend
+
+**Status:** 📋 Planned (Strategic plan complete, awaiting stakeholder validation)
+
+---
+
 #### 🔨 [AuctionNinja Nearby Finder](./apps/auction-ninja-app/)
 
 A **full-stack web application** to find nearby auctions on AuctionNinja.com that are ending soon.
@@ -270,6 +312,10 @@ claude-speriments/
 │   │   ├── coverage/            # Per-company research
 │   │   ├── patterns/            # Cross-company insights
 │   │   └── notes/               # Design documentation
+│   ├── ddq-management/          # DDQ Management System (hedge fund tool)
+│   │   ├── README.md            # Project overview
+│   │   ├── PLAN.md              # Complete strategic plan
+│   │   └── NOTES.md             # Implementation notes
 │   ├── auction-ninja-app/       # AuctionNinja Nearby Finder
 │   │   ├── README.md            # Usage guide
 │   │   ├── NOTES.md             # Implementation notes
@@ -318,7 +364,7 @@ claude-speriments/
 
 This repository is organized to support various types of Claude Code experiments:
 
-- **`apps/`** - Collaborative applications built with Claude (e.g., Twitter Data Analyzer, Analyst Workspace, AuctionNinja Nearby Finder, Visual Sound Mirror)
+- **`apps/`** - Collaborative applications built with Claude (e.g., Twitter Data Analyzer, Analyst Workspace, DDQ Management System, AuctionNinja Nearby Finder, Visual Sound Mirror)
 - **`agents/`** - Agent configurations and workflows (e.g., Forensic Accounting Agent)
 - **`skills/`** - Slash commands and skills for Claude Code (e.g., Verbalized Sampling, Cialdini Persuasion)
 - **Future directories** - As the repository grows, we'll add more specialized directories (hooks/, mcp/, etc.)
