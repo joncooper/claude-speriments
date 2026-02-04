@@ -570,6 +570,193 @@
             color: var(--text-secondary);
         }
 
+        /* Annotation section */
+        .curated-item-annotation {
+            padding: 12px 16px;
+            background: linear-gradient(135deg, rgba(96, 165, 250, 0.1), transparent);
+            border-top: 1px solid var(--border);
+        }
+
+        .annotation-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--info);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .annotation-input {
+            width: 100%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px 12px;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 60px;
+            max-height: 150px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .annotation-input:focus { border-color: var(--info); }
+        .annotation-input::placeholder { color: var(--text-muted); }
+
+        /* Tags */
+        .tags-section {
+            margin-top: 10px;
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            transition: all 0.15s ease;
+        }
+
+        .tag:hover { border-color: var(--accent); }
+
+        .tag-remove {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0;
+            font-size: 14px;
+            line-height: 1;
+            transition: color 0.15s ease;
+        }
+
+        .tag-remove:hover { color: var(--accent); }
+
+        .tag-input-wrapper {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .tag-input {
+            flex: 1;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 6px 10px;
+            color: var(--text-primary);
+            font-size: 12px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .tag-input:focus { border-color: var(--info); }
+        .tag-input::placeholder { color: var(--text-muted); }
+
+        .tag-suggestions {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .tag-suggestion {
+            padding: 4px 8px;
+            background: transparent;
+            border: 1px dashed var(--border);
+            border-radius: 12px;
+            font-size: 10px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .tag-suggestion:hover {
+            border-color: var(--info);
+            border-style: solid;
+            color: var(--text-secondary);
+            background: var(--bg-tertiary);
+        }
+
+        /* Tag colors */
+        .tag[data-color="red"] { background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.4); color: #fca5a5; }
+        .tag[data-color="green"] { background: rgba(74, 222, 128, 0.2); border-color: rgba(74, 222, 128, 0.4); color: #86efac; }
+        .tag[data-color="blue"] { background: rgba(96, 165, 250, 0.2); border-color: rgba(96, 165, 250, 0.4); color: #93c5fd; }
+        .tag[data-color="yellow"] { background: rgba(251, 191, 36, 0.2); border-color: rgba(251, 191, 36, 0.4); color: #fde047; }
+        .tag[data-color="purple"] { background: rgba(167, 139, 250, 0.2); border-color: rgba(167, 139, 250, 0.4); color: #c4b5fd; }
+
+        /* Annotation toggle button */
+        .annotation-toggle {
+            font-size: 11px;
+            color: var(--info);
+        }
+
+        .annotation-toggle.has-content {
+            color: var(--success);
+        }
+
+        /* Filter bar for tags */
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            align-items: center;
+        }
+
+        .filter-bar.hidden { display: none; }
+
+        .filter-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .filter-tag {
+            padding: 4px 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .filter-tag:hover { border-color: var(--info); }
+        .filter-tag.active { background: var(--info); border-color: var(--info); color: var(--bg-primary); }
+
+        .filter-clear {
+            padding: 4px 8px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 11px;
+            cursor: pointer;
+            transition: color 0.15s ease;
+        }
+
+        .filter-clear:hover { color: var(--accent); }
+
         .empty-state {
             display: flex;
             flex-direction: column;
@@ -993,6 +1180,12 @@
                         <span class="count" id="token-count">0</span> tokens (est.)
                     </div>
                 </div>
+                <!-- Tag filter bar -->
+                <div class="filter-bar hidden" id="filter-bar">
+                    <span class="filter-label">Filter:</span>
+                    <div id="filter-tags"></div>
+                    <button class="filter-clear" onclick="clearTagFilter()">Clear</button>
+                </div>
                 <div class="curated-content" id="curated-content">
                     <div class="markdown-preview" id="markdown-preview"></div>
                     <div class="empty-state" id="empty-state">
@@ -1001,7 +1194,8 @@
                         <p>Select text from the source files, then press <kbd>⌘</kbd>+<kbd>Enter</kbd> or click the button to add it.</p>
                         <div class="keyboard-hint">
                             <kbd>⌘/Ctrl</kbd>+<kbd>F</kbd> to search<br>
-                            Drag items to reorder
+                            Drag items to reorder<br>
+                            Click 💭 to add notes & tags
                         </div>
                     </div>
                     <div id="curated-items"></div>
@@ -1069,6 +1263,15 @@
         let lastRemoved = null;
         let allCollapsed = false;
         let draggedItem = null;
+        let activeTagFilter = null;
+        let allTags = new Set();
+
+        // Suggested tags - common categories
+        const SUGGESTED_TAGS = ['key-point', 'example', 'definition', 'context', 'reference', 'question', 'todo'];
+        const TAG_COLORS = {
+            'key-point': 'red', 'example': 'green', 'definition': 'blue',
+            'context': 'yellow', 'reference': 'purple', 'question': 'yellow', 'todo': 'red'
+        };
 
         const FILE_ICONS = {
             md: '📝', pdf: '📕', txt: '📄', docx: '📘',
@@ -1123,8 +1326,14 @@
                     return false;
                 }
 
-                // Validate that files still exist
-                const validItems = state.curatedItems.filter(item => SOURCE_FILES[item.file]);
+                // Validate that files still exist and ensure new fields exist
+                const validItems = state.curatedItems
+                    .filter(item => SOURCE_FILES[item.file])
+                    .map(item => ({
+                        ...item,
+                        note: item.note || '',
+                        tags: item.tags || []
+                    }));
                 if (validItems.length === 0) return false;
 
                 curatedItems = validItems;
@@ -1373,7 +1582,9 @@
                 id: Date.now(),
                 file: currentSelection.file,
                 text: currentSelection.text,
-                collapsed: false
+                collapsed: false,
+                note: '',
+                tags: []
             });
 
             renderCuratedItems();
@@ -1391,7 +1602,9 @@
                 id: Date.now(),
                 file: currentFile,
                 text: content,
-                collapsed: false
+                collapsed: false,
+                note: '',
+                tags: []
             });
 
             renderCuratedItems();
@@ -1531,13 +1744,30 @@
             emptyState.style.display = 'none';
             doneBtn.disabled = false;
 
-            container.innerHTML = curatedItems.map(item => `
+            // Update allTags
+            allTags = new Set();
+            curatedItems.forEach(item => {
+                (item.tags || []).forEach(tag => allTags.add(tag));
+            });
+            renderFilterBar();
+
+            // Filter items if tag filter is active
+            const displayItems = activeTagFilter
+                ? curatedItems.filter(item => (item.tags || []).includes(activeTagFilter))
+                : curatedItems;
+
+            container.innerHTML = displayItems.map(item => {
+                const hasAnnotation = (item.note && item.note.trim()) || (item.tags && item.tags.length > 0);
+                const tagSuggestions = SUGGESTED_TAGS.filter(t => !(item.tags || []).includes(t)).slice(0, 4);
+
+                return `
                 <div class="curated-item ${item.collapsed ? 'collapsed' : ''}"
                      draggable="true"
                      ondragstart="handleDragStart(event, ${item.id})"
                      ondragend="handleDragEnd(event)"
                      ondragover="handleDragOver(event, ${item.id})"
-                     ondrop="handleDrop(event, ${item.id})">
+                     ondrop="handleDrop(event, ${item.id})"
+                     data-id="${item.id}">
                     <div class="curated-item-header">
                         <div class="curated-item-left">
                             <span class="drag-handle" title="Drag to reorder">⋮⋮</span>
@@ -1547,6 +1777,11 @@
                             </span>
                         </div>
                         <div class="curated-item-actions">
+                            <button class="curated-item-btn annotation-toggle ${hasAnnotation ? 'has-content' : ''}"
+                                    onclick="toggleAnnotation(${item.id})"
+                                    title="Add note/tags">
+                                ${hasAnnotation ? '📝' : '💭'}
+                            </button>
                             <button class="curated-item-btn" onclick="toggleItemCollapse(${item.id})" title="${item.collapsed ? 'Expand' : 'Collapse'}">
                                 ${item.collapsed ? '▶' : '▼'}
                             </button>
@@ -1554,12 +1789,139 @@
                         </div>
                     </div>
                     <div class="curated-item-text">${escapeHtml(item.text)}</div>
+                    <div class="curated-item-annotation" id="annotation-${item.id}" style="display: ${hasAnnotation ? 'block' : 'none'};">
+                        <div class="annotation-label">💭 Why is this relevant?</div>
+                        <textarea class="annotation-input"
+                                  placeholder="Explain why you selected this... (helps Claude understand context)"
+                                  onchange="updateNote(${item.id}, this.value)"
+                                  onblur="updateNote(${item.id}, this.value)">${escapeHtml(item.note || '')}</textarea>
+                        <div class="tags-section">
+                            <div class="annotation-label">🏷️ Tags</div>
+                            <div class="tags-container">
+                                ${(item.tags || []).map(tag => `
+                                    <span class="tag" data-color="${TAG_COLORS[tag] || ''}">
+                                        ${escapeHtml(tag)}
+                                        <button class="tag-remove" onclick="removeTag(${item.id}, '${escapeAttr(tag)}')" title="Remove tag">×</button>
+                                    </span>
+                                `).join('')}
+                            </div>
+                            <div class="tag-input-wrapper">
+                                <input type="text" class="tag-input"
+                                       placeholder="Add tag..."
+                                       onkeydown="handleTagInput(event, ${item.id})"
+                                       id="tag-input-${item.id}">
+                            </div>
+                            <div class="tag-suggestions">
+                                ${tagSuggestions.map(tag => `
+                                    <button class="tag-suggestion" onclick="addTag(${item.id}, '${escapeAttr(tag)}')">${tag}</button>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            `).join('');
+            `}).join('');
 
             if (showingPreview) {
                 preview.textContent = generateMarkdown();
             }
+        }
+
+        // Annotation functions
+        function toggleAnnotation(id) {
+            const annotationEl = document.getElementById(`annotation-${id}`);
+            if (annotationEl) {
+                const isVisible = annotationEl.style.display !== 'none';
+                annotationEl.style.display = isVisible ? 'none' : 'block';
+                if (!isVisible) {
+                    // Focus the textarea when opening
+                    const textarea = annotationEl.querySelector('.annotation-input');
+                    if (textarea) textarea.focus();
+                }
+            }
+        }
+
+        function updateNote(id, note) {
+            const item = curatedItems.find(i => i.id === id);
+            if (item) {
+                item.note = note;
+                saveState();
+                // Update the toggle button appearance
+                const hasAnnotation = (item.note && item.note.trim()) || (item.tags && item.tags.length > 0);
+                const toggleBtn = document.querySelector(`[data-id="${id}"] .annotation-toggle`);
+                if (toggleBtn) {
+                    toggleBtn.classList.toggle('has-content', hasAnnotation);
+                    toggleBtn.textContent = hasAnnotation ? '📝' : '💭';
+                }
+            }
+        }
+
+        function addTag(id, tag) {
+            const item = curatedItems.find(i => i.id === id);
+            if (item) {
+                if (!item.tags) item.tags = [];
+                const normalizedTag = tag.toLowerCase().trim().replace(/\s+/g, '-');
+                if (normalizedTag && !item.tags.includes(normalizedTag)) {
+                    item.tags.push(normalizedTag);
+                    renderCuratedItems();
+                    saveState();
+                    showToast(`Tag "${normalizedTag}" added`);
+                }
+            }
+            // Clear the input
+            const input = document.getElementById(`tag-input-${id}`);
+            if (input) input.value = '';
+        }
+
+        function removeTag(id, tag) {
+            const item = curatedItems.find(i => i.id === id);
+            if (item && item.tags) {
+                item.tags = item.tags.filter(t => t !== tag);
+                renderCuratedItems();
+                saveState();
+            }
+        }
+
+        function handleTagInput(e, id) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const tag = e.target.value.trim();
+                if (tag) {
+                    addTag(id, tag);
+                }
+            }
+        }
+
+        function renderFilterBar() {
+            const filterBar = document.getElementById('filter-bar');
+            const filterTags = document.getElementById('filter-tags');
+
+            if (allTags.size === 0) {
+                filterBar.classList.add('hidden');
+                return;
+            }
+
+            filterBar.classList.remove('hidden');
+            filterTags.innerHTML = Array.from(allTags).map(tag => `
+                <button class="filter-tag ${activeTagFilter === tag ? 'active' : ''}"
+                        onclick="setTagFilter('${escapeAttr(tag)}')"
+                        data-color="${TAG_COLORS[tag] || ''}">
+                    ${escapeHtml(tag)}
+                </button>
+            `).join('');
+        }
+
+        function setTagFilter(tag) {
+            if (activeTagFilter === tag) {
+                activeTagFilter = null;
+            } else {
+                activeTagFilter = tag;
+            }
+            renderCuratedItems();
+        }
+
+        function clearTagFilter() {
+            activeTagFilter = null;
+            renderCuratedItems();
         }
 
         function togglePreview() {
@@ -1596,13 +1958,29 @@
             const byFile = {};
             curatedItems.forEach(item => {
                 if (!byFile[item.file]) byFile[item.file] = [];
-                byFile[item.file].push(item.text);
+                byFile[item.file].push({
+                    text: item.text,
+                    note: item.note || '',
+                    tags: item.tags || []
+                });
             });
 
             let md = '';
-            Object.entries(byFile).forEach(([file, texts]) => {
+            Object.entries(byFile).forEach(([file, selections]) => {
                 md += `## From: ${file}\n\n`;
-                texts.forEach(text => { md += text + '\n\n'; });
+                selections.forEach(sel => {
+                    // Add tags as a header if present
+                    if (sel.tags.length > 0) {
+                        md += `**[${sel.tags.join(', ')}]**\n\n`;
+                    }
+                    // Add the note/annotation if present
+                    if (sel.note.trim()) {
+                        md += `> 💭 *${sel.note.trim()}*\n\n`;
+                    }
+                    // Add the actual content
+                    md += sel.text + '\n\n';
+                    md += '---\n\n';
+                });
             });
 
             return md.trim();
