@@ -12,10 +12,11 @@ When working with Claude Code, you often have many potentially relevant files—
 
 A browser-based highlighting interface that lets you:
 
-1. **View** all your source files in one place
-2. **Select** specific passages by highlighting (like a yellow highlighter)
-3. **Accumulate** selections in a right-hand pane
-4. **Export** curated context back to Claude Code
+1. **Pick** which files to include from a visual grid (when multiple files)
+2. **View** selected files in a tabbed interface
+3. **Select** specific passages by highlighting (like a yellow highlighter)
+4. **Accumulate** selections in a right-hand pane
+5. **Export** curated context back to Claude Code
 
 ## Installation
 
@@ -33,26 +34,61 @@ Or use it directly by referencing the command file.
 
 ## Usage
 
-```
-/curate-context file1.md file2.pdf notes/*.txt
+```bash
+# Individual files
+/curate-context notes.md requirements.pdf spec.docx
+
+# Glob patterns
+/curate-context docs/*.md research/*.pdf
+
+# Directories (Claude Code @-references)
+/curate-context @docs @research
+
+# Mixed
+/curate-context README.md @specs docs/*.pdf
 ```
 
 This will:
 1. Read all specified files (supports markdown, PDF, DOCX, text)
 2. Open a browser-based curation UI
-3. Let you highlight and select relevant portions
-4. Return the curated context to your Claude session
+3. Let you pick which files to curate (if multiple)
+4. Let you highlight and select relevant portions
+5. Return the curated context to your Claude session
 
-### The UI
+## The UI
+
+### Step 1: File Picker (if multiple files)
+
+When you load multiple files, you first see a grid to select which ones to curate:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│         Select Files to Curate                              │
+│                                                             │
+│  [Select All] [Deselect All]          3 of 8 files selected │
+│                                                             │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐            │
+│  │ ☑ notes.md  │ │ ☐ draft.md  │ │ ☑ spec.pdf  │            │
+│  │ 42 lines    │ │ 128 lines   │ │ 15 lines    │            │
+│  │ Preview...  │ │ Preview...  │ │ Preview...  │            │
+│  └─────────────┘ └─────────────┘ └─────────────┘            │
+│                                                             │
+│              [Continue to Curation →]                       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Step 2: Curation View
+
+After selecting files, highlight text to add to your context:
 
 ```
 ┌─────────────────────────────────┬─────────────────────────┐
-│ Source Files                    │ Curated Context         │
+│ [← Back] Source Files           │ Curated Context         │
 │                                 │                         │
-│ [Tab: file1.md] [file2.pdf]     │ 0 selections            │
+│ [notes.md] [spec.pdf]           │ 2 selections            │
 │                                 │                         │
 │ Lorem ipsum dolor sit amet,     │ ┌─────────────────────┐ │
-│ consectetur adipiscing elit.    │ │ From: file1.md      │ │
+│ consectetur adipiscing elit.    │ │ From: notes.md      │ │
 │ ████████████████████████████    │ │                     │ │
 │ █ Selected text appears here █  │ │ Selected text...    │ │
 │ ████████████████████████████    │ │              [✕]    │ │
@@ -64,12 +100,13 @@ This will:
 
 ### Workflow
 
-1. Click a file tab to view its contents
-2. Click and drag to select text you want to include
-3. Click "Add to Context" button that appears
-4. Repeat for all relevant passages across all files
-5. Click "Done — Send to Claude" when finished
-6. The curated markdown appears in your Claude session
+1. Pick which files to include (or skip if only 1 file)
+2. Click a file tab to view its contents
+3. Click and drag to select text you want to include
+4. Click "Add to Context" button that appears
+5. Repeat for all relevant passages across all files
+6. Click "Done — Send to Claude" when finished
+7. The curated markdown appears in your Claude session
 
 ## Output Format
 
@@ -102,7 +139,7 @@ skills/context-curation/
 1. **Claude reads files** using native PDF/DOCX/markdown support
 2. **generate_html.py** embeds file contents into the HTML template
 3. **curation_server.py** serves the UI and handles the /done POST
-4. **Browser** provides the highlighting/selection interface
+4. **Browser** provides the file picker and highlighting/selection interface
 5. **Claude polls** /status until the user clicks Done
 6. **Curated content** is read from the output file and returned
 
