@@ -21,6 +21,7 @@ A collection of applications, agents, and skills exploring Claude Code's capabil
 | [Management Integrity](./agents/equity-mgmt-integrity/) | Agent | Track if management keeps commitments | Complete |
 | [Verbalized Sampling](./skills/verbalized-sampling/) | Skill | Research-backed prompts for diverse outputs | Complete |
 | [Cialdini Persuasion](./skills/cialdini-persuasion/) | Skill | Psychology-based prompts for better adherence | Complete |
+| [Context Curation](./skills/context-curation/) | Skill | Visual tool to curate context from multiple files | Initial Spike |
 
 ---
 
@@ -97,6 +98,11 @@ AI-powered analysis of whether management follows through on commitments. Extrac
 10 slash commands applying Dr. Robert Cialdini's 7 principles of persuasion to improve AI instruction adherence and task completion.
 **Commands:** `/cialdini-reciprocity`, `/cialdini-commitment`, `/cialdini-authority`, `/cialdini-all`, and more
 **Status:** Complete | [Learn more](./skills/cialdini-persuasion/)
+
+### Context Curation Tool
+Browser-based UI for selecting specific passages from multiple source files (markdown, PDF, DOCX) to build targeted context for prompting. Launches from Claude Code, returns curated markdown.
+**Command:** `/curate-context file1.md file2.pdf ...`
+**Status:** Initial Spike | [Learn more](./skills/context-curation/)
 
 ---
 

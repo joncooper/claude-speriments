@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Context Curation</title>
+    <style>
+        :root {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-tertiary: #0f0f23;
+            --accent: #e94560;
+            --accent-hover: #ff6b6b;
+            --text-primary: #eaeaea;
+            --text-secondary: #a0a0a0;
+            --highlight: rgba(233, 69, 96, 0.3);
+            --highlight-solid: #e94560;
+            --border: #2a2a4a;
+            --success: #4ade80;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Left Panel - Source Files */
+        .source-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border);
+            min-width: 0;
+        }
+
+        .panel-header {
+            padding: 16px 20px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .panel-header h2 {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+
+        .file-tabs {
+            display: flex;
+            gap: 4px;
+            padding: 8px 12px;
+            background: var(--bg-tertiary);
+            overflow-x: auto;
+            flex-shrink: 0;
+        }
+
+        .file-tab {
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 13px;
+            white-space: nowrap;
+            transition: all 0.15s ease;
+        }
+
+        .file-tab:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .file-tab.active {
+            background: var(--bg-secondary);
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        .source-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .source-content pre {
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 13px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        /* Selection styling */
+        .source-content ::selection {
+            background: var(--highlight);
+        }
+
+        /* Right Panel - Curated Context */
+        .curated-panel {
+            width: 480px;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-secondary);
+            flex-shrink: 0;
+        }
+
+        .curated-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .curated-item {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .curated-item-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: rgba(233, 69, 96, 0.1);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .curated-item-source {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .curated-item-remove {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            transition: all 0.15s ease;
+        }
+
+        .curated-item-remove:hover {
+            background: rgba(233, 69, 96, 0.2);
+            color: var(--accent);
+        }
+
+        .curated-item-text {
+            padding: 12px 14px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 40px;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .empty-state p {
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            padding: 16px;
+            background: var(--bg-tertiary);
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-primary:disabled {
+            background: var(--border);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+        }
+
+        /* Floating Add Button */
+        .add-selection-btn {
+            position: fixed;
+            padding: 10px 20px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(233, 69, 96, 0.4);
+            display: none;
+            z-index: 1000;
+            transition: all 0.15s ease;
+        }
+
+        .add-selection-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .add-selection-btn.visible {
+            display: block;
+        }
+
+        /* Stats */
+        .stats {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .stats span {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--success);
+            color: var(--bg-primary);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1001;
+        }
+
+        .toast.visible {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Left Panel: Source Files -->
+        <div class="source-panel">
+            <div class="panel-header">
+                <h2>Source Files</h2>
+                <div class="stats">
+                    <span id="file-count">0</span> files loaded
+                </div>
+            </div>
+            <div class="file-tabs" id="file-tabs"></div>
+            <div class="source-content" id="source-content">
+                <pre id="source-text"></pre>
+            </div>
+        </div>
+
+        <!-- Right Panel: Curated Context -->
+        <div class="curated-panel">
+            <div class="panel-header">
+                <h2>Curated Context</h2>
+                <div class="stats">
+                    <span id="selection-count">0</span> selections
+                </div>
+            </div>
+            <div class="curated-content" id="curated-content">
+                <div class="empty-state" id="empty-state">
+                    <div class="empty-state-icon">✨</div>
+                    <h3>No selections yet</h3>
+                    <p>Select text from the source files on the left, then click "Add to Context" to build your curated context.</p>
+                </div>
+                <div id="curated-items"></div>
+            </div>
+            <div class="action-bar">
+                <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
+                <button class="btn btn-primary" id="done-btn" onclick="submitCurated()" disabled>
+                    Done — Send to Claude
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Add Button -->
+    <button class="add-selection-btn" id="add-btn" onclick="addSelection()">
+        + Add to Context
+    </button>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">Selection added!</div>
+
+    <script>
+        // Source files data - will be injected by the generator
+        // Format: { "filename.md": "file contents...", ... }
+        const SOURCE_FILES = __SOURCE_FILES_PLACEHOLDER__;
+
+        // State
+        let currentFile = null;
+        let curatedItems = [];
+        let currentSelection = null;
+
+        // Initialize
+        function init() {
+            const fileNames = Object.keys(SOURCE_FILES);
+            document.getElementById('file-count').textContent = fileNames.length;
+
+            // Create tabs
+            const tabsContainer = document.getElementById('file-tabs');
+            fileNames.forEach((name, index) => {
+                const tab = document.createElement('button');
+                tab.className = 'file-tab' + (index === 0 ? ' active' : '');
+                tab.textContent = name;
+                tab.onclick = () => selectFile(name);
+                tabsContainer.appendChild(tab);
+            });
+
+            // Show first file
+            if (fileNames.length > 0) {
+                selectFile(fileNames[0]);
+            }
+
+            // Listen for text selection
+            document.getElementById('source-content').addEventListener('mouseup', handleSelection);
+            document.addEventListener('mousedown', (e) => {
+                if (!e.target.closest('#add-btn') && !e.target.closest('#source-content')) {
+                    hideAddButton();
+                }
+            });
+        }
+
+        function selectFile(name) {
+            currentFile = name;
+            document.getElementById('source-text').textContent = SOURCE_FILES[name];
+
+            // Update tab states
+            document.querySelectorAll('.file-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.textContent === name);
+            });
+
+            hideAddButton();
+        }
+
+        function handleSelection() {
+            const selection = window.getSelection();
+            const text = selection.toString().trim();
+
+            if (text.length > 0) {
+                currentSelection = {
+                    text: text,
+                    file: currentFile
+                };
+                showAddButton(selection);
+            } else {
+                hideAddButton();
+            }
+        }
+
+        function showAddButton(selection) {
+            const btn = document.getElementById('add-btn');
+            const range = selection.getRangeAt(0);
+            const rect = range.getBoundingClientRect();
+
+            btn.style.left = `${rect.left + rect.width / 2 - 75}px`;
+            btn.style.top = `${rect.bottom + 10}px`;
+            btn.classList.add('visible');
+        }
+
+        function hideAddButton() {
+            document.getElementById('add-btn').classList.remove('visible');
+            currentSelection = null;
+        }
+
+        function addSelection() {
+            if (!currentSelection) return;
+
+            curatedItems.push({
+                id: Date.now(),
+                file: currentSelection.file,
+                text: currentSelection.text
+            });
+
+            renderCuratedItems();
+            hideAddButton();
+            window.getSelection().removeAllRanges();
+            showToast('Selection added!');
+        }
+
+        function removeItem(id) {
+            curatedItems = curatedItems.filter(item => item.id !== id);
+            renderCuratedItems();
+        }
+
+        function clearAll() {
+            if (curatedItems.length === 0) return;
+            if (confirm('Clear all selections?')) {
+                curatedItems = [];
+                renderCuratedItems();
+            }
+        }
+
+        function renderCuratedItems() {
+            const container = document.getElementById('curated-items');
+            const emptyState = document.getElementById('empty-state');
+            const doneBtn = document.getElementById('done-btn');
+
+            document.getElementById('selection-count').textContent = curatedItems.length;
+
+            if (curatedItems.length === 0) {
+                emptyState.style.display = 'flex';
+                container.innerHTML = '';
+                doneBtn.disabled = true;
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            doneBtn.disabled = false;
+
+            container.innerHTML = curatedItems.map(item => `
+                <div class="curated-item">
+                    <div class="curated-item-header">
+                        <span class="curated-item-source">${escapeHtml(item.file)}</span>
+                        <button class="curated-item-remove" onclick="removeItem(${item.id})">✕ Remove</button>
+                    </div>
+                    <div class="curated-item-text">${escapeHtml(item.text)}</div>
+                </div>
+            `).join('');
+        }
+
+        function generateMarkdown() {
+            // Group by file
+            const byFile = {};
+            curatedItems.forEach(item => {
+                if (!byFile[item.file]) {
+                    byFile[item.file] = [];
+                }
+                byFile[item.file].push(item.text);
+            });
+
+            // Generate markdown
+            let md = '';
+            Object.entries(byFile).forEach(([file, texts]) => {
+                md += `## From: ${file}\n\n`;
+                texts.forEach(text => {
+                    md += text + '\n\n';
+                });
+            });
+
+            return md.trim();
+        }
+
+        async function submitCurated() {
+            const markdown = generateMarkdown();
+
+            try {
+                const response = await fetch('/done', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: markdown })
+                });
+
+                if (response.ok) {
+                    document.getElementById('done-btn').textContent = '✓ Sent to Claude!';
+                    document.getElementById('done-btn').disabled = true;
+                    showToast('Context sent to Claude! You can close this tab.');
+                } else {
+                    throw new Error('Failed to send');
+                }
+            } catch (err) {
+                alert('Error sending to Claude: ' + err.message);
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('visible');
+            setTimeout(() => toast.classList.remove('visible'), 2000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Start
+        init();
+    </script>
+</body>
+</html>
