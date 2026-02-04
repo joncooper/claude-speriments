@@ -6,17 +6,22 @@
     <title>Context Curation</title>
     <style>
         :root {
-            --bg-primary: #1a1a2e;
-            --bg-secondary: #16213e;
-            --bg-tertiary: #0f0f23;
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #252542;
             --accent: #e94560;
             --accent-hover: #ff6b6b;
-            --text-primary: #eaeaea;
-            --text-secondary: #a0a0a0;
-            --highlight: rgba(233, 69, 96, 0.3);
-            --highlight-solid: #e94560;
+            --accent-glow: rgba(233, 69, 96, 0.3);
+            --text-primary: #f0f0f0;
+            --text-secondary: #8888a0;
+            --text-muted: #5a5a70;
+            --highlight: rgba(233, 69, 96, 0.25);
+            --highlight-persistent: rgba(74, 222, 128, 0.2);
             --border: #2a2a4a;
+            --border-hover: #4a4a6a;
             --success: #4ade80;
+            --warning: #fbbf24;
+            --info: #60a5fa;
         }
 
         * {
@@ -33,12 +38,47 @@
             overflow: hidden;
         }
 
+        /* ==================== ANIMATIONS ==================== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            70% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .animate-slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .animate-pop-in {
+            animation: popIn 0.2s ease-out;
+        }
+
         /* ==================== FILE PICKER VIEW ==================== */
         .picker-view {
             display: flex;
             flex-direction: column;
             height: 100vh;
             padding: 32px;
+            animation: fadeIn 0.4s ease-out;
         }
 
         .picker-view.hidden {
@@ -51,9 +91,13 @@
         }
 
         .picker-header h1 {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .picker-header p {
@@ -79,16 +123,17 @@
             padding: 8px 16px;
             background: var(--bg-secondary);
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: 8px;
             color: var(--text-secondary);
             font-size: 13px;
             cursor: pointer;
-            transition: all 0.15s ease;
+            transition: all 0.2s ease;
         }
 
         .picker-toolbar button:hover {
             border-color: var(--accent);
             color: var(--text-primary);
+            background: var(--bg-tertiary);
         }
 
         .picker-stats {
@@ -103,7 +148,7 @@
 
         .file-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 16px;
             flex: 1;
             overflow-y: auto;
@@ -113,41 +158,87 @@
         .file-card {
             background: var(--bg-secondary);
             border: 2px solid var(--border);
-            border-radius: 12px;
-            padding: 16px;
+            border-radius: 16px;
+            padding: 20px;
             cursor: pointer;
-            transition: all 0.15s ease;
+            transition: all 0.2s ease;
             display: flex;
             flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity 0.2s ease;
         }
 
         .file-card:hover {
-            border-color: var(--text-secondary);
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .file-card:hover::before {
+            opacity: 0.5;
         }
 
         .file-card.selected {
             border-color: var(--accent);
-            background: rgba(233, 69, 96, 0.1);
+            background: linear-gradient(135deg, var(--bg-secondary), rgba(233, 69, 96, 0.1));
+        }
+
+        .file-card.selected::before {
+            opacity: 1;
         }
 
         .file-card-header {
             display: flex;
             align-items: flex-start;
-            gap: 12px;
-            margin-bottom: 12px;
+            gap: 14px;
+            margin-bottom: 14px;
         }
 
-        .file-checkbox {
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--border);
-            border-radius: 4px;
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 18px;
             flex-shrink: 0;
-            margin-top: 2px;
-            transition: all 0.15s ease;
+            background: var(--bg-tertiary);
+        }
+
+        .file-icon.md { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .file-icon.pdf { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+        .file-icon.txt { background: linear-gradient(135deg, #6b7280, #4b5563); }
+        .file-icon.docx { background: linear-gradient(135deg, #2563eb, #1e40af); }
+        .file-icon.json { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .file-icon.py { background: linear-gradient(135deg, #3b82f6, #fbbf24); }
+        .file-icon.js, .file-icon.ts { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+
+        .file-checkbox {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            background: var(--bg-primary);
         }
 
         .file-card.selected .file-checkbox {
@@ -158,14 +249,16 @@
         .file-checkbox::after {
             content: '✓';
             color: white;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: bold;
             opacity: 0;
-            transition: opacity 0.15s ease;
+            transform: scale(0);
+            transition: all 0.2s ease;
         }
 
         .file-card.selected .file-checkbox::after {
             opacity: 1;
+            transform: scale(1);
         }
 
         .file-info {
@@ -175,25 +268,34 @@
 
         .file-name {
             font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 4px;
+            font-size: 15px;
+            margin-bottom: 6px;
             word-break: break-word;
+            color: var(--text-primary);
         }
 
         .file-meta {
             font-size: 12px;
-            color: var(--text-secondary);
+            color: var(--text-muted);
+            display: flex;
+            gap: 12px;
+        }
+
+        .file-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .file-preview {
-            background: var(--bg-tertiary);
-            border-radius: 8px;
-            padding: 12px;
-            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            background: var(--bg-primary);
+            border-radius: 10px;
+            padding: 14px;
+            font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
             font-size: 11px;
             line-height: 1.5;
-            color: var(--text-secondary);
-            max-height: 120px;
+            color: var(--text-muted);
+            max-height: 100px;
             overflow: hidden;
             position: relative;
         }
@@ -204,18 +306,18 @@
             bottom: 0;
             left: 0;
             right: 0;
-            height: 40px;
-            background: linear-gradient(transparent, var(--bg-tertiary));
+            height: 50px;
+            background: linear-gradient(transparent, var(--bg-primary));
         }
 
         .picker-footer {
             display: flex;
             justify-content: center;
-            padding-top: 24px;
+            padding-top: 28px;
         }
 
         .picker-footer .btn {
-            min-width: 250px;
+            min-width: 280px;
         }
 
         /* ==================== CURATION VIEW ==================== */
@@ -226,6 +328,7 @@
 
         .curation-view.visible {
             display: flex;
+            animation: fadeIn 0.3s ease-out;
         }
 
         .container {
@@ -240,6 +343,7 @@
             flex-direction: column;
             border-right: 1px solid var(--border);
             min-width: 0;
+            background: var(--bg-primary);
         }
 
         .panel-header {
@@ -253,11 +357,11 @@
         }
 
         .panel-header h2 {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-secondary);
+            letter-spacing: 1px;
+            color: var(--text-muted);
         }
 
         .panel-header-left {
@@ -267,63 +371,155 @@
         }
 
         .back-btn {
-            padding: 6px 12px;
+            padding: 8px 14px;
             background: transparent;
             border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .back-btn:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
+        }
+
+        /* Search bar */
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .search-bar.hidden {
+            display: none;
+        }
+
+        .search-bar input {
+            flex: 1;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
             border-radius: 6px;
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .search-bar input:focus {
+            border-color: var(--accent);
+        }
+
+        .search-bar input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-stats {
+            font-size: 12px;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .search-stats span {
+            color: var(--accent);
+        }
+
+        .search-nav {
+            display: flex;
+            gap: 4px;
+        }
+
+        .search-nav button {
+            padding: 6px 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
             color: var(--text-secondary);
             font-size: 12px;
             cursor: pointer;
             transition: all 0.15s ease;
         }
 
-        .back-btn:hover {
-            border-color: var(--text-secondary);
+        .search-nav button:hover {
+            background: var(--bg-primary);
             color: var(--text-primary);
+        }
+
+        .search-close {
+            padding: 6px 10px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 16px;
+            transition: color 0.15s ease;
+        }
+
+        .search-close:hover {
+            color: var(--accent);
         }
 
         .file-tabs {
             display: flex;
             gap: 4px;
-            padding: 8px 12px;
-            background: var(--bg-tertiary);
+            padding: 10px 14px;
+            background: var(--bg-secondary);
             overflow-x: auto;
             flex-shrink: 0;
+            border-bottom: 1px solid var(--border);
         }
 
         .file-tab {
-            padding: 8px 16px;
+            padding: 10px 18px;
             background: transparent;
             border: 1px solid transparent;
-            border-radius: 6px;
+            border-radius: 8px;
             color: var(--text-secondary);
             cursor: pointer;
             font-size: 13px;
             white-space: nowrap;
-            transition: all 0.15s ease;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .file-tab:hover {
-            background: var(--bg-secondary);
+            background: var(--bg-tertiary);
             color: var(--text-primary);
         }
 
         .file-tab.active {
-            background: var(--bg-secondary);
+            background: var(--bg-tertiary);
             border-color: var(--accent);
             color: var(--text-primary);
+        }
+
+        .file-tab .tab-icon {
+            font-size: 14px;
         }
 
         .source-content {
             flex: 1;
             overflow-y: auto;
             padding: 24px;
+            position: relative;
         }
 
         .source-content pre {
-            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
             font-size: 13px;
-            line-height: 1.7;
+            line-height: 1.8;
             white-space: pre-wrap;
             word-wrap: break-word;
         }
@@ -333,13 +529,59 @@
             background: var(--highlight);
         }
 
+        /* Highlight for already-selected text */
+        .selected-region {
+            background: var(--highlight-persistent);
+            border-radius: 2px;
+            border-bottom: 2px solid var(--success);
+            padding: 1px 0;
+        }
+
+        /* Search highlight */
+        .search-highlight {
+            background: rgba(251, 191, 36, 0.4);
+            border-radius: 2px;
+        }
+
+        .search-highlight.current {
+            background: rgba(251, 191, 36, 0.8);
+            box-shadow: 0 0 0 2px var(--warning);
+        }
+
         /* Right Panel - Curated Context */
         .curated-panel {
-            width: 480px;
+            width: 500px;
             display: flex;
             flex-direction: column;
             background: var(--bg-secondary);
             flex-shrink: 0;
+        }
+
+        .curated-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .token-estimate {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .token-estimate .count {
+            color: var(--info);
+            font-weight: 600;
+        }
+
+        .token-estimate.warning .count {
+            color: var(--warning);
+        }
+
+        .token-estimate.danger .count {
+            color: var(--accent);
         }
 
         .curated-content {
@@ -349,19 +591,20 @@
         }
 
         .curated-item {
-            background: var(--bg-tertiary);
-            border-radius: 8px;
+            background: var(--bg-primary);
+            border-radius: 12px;
             margin-bottom: 12px;
             overflow: hidden;
             border: 1px solid var(--border);
+            animation: slideIn 0.2s ease-out;
         }
 
         .curated-item-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px 14px;
-            background: rgba(233, 69, 96, 0.1);
+            padding: 12px 16px;
+            background: linear-gradient(135deg, rgba(233, 69, 96, 0.15), rgba(233, 69, 96, 0.05));
             border-bottom: 1px solid var(--border);
         }
 
@@ -369,15 +612,24 @@
             font-size: 12px;
             font-weight: 600;
             color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .curated-item-chars {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: normal;
         }
 
         .curated-item-remove {
             background: transparent;
             border: none;
-            color: var(--text-secondary);
+            color: var(--text-muted);
             cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 4px;
+            padding: 6px 10px;
+            border-radius: 6px;
             font-size: 12px;
             transition: all 0.15s ease;
         }
@@ -388,14 +640,15 @@
         }
 
         .curated-item-text {
-            padding: 12px 14px;
-            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            padding: 14px 16px;
+            font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
             font-size: 12px;
             line-height: 1.6;
             white-space: pre-wrap;
             word-wrap: break-word;
-            max-height: 200px;
+            max-height: 180px;
             overflow-y: auto;
+            color: var(--text-secondary);
         }
 
         .empty-state {
@@ -404,61 +657,83 @@
             align-items: center;
             justify-content: center;
             height: 100%;
-            color: var(--text-secondary);
+            color: var(--text-muted);
             text-align: center;
             padding: 40px;
         }
 
         .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-            opacity: 0.5;
+            font-size: 56px;
+            margin-bottom: 20px;
+            opacity: 0.4;
         }
 
         .empty-state h3 {
-            font-size: 16px;
-            margin-bottom: 8px;
-            color: var(--text-primary);
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
         }
 
         .empty-state p {
             font-size: 13px;
-            line-height: 1.5;
+            line-height: 1.6;
+            max-width: 280px;
+        }
+
+        .keyboard-hint {
+            margin-top: 20px;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            font-size: 12px;
+        }
+
+        .keyboard-hint kbd {
+            background: var(--bg-primary);
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            font-family: inherit;
+            margin: 0 2px;
         }
 
         /* Action Bar */
         .action-bar {
             padding: 16px;
-            background: var(--bg-tertiary);
+            background: var(--bg-primary);
             border-top: 1px solid var(--border);
             display: flex;
             gap: 12px;
         }
 
         .btn {
-            padding: 12px 24px;
-            border-radius: 8px;
+            padding: 14px 28px;
+            border-radius: 10px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.15s ease;
+            transition: all 0.2s ease;
             border: none;
         }
 
         .btn-primary {
-            background: var(--accent);
+            background: linear-gradient(135deg, var(--accent), #c73e54);
             color: white;
             flex: 1;
+            box-shadow: 0 4px 15px var(--accent-glow);
         }
 
         .btn-primary:hover {
-            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px var(--accent-glow);
         }
 
         .btn-primary:disabled {
-            background: var(--border);
-            color: var(--text-secondary);
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
             cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
         }
 
         .btn-secondary {
@@ -470,38 +745,87 @@
         .btn-secondary:hover {
             border-color: var(--text-secondary);
             color: var(--text-primary);
+            background: var(--bg-tertiary);
+        }
+
+        /* Preview toggle */
+        .preview-toggle {
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .preview-toggle:hover, .preview-toggle.active {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        .markdown-preview {
+            display: none;
+            padding: 16px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            margin: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+        }
+
+        .markdown-preview.visible {
+            display: block;
+            animation: fadeIn 0.2s ease-out;
         }
 
         /* Floating Add Button */
         .add-selection-btn {
             position: fixed;
-            padding: 10px 20px;
-            background: var(--accent);
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--accent), #c73e54);
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 13px;
+            border-radius: 10px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            box-shadow: 0 4px 20px rgba(233, 69, 96, 0.4);
+            box-shadow: 0 6px 25px var(--accent-glow);
             display: none;
             z-index: 1000;
-            transition: all 0.15s ease;
+            transition: all 0.2s ease;
         }
 
         .add-selection-btn:hover {
-            background: var(--accent-hover);
-            transform: translateY(-2px);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 35px var(--accent-glow);
         }
 
         .add-selection-btn.visible {
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: popIn 0.2s ease-out;
+        }
+
+        .add-selection-btn kbd {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-family: inherit;
         }
 
         /* Stats */
         .stats {
             font-size: 12px;
-            color: var(--text-secondary);
+            color: var(--text-muted);
         }
 
         .stats span {
@@ -511,21 +835,22 @@
 
         /* Scrollbar styling */
         ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
         }
 
         ::-webkit-scrollbar-track {
-            background: var(--bg-tertiary);
+            background: var(--bg-primary);
         }
 
         ::-webkit-scrollbar-thumb {
             background: var(--border);
-            border-radius: 4px;
+            border-radius: 5px;
+            border: 2px solid var(--bg-primary);
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: var(--text-secondary);
+            background: var(--border-hover);
         }
 
         /* Toast notification */
@@ -536,18 +861,97 @@
             transform: translateX(-50%) translateY(100px);
             background: var(--success);
             color: var(--bg-primary);
-            padding: 12px 24px;
-            border-radius: 8px;
+            padding: 14px 28px;
+            border-radius: 10px;
             font-weight: 600;
             font-size: 14px;
             opacity: 0;
             transition: all 0.3s ease;
             z-index: 1001;
+            box-shadow: 0 6px 25px rgba(74, 222, 128, 0.3);
         }
 
         .toast.visible {
             transform: translateX(-50%) translateY(0);
             opacity: 1;
+        }
+
+        /* Keyboard shortcuts modal */
+        .shortcuts-hint {
+            position: fixed;
+            bottom: 80px;
+            right: 24px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            z-index: 100;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.2s ease;
+            pointer-events: none;
+        }
+
+        .shortcuts-hint.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .shortcuts-hint h4 {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .shortcuts-hint ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .shortcuts-hint li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .shortcuts-hint kbd {
+            background: var(--bg-primary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            font-family: inherit;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .help-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 99;
+        }
+
+        .help-btn:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--text-muted);
+            color: var(--text-primary);
         }
     </style>
 </head>
@@ -585,13 +989,29 @@
             <div class="source-panel">
                 <div class="panel-header">
                     <div class="panel-header-left">
-                        <button class="back-btn" onclick="goBack()">← Back</button>
+                        <button class="back-btn" onclick="goBack()">
+                            <span>←</span> Back
+                        </button>
                         <h2>Source Files</h2>
                     </div>
                     <div class="stats">
                         <span id="file-count">0</span> files
                     </div>
                 </div>
+
+                <!-- Search bar -->
+                <div class="search-bar hidden" id="search-bar">
+                    <input type="text" id="search-input" placeholder="Search in file..." onkeyup="handleSearchInput(event)" />
+                    <div class="search-stats">
+                        <span id="search-current">0</span> / <span id="search-total">0</span>
+                    </div>
+                    <div class="search-nav">
+                        <button onclick="prevSearchResult()">↑</button>
+                        <button onclick="nextSearchResult()">↓</button>
+                    </div>
+                    <button class="search-close" onclick="closeSearch()">×</button>
+                </div>
+
                 <div class="file-tabs" id="file-tabs"></div>
                 <div class="source-content" id="source-content">
                     <pre id="source-text"></pre>
@@ -601,16 +1021,25 @@
             <!-- Right Panel: Curated Context -->
             <div class="curated-panel">
                 <div class="panel-header">
-                    <h2>Curated Context</h2>
-                    <div class="stats">
-                        <span id="selection-count">0</span> selections
+                    <div class="curated-header">
+                        <h2>Curated Context</h2>
+                        <button class="preview-toggle" id="preview-toggle" onclick="togglePreview()">
+                            Preview
+                        </button>
+                    </div>
+                    <div class="token-estimate" id="token-estimate">
+                        <span class="count" id="token-count">0</span> tokens (est.)
                     </div>
                 </div>
                 <div class="curated-content" id="curated-content">
+                    <div class="markdown-preview" id="markdown-preview"></div>
                     <div class="empty-state" id="empty-state">
                         <div class="empty-state-icon">✨</div>
                         <h3>No selections yet</h3>
-                        <p>Select text from the source files on the left, then click "Add to Context" to build your curated context.</p>
+                        <p>Select text from the source files, then press <kbd>⌘</kbd>+<kbd>Enter</kbd> or click the button to add it.</p>
+                        <div class="keyboard-hint">
+                            <kbd>⌘/Ctrl</kbd>+<kbd>F</kbd> to search
+                        </div>
                     </div>
                     <div id="curated-items"></div>
                 </div>
@@ -626,58 +1055,135 @@
 
     <!-- Floating Add Button -->
     <button class="add-selection-btn" id="add-btn" onclick="addSelection()">
-        + Add to Context
+        + Add to Context <kbd>⌘↵</kbd>
     </button>
 
     <!-- Toast -->
     <div class="toast" id="toast">Selection added!</div>
 
+    <!-- Keyboard shortcuts hint -->
+    <div class="shortcuts-hint" id="shortcuts-hint">
+        <h4>Keyboard Shortcuts</h4>
+        <ul>
+            <li><kbd>⌘/Ctrl+↵</kbd> <span>Add selection</span></li>
+            <li><kbd>⌘/Ctrl+F</kbd> <span>Search in file</span></li>
+            <li><kbd>Escape</kbd> <span>Cancel / Close</span></li>
+        </ul>
+    </div>
+
+    <!-- Help button -->
+    <button class="help-btn" id="help-btn" onmouseenter="showShortcuts()" onmouseleave="hideShortcuts()">?</button>
+
     <script>
         // Source files data - will be injected by the generator
-        // Format: { "filename.md": "file contents...", ... }
         const SOURCE_FILES = __SOURCE_FILES_PLACEHOLDER__;
 
         // State
         let selectedFiles = new Set();
-        let activeFiles = {}; // Files that passed the picker
+        let activeFiles = {};
         let currentFile = null;
         let curatedItems = [];
         let currentSelection = null;
+        let searchResults = [];
+        let currentSearchIndex = -1;
+        let showingPreview = false;
+
+        // File type icons
+        const FILE_ICONS = {
+            md: '📝', pdf: '📕', txt: '📄', docx: '📘',
+            json: '📋', py: '🐍', js: '📜', ts: '📜',
+            html: '🌐', css: '🎨', default: '📄'
+        };
 
         // Initialize
         function init() {
             const fileNames = Object.keys(SOURCE_FILES);
             document.getElementById('total-count').textContent = fileNames.length;
 
-            // If only 1 file, skip picker and go straight to curation
+            // Setup keyboard shortcuts
+            document.addEventListener('keydown', handleKeyboard);
+
+            // If only 1 file, skip picker
             if (fileNames.length === 1) {
                 selectedFiles.add(fileNames[0]);
                 startCuration();
                 return;
             }
 
-            // Render file grid
             renderFileGrid();
+        }
+
+        function handleKeyboard(e) {
+            const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+            const cmdKey = isMac ? e.metaKey : e.ctrlKey;
+
+            // Cmd/Ctrl + Enter: Add selection
+            if (cmdKey && e.key === 'Enter' && currentSelection) {
+                e.preventDefault();
+                addSelection();
+            }
+
+            // Cmd/Ctrl + F: Open search
+            if (cmdKey && e.key === 'f' && document.getElementById('curation-view').classList.contains('visible')) {
+                e.preventDefault();
+                openSearch();
+            }
+
+            // Escape: Cancel selection or close search
+            if (e.key === 'Escape') {
+                if (!document.getElementById('search-bar').classList.contains('hidden')) {
+                    closeSearch();
+                } else {
+                    hideAddButton();
+                    window.getSelection().removeAllRanges();
+                }
+            }
+
+            // Enter/Shift+Enter in search: Navigate results
+            if (e.key === 'Enter' && document.activeElement === document.getElementById('search-input')) {
+                e.preventDefault();
+                if (e.shiftKey) {
+                    prevSearchResult();
+                } else {
+                    nextSearchResult();
+                }
+            }
+        }
+
+        function getFileExtension(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            return ext;
+        }
+
+        function getFileIcon(filename) {
+            const ext = getFileExtension(filename);
+            return FILE_ICONS[ext] || FILE_ICONS.default;
         }
 
         function renderFileGrid() {
             const grid = document.getElementById('file-grid');
             const fileNames = Object.keys(SOURCE_FILES);
 
-            grid.innerHTML = fileNames.map(name => {
+            grid.innerHTML = fileNames.map((name, index) => {
                 const content = SOURCE_FILES[name];
                 const lines = content.split('\n').length;
                 const chars = content.length;
-                const preview = content.substring(0, 300).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                const tokens = Math.round(chars / 4);
+                const preview = content.substring(0, 250).replace(/</g, '&lt;').replace(/>/g, '&gt;');
                 const isSelected = selectedFiles.has(name);
+                const ext = getFileExtension(name);
 
                 return `
-                    <div class="file-card ${isSelected ? 'selected' : ''}" onclick="toggleFile('${escapeAttr(name)}')">
+                    <div class="file-card ${isSelected ? 'selected' : ''}" onclick="toggleFile('${escapeAttr(name)}')" style="animation-delay: ${index * 0.05}s">
+                        <div class="file-checkbox"></div>
                         <div class="file-card-header">
-                            <div class="file-checkbox"></div>
+                            <div class="file-icon ${ext}">${getFileIcon(name)}</div>
                             <div class="file-info">
                                 <div class="file-name">${escapeHtml(name)}</div>
-                                <div class="file-meta">${lines} lines · ${formatSize(chars)}</div>
+                                <div class="file-meta">
+                                    <span>${lines} lines</span>
+                                    <span>~${formatNumber(tokens)} tokens</span>
+                                </div>
                             </div>
                         </div>
                         <div class="file-preview">${preview}</div>
@@ -712,33 +1218,26 @@
             document.getElementById('continue-btn').disabled = selectedFiles.size === 0;
         }
 
-        function formatSize(chars) {
-            if (chars < 1000) return `${chars} chars`;
-            if (chars < 1000000) return `${(chars / 1000).toFixed(1)}k chars`;
-            return `${(chars / 1000000).toFixed(1)}M chars`;
+        function formatNumber(n) {
+            if (n < 1000) return n;
+            if (n < 1000000) return (n / 1000).toFixed(1) + 'k';
+            return (n / 1000000).toFixed(1) + 'M';
         }
 
         function startCuration() {
-            // Build activeFiles from selection
             activeFiles = {};
             selectedFiles.forEach(name => {
                 activeFiles[name] = SOURCE_FILES[name];
             });
 
-            // Switch views
             document.getElementById('picker-view').classList.add('hidden');
             document.getElementById('curation-view').classList.add('visible');
 
-            // Initialize curation view
             initCurationView();
         }
 
         function goBack() {
-            // If we came from single-file mode, there's nowhere to go back to
-            if (Object.keys(SOURCE_FILES).length === 1) {
-                return;
-            }
-
+            if (Object.keys(SOURCE_FILES).length === 1) return;
             document.getElementById('curation-view').classList.remove('visible');
             document.getElementById('picker-view').classList.remove('hidden');
         }
@@ -747,23 +1246,20 @@
             const fileNames = Object.keys(activeFiles);
             document.getElementById('file-count').textContent = fileNames.length;
 
-            // Create tabs
             const tabsContainer = document.getElementById('file-tabs');
             tabsContainer.innerHTML = '';
             fileNames.forEach((name, index) => {
                 const tab = document.createElement('button');
                 tab.className = 'file-tab' + (index === 0 ? ' active' : '');
-                tab.textContent = name;
+                tab.innerHTML = `<span class="tab-icon">${getFileIcon(name)}</span> ${escapeHtml(name)}`;
                 tab.onclick = () => selectFile(name);
                 tabsContainer.appendChild(tab);
             });
 
-            // Show first file
             if (fileNames.length > 0) {
                 selectFile(fileNames[0]);
             }
 
-            // Listen for text selection
             document.getElementById('source-content').addEventListener('mouseup', handleSelection);
             document.addEventListener('mousedown', (e) => {
                 if (!e.target.closest('#add-btn') && !e.target.closest('#source-content')) {
@@ -774,14 +1270,32 @@
 
         function selectFile(name) {
             currentFile = name;
-            document.getElementById('source-text').textContent = activeFiles[name];
+            renderFileContent();
 
-            // Update tab states
             document.querySelectorAll('.file-tab').forEach(tab => {
-                tab.classList.toggle('active', tab.textContent === name);
+                tab.classList.toggle('active', tab.textContent.trim().endsWith(name));
             });
 
             hideAddButton();
+            closeSearch();
+        }
+
+        function renderFileContent() {
+            const content = activeFiles[currentFile];
+            const pre = document.getElementById('source-text');
+
+            // Highlight already-selected regions
+            let html = escapeHtml(content);
+
+            // Get selections for current file
+            const fileSelections = curatedItems.filter(item => item.file === currentFile);
+            fileSelections.forEach(item => {
+                const escapedText = escapeHtml(item.text);
+                // Simple highlight - could be improved for overlapping selections
+                html = html.replace(escapedText, `<span class="selected-region">${escapedText}</span>`);
+            });
+
+            pre.innerHTML = html;
         }
 
         function handleSelection() {
@@ -789,10 +1303,7 @@
             const text = selection.toString().trim();
 
             if (text.length > 0) {
-                currentSelection = {
-                    text: text,
-                    file: currentFile
-                };
+                currentSelection = { text, file: currentFile };
                 showAddButton(selection);
             } else {
                 hideAddButton();
@@ -804,8 +1315,8 @@
             const range = selection.getRangeAt(0);
             const rect = range.getBoundingClientRect();
 
-            btn.style.left = `${rect.left + rect.width / 2 - 75}px`;
-            btn.style.top = `${rect.bottom + 10}px`;
+            btn.style.left = `${Math.max(20, Math.min(window.innerWidth - 200, rect.left + rect.width / 2 - 90))}px`;
+            btn.style.top = `${rect.bottom + 12}px`;
             btn.classList.add('visible');
         }
 
@@ -824,6 +1335,7 @@
             });
 
             renderCuratedItems();
+            renderFileContent(); // Re-render to show highlight
             hideAddButton();
             window.getSelection().removeAllRanges();
             showToast('Selection added!');
@@ -832,6 +1344,7 @@
         function removeItem(id) {
             curatedItems = curatedItems.filter(item => item.id !== id);
             renderCuratedItems();
+            renderFileContent();
         }
 
         function clearAll() {
@@ -839,6 +1352,7 @@
             if (confirm('Clear all selections?')) {
                 curatedItems = [];
                 renderCuratedItems();
+                renderFileContent();
             }
         }
 
@@ -846,13 +1360,24 @@
             const container = document.getElementById('curated-items');
             const emptyState = document.getElementById('empty-state');
             const doneBtn = document.getElementById('done-btn');
+            const preview = document.getElementById('markdown-preview');
 
-            document.getElementById('selection-count').textContent = curatedItems.length;
+            const totalChars = curatedItems.reduce((sum, item) => sum + item.text.length, 0);
+            const tokenEstimate = Math.round(totalChars / 4);
+
+            document.getElementById('token-count').textContent = formatNumber(tokenEstimate);
+
+            // Update token warning class
+            const tokenEl = document.getElementById('token-estimate');
+            tokenEl.classList.remove('warning', 'danger');
+            if (tokenEstimate > 50000) tokenEl.classList.add('danger');
+            else if (tokenEstimate > 20000) tokenEl.classList.add('warning');
 
             if (curatedItems.length === 0) {
                 emptyState.style.display = 'flex';
                 container.innerHTML = '';
                 doneBtn.disabled = true;
+                preview.classList.remove('visible');
                 return;
             }
 
@@ -862,25 +1387,44 @@
             container.innerHTML = curatedItems.map(item => `
                 <div class="curated-item">
                     <div class="curated-item-header">
-                        <span class="curated-item-source">${escapeHtml(item.file)}</span>
+                        <span class="curated-item-source">
+                            ${getFileIcon(item.file)} ${escapeHtml(item.file)}
+                            <span class="curated-item-chars">${formatNumber(item.text.length)} chars</span>
+                        </span>
                         <button class="curated-item-remove" onclick="removeItem(${item.id})">✕ Remove</button>
                     </div>
                     <div class="curated-item-text">${escapeHtml(item.text)}</div>
                 </div>
             `).join('');
+
+            // Update preview if visible
+            if (showingPreview) {
+                preview.textContent = generateMarkdown();
+            }
+        }
+
+        function togglePreview() {
+            showingPreview = !showingPreview;
+            const preview = document.getElementById('markdown-preview');
+            const btn = document.getElementById('preview-toggle');
+
+            if (showingPreview && curatedItems.length > 0) {
+                preview.textContent = generateMarkdown();
+                preview.classList.add('visible');
+                btn.classList.add('active');
+            } else {
+                preview.classList.remove('visible');
+                btn.classList.remove('active');
+            }
         }
 
         function generateMarkdown() {
-            // Group by file
             const byFile = {};
             curatedItems.forEach(item => {
-                if (!byFile[item.file]) {
-                    byFile[item.file] = [];
-                }
+                if (!byFile[item.file]) byFile[item.file] = [];
                 byFile[item.file].push(item.text);
             });
 
-            // Generate markdown
             let md = '';
             Object.entries(byFile).forEach(([file, texts]) => {
                 md += `## From: ${file}\n\n`;
@@ -890,6 +1434,90 @@
             });
 
             return md.trim();
+        }
+
+        // Search functionality
+        function openSearch() {
+            const searchBar = document.getElementById('search-bar');
+            searchBar.classList.remove('hidden');
+            document.getElementById('search-input').focus();
+        }
+
+        function closeSearch() {
+            const searchBar = document.getElementById('search-bar');
+            searchBar.classList.add('hidden');
+            document.getElementById('search-input').value = '';
+            searchResults = [];
+            currentSearchIndex = -1;
+            renderFileContent();
+        }
+
+        function handleSearchInput(e) {
+            const query = e.target.value.toLowerCase();
+            if (query.length < 2) {
+                searchResults = [];
+                document.getElementById('search-total').textContent = '0';
+                document.getElementById('search-current').textContent = '0';
+                renderFileContent();
+                return;
+            }
+
+            const content = activeFiles[currentFile];
+            searchResults = [];
+            let pos = 0;
+            const lowerContent = content.toLowerCase();
+
+            while ((pos = lowerContent.indexOf(query, pos)) !== -1) {
+                searchResults.push(pos);
+                pos += 1;
+            }
+
+            document.getElementById('search-total').textContent = searchResults.length;
+
+            if (searchResults.length > 0) {
+                currentSearchIndex = 0;
+                highlightSearchResults(query);
+            } else {
+                currentSearchIndex = -1;
+                document.getElementById('search-current').textContent = '0';
+                renderFileContent();
+            }
+        }
+
+        function highlightSearchResults(query) {
+            const content = activeFiles[currentFile];
+            let html = escapeHtml(content);
+            const escapedQuery = escapeHtml(query);
+
+            // Highlight all matches
+            const regex = new RegExp(`(${escapedQuery})`, 'gi');
+            let matchIndex = 0;
+            html = html.replace(regex, (match) => {
+                const isCurrent = matchIndex === currentSearchIndex;
+                matchIndex++;
+                return `<span class="search-highlight ${isCurrent ? 'current' : ''}">${match}</span>`;
+            });
+
+            document.getElementById('source-text').innerHTML = html;
+            document.getElementById('search-current').textContent = currentSearchIndex + 1;
+
+            // Scroll to current result
+            const currentHighlight = document.querySelector('.search-highlight.current');
+            if (currentHighlight) {
+                currentHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function nextSearchResult() {
+            if (searchResults.length === 0) return;
+            currentSearchIndex = (currentSearchIndex + 1) % searchResults.length;
+            highlightSearchResults(document.getElementById('search-input').value);
+        }
+
+        function prevSearchResult() {
+            if (searchResults.length === 0) return;
+            currentSearchIndex = (currentSearchIndex - 1 + searchResults.length) % searchResults.length;
+            highlightSearchResults(document.getElementById('search-input').value);
         }
 
         async function submitCurated() {
@@ -918,7 +1546,15 @@
             const toast = document.getElementById('toast');
             toast.textContent = message;
             toast.classList.add('visible');
-            setTimeout(() => toast.classList.remove('visible'), 2000);
+            setTimeout(() => toast.classList.remove('visible'), 2500);
+        }
+
+        function showShortcuts() {
+            document.getElementById('shortcuts-hint').classList.add('visible');
+        }
+
+        function hideShortcuts() {
+            document.getElementById('shortcuts-hint').classList.remove('visible');
         }
 
         function escapeHtml(text) {
