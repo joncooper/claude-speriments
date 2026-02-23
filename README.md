@@ -6,6 +6,7 @@ A collection of applications, agents, and skills exploring Claude Code's capabil
 
 | Name | Type | Description | Status |
 |------|------|-------------|--------|
+| [OCaml Phi Generation](./apps/ocaml-phi-generation/) | App | 10 OCaml programs computing φ via different algorithms | Complete |
 | [Twitter Data Analyzer](./apps/twitter-data-analyzer/) | App | CLI to audit Twitter profiles with AI analysis | Complete |
 | [Analyst Workspace](./apps/analyst-workspace/) | App | Claude-powered equity research tools | Iterating |
 | [AuctionNinja Finder](./apps/auction-ninja-app/) | App | Find nearby auctions ending soon | Complete |
@@ -25,6 +26,10 @@ A collection of applications, agents, and skills exploring Claude Code's capabil
 ---
 
 ## Applications
+
+### OCaml Phi Generation
+Ten OCaml programs that each compute the golden ratio (φ ≈ 1.6180339887) to 10 digits of precision using a distinct algorithm: direct formula, Fibonacci ratio, continued fraction, Newton-Raphson, fixed-point iteration, bisection, matrix exponentiation, binomial power series, trigonometric identity, and exact rational arithmetic via Zarith.
+**Status:** Complete | [Learn more](./apps/ocaml-phi-generation/)
 
 ### Twitter Data Analyzer
 CLI to download, store, and analyze your Twitter/X data using DuckDB and Google Gemini AI. Features interactive TUI browser and profile audit for identifying problematic content before going public.
@@ -133,4 +138,4 @@ Each experiment may have its own license. Generally provided for educational and
 
 ---
 
-**Last updated:** January 2026
+**Last updated:** February 2026

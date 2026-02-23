@@ -1,0 +1,15 @@
+; Programs that use only the standard library
+(executable (name phi_direct))
+(executable (name phi_fibonacci))
+(executable (name phi_continued_fraction))
+(executable (name phi_newton))
+(executable (name phi_fixed_point))
+(executable (name phi_bisection))
+(executable (name phi_matrix))
+(executable (name phi_power_series))
+(executable (name phi_trigonometric))
+
+; Requires the Zarith library (opam install zarith)
+(executable
+ (name phi_zarith)
+ (libraries zarith))
