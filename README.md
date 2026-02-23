@@ -17,6 +17,7 @@ A collection of applications, agents, and skills exploring Claude Code's capabil
 | [Ghostty Explainer](./apps/ghostty-explainer/) | App | Interactive contributor's guide to Ghostty | Complete |
 | [Email-to-LLM](./apps/email-llm-poc/) | App | Email conversations with AI via SendGrid | Initial Spike |
 | [Investor DD System](./apps/investor-dd-system/) | App | AI-powered due diligence for hedge funds | Planning |
+| [OCaml Phi Generation](./apps/ocaml-phi-generation/) | App | 10 approaches to computing φ in OCaml | Complete |
 | [Forensic Accounting](./agents/forensic-accounting/) | Agent | Detect earnings manipulation with Beneish M-Score | Complete |
 | [Management Integrity](./agents/equity-mgmt-integrity/) | Agent | Track if management keeps commitments | Complete |
 | [Verbalized Sampling](./skills/verbalized-sampling/) | Skill | Research-backed prompts for diverse outputs | Complete |
@@ -69,6 +70,10 @@ Proof-of-concept enabling turn-by-turn conversations with an LLM via email. Fire
 ### Investor Due Diligence Management System
 AI-powered system to streamline hedge fund LP due diligence. RAG-based answer drafting, consistency checking, smart routing to SMEs, and complete audit trail.
 **Status:** Planning | [Learn more](./apps/investor-dd-system/)
+
+### OCaml Phi Generation
+Ten OCaml programs computing the golden ratio φ to 10 digits of precision, each using a different mathematical approach: direct formula, Fibonacci ratio, continued fractions, Newton's method, and more.
+**Status:** Complete | [Learn more](./apps/ocaml-phi-generation/)
 
 ---
 
@@ -133,4 +138,4 @@ Each experiment may have its own license. Generally provided for educational and
 
 ---
 
-**Last updated:** January 2026
+**Last updated:** February 2026
