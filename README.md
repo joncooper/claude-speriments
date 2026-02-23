@@ -17,6 +17,7 @@ A collection of applications, agents, and skills exploring Claude Code's capabil
 | [Ghostty Explainer](./apps/ghostty-explainer/) | App | Interactive contributor's guide to Ghostty | Complete |
 | [Email-to-LLM](./apps/email-llm-poc/) | App | Email conversations with AI via SendGrid | Initial Spike |
 | [Investor DD System](./apps/investor-dd-system/) | App | AI-powered due diligence for hedge funds | Planning |
+| [nnterp-mlx](./apps/nnterp-mlx/) | App | Mechanistic interpretability for MLX transformers | Initial Spike |
 | [Forensic Accounting](./agents/forensic-accounting/) | Agent | Detect earnings manipulation with Beneish M-Score | Complete |
 | [Management Integrity](./agents/equity-mgmt-integrity/) | Agent | Track if management keeps commitments | Complete |
 | [Verbalized Sampling](./skills/verbalized-sampling/) | Skill | Research-backed prompts for diverse outputs | Complete |
@@ -69,6 +70,10 @@ Proof-of-concept enabling turn-by-turn conversations with an LLM via email. Fire
 ### Investor Due Diligence Management System
 AI-powered system to streamline hedge fund LP due diligence. RAG-based answer drafting, consistency checking, smart routing to SMEs, and complete audit trail.
 **Status:** Planning | [Learn more](./apps/investor-dd-system/)
+
+### nnterp-mlx
+Port of [nnterp](https://github.com/Butanium/nnterp) mechanistic interpretability library to Apple's MLX framework. Logit lens, patchscope, activation steering, and more for mlx-lm models on Apple Silicon.
+**Status:** Initial Spike | [Learn more](./apps/nnterp-mlx/)
 
 ---
 
@@ -133,4 +138,4 @@ Each experiment may have its own license. Generally provided for educational and
 
 ---
 
-**Last updated:** January 2026
+**Last updated:** February 2026
