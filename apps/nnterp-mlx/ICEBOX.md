@@ -46,11 +46,41 @@
 - [ ] Attention probability access (needs architecture-specific hooks into mlx-lm's SDPA)
 - [ ] Support for MoE router logit access
 
+## Intervention system v2 (inspired by pyvene & baukit)
+
+- [ ] Declarative intervention configs (inspired by pyvene) — `InterventionConfig(layer=5, component="mlp_output", type=VanillaIntervention)` as a composable, serializable alternative to the current dict-based system
+- [ ] Semantic component names — `"block_output"`, `"mlp_output"`, `"attention_output"` instead of raw layer indices, portable across architectures
+- [ ] Multi-source interventions — patch from multiple source prompts simultaneously into different layers/positions
+- [ ] Parallel vs serial intervention modes — control whether interventions see original base or results of prior interventions
+- [ ] `InterventionComposer` — fluent builder for chaining interventions: `.add(scale(0.5)).add(noise(0.1)).add(clamp(-1, 1)).build()` (inspired by mlxterp)
+- [ ] Built-in intervention functions — `zero_out()`, `scale(factor)`, `add_vector(vec)`, `replace_with(value, align="end")`, `noise(std)`, `clamp(min, max)` as composable callables
+- [ ] `stop_at_layer` parameter in `trace()` — early exit for partial forward passes (saves compute when only intermediate activations are needed; inspired by baukit's `stop=True`)
+- [ ] Unified capture + intervene — allow `trace()` to both capture activations and apply interventions in a single pass (inspired by baukit's `edit_output`)
+
+## Learned interventions (inspired by pyvene DAS)
+
+- [ ] `RotatedSpaceIntervention` — learn a rotation matrix to find the causal subspace for a concept (Distributed Alignment Search, Geiger et al. 2023). MLX has `mx.grad` so this is feasible.
+- [ ] `BoundlessRotatedSpaceIntervention` — learn rotation + per-dimension sigmoid masks (no fixed k), automatically discovers subspace dimensionality
+- [ ] Intervention serialization — save/load learned intervention parameters alongside configs for reproducibility
+
+## SAE (Sparse Autoencoders)
+
+- [ ] TopK SAE class — encoder, topk activation, decoder, optional tied weights (~100 lines)
+- [ ] SAELens weight loader — convert pre-trained SAELens-format SAEs (PyTorch) to MLX for immediate use with cached activations
+- [ ] Streaming `ActivationDataLoader` — iterate over dataset, trace model, extract layer activations, buffer and yield batches for SAE training
+- [ ] SAE training loop — ghost gradients, dead neuron resurrection, LR warmup + cosine decay, checkpointing
+- [ ] Feature analysis — `get_top_features_for_text()`, `get_top_texts_for_feature()`, Neuronpedia-style colored token visualization
+- [ ] Tuned lens (Belrose et al. 2023) — learned per-layer affine transforms for better intermediate predictions than raw logit lens
+
+## Dataset-level analysis (inspired by baukit runningstats)
+
+- [ ] Streaming statistics — `RunningMean`, `RunningCovariance`, `RunningQuantile` for computing activation distributions across a dataset without holding everything in memory
+- [ ] `collect_activations` integration — pipe batched activations from `collect_activations()` into streaming stats
+- [ ] PCA directions from activation covariance — identify principal directions of variation at each layer
+
 ## Advanced techniques
 
 - [ ] Gradient-based attribution methods (if MLX autograd supports this pattern)
-- [ ] SAE (Sparse Autoencoder) integration — interop with sae-for-mlx for encoding/decoding activations through trained SAEs
-- [ ] Declarative intervention configs (inspired by pyvene) — `InterventionConfig(layer=5, component="mlp", type="addition")` as a more composable alternative to the current dict-based system
 
 ## Testing & benchmarks
 
