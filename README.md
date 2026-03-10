@@ -16,6 +16,7 @@ A collection of applications, agents, and skills exploring Claude Code's capabil
 | [Sideshow](./apps/gist-app-highlight/) | App | Annotated markdown viewer with Firebase | Complete |
 | [Ghostty Explainer](./apps/ghostty-explainer/) | App | Interactive contributor's guide to Ghostty | Complete |
 | [Email-to-LLM](./apps/email-llm-poc/) | App | Email conversations with AI via SendGrid | Initial Spike |
+| [Paper to Audio](./apps/text-to-speech-app/) | App | Convert papers and articles to audio with voice cloning | Initial Spike |
 | [Investor DD System](./apps/investor-dd-system/) | App | AI-powered due diligence for hedge funds | Planning |
 | [Forensic Accounting](./agents/forensic-accounting/) | Agent | Detect earnings manipulation with Beneish M-Score | Complete |
 | [Management Integrity](./agents/equity-mgmt-integrity/) | Agent | Track if management keeps commitments | Complete |
@@ -65,6 +66,10 @@ Interactive explainer website for developers wanting to contribute to Ghostty te
 ### Email-to-LLM Conversation System
 Proof-of-concept enabling turn-by-turn conversations with an LLM via email. Firebase + SendGrid + Gemini with proper threading and context preservation.
 **Status:** Initial Spike | [Learn more](./apps/email-llm-poc/)
+
+### Paper to Audio
+Web app that converts papers, articles, and blog posts into natural-sounding audio using Chatterbox TTS. Supports zero-shot voice cloning from 5 seconds of reference audio.
+**Status:** Initial Spike | [Learn more](./apps/text-to-speech-app/)
 
 ### Investor Due Diligence Management System
 AI-powered system to streamline hedge fund LP due diligence. RAG-based answer drafting, consistency checking, smart routing to SMEs, and complete audit trail.
