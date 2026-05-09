@@ -17,6 +17,7 @@ A collection of applications, agents, and skills exploring Claude Code's capabil
 | [Ghostty Explainer](./apps/ghostty-explainer/) | App | Interactive contributor's guide to Ghostty | Complete |
 | [Email-to-LLM](./apps/email-llm-poc/) | App | Email conversations with AI via SendGrid | Initial Spike |
 | [Investor DD System](./apps/investor-dd-system/) | App | AI-powered due diligence for hedge funds | Planning |
+| [Wake/Sleep Sounds](./apps/wake-sleep-sounds/) | App | macOS menu-bar app: cheerful jingles on wake & sleep | Initial Spike |
 | [Forensic Accounting](./agents/forensic-accounting/) | Agent | Detect earnings manipulation with Beneish M-Score | Complete |
 | [Management Integrity](./agents/equity-mgmt-integrity/) | Agent | Track if management keeps commitments | Complete |
 | [Verbalized Sampling](./skills/verbalized-sampling/) | Skill | Research-backed prompts for diverse outputs | Complete |
@@ -69,6 +70,10 @@ Proof-of-concept enabling turn-by-turn conversations with an LLM via email. Fire
 ### Investor Due Diligence Management System
 AI-powered system to streamline hedge fund LP due diligence. RAG-based answer drafting, consistency checking, smart routing to SMEs, and complete audit trail.
 **Status:** Planning | [Learn more](./apps/investor-dd-system/)
+
+### Wake/Sleep Sounds
+Tiny macOS menu-bar app that plays a cheerful jingle when your MacBook wakes from sleep, and a gentler one just before it nods off. Ships with 10 short CC0 jingles from Kenney's Music Jingles pack and lets you pick per direction.
+**Status:** Initial Spike | [Learn more](./apps/wake-sleep-sounds/)
 
 ---
 
@@ -133,4 +138,4 @@ Each experiment may have its own license. Generally provided for educational and
 
 ---
 
-**Last updated:** January 2026
+**Last updated:** May 2026
