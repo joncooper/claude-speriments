@@ -80,7 +80,7 @@ export const history = {
       year: "1927",
       title: "The Rocky Point Bathes open",
       body:
-        "William W. Schofield opens the Rocky Point Bathes on June 1, 1927, on a peninsula long admired for its view of Long Island Sound.",
+        "William W. Schofield — with grand plans for the whole Rocky Point–Meadowbank area — opens the Rocky Point Bathes on June 1, 1927.",
     },
     {
       year: "1938–1941",
@@ -90,25 +90,25 @@ export const history = {
     },
     {
       year: "1943",
-      title: "The White family arrives",
+      title: "Happy and John White buy Rocky",
       body:
-        "On April 23, 1943, John Hazen White purchases Rocky Point Club for $35,000.",
+        "On April 23, 1943, John Hazen White buys Rocky Point Club for $35,000. He and Happy White own it until 1953, holding it firmly to a family-oriented club with no dining room or bar.",
     },
     {
       year: "1950",
       title: "Rebuilt by its members",
       body:
-        "A devastating hurricane destroys the club. Members rebuild it themselves through coordinated weekend work shifts — the first of several times Rocky is saved by the people who use it.",
+        'On November 24, 1950, a hurricane flattens Rocky and the club virtually disappears. "The first reaction was shock; the second was to ‘go get the wood.’" Members rebuild it themselves on four shifts each weekend from early December until opening day.',
     },
     {
       year: "1953–1954",
       title: "The members buy Rocky",
       body:
-        "The club is incorporated in 1953. In 1954 the White family sells Rocky to its members for $79,088.00.",
+        'The club is incorporated in 1953; in 1954 the White family sells Rocky to the members for $79,088.00. An offer of the Meadowbank property for $15,000 is turned down after "considerable deliberation and controversy" — there were members who feared Rocky might get "grand ideas."',
     },
   ],
   philosophy:
-    'Under the Whites, Rocky was deliberately kept a family club centered on children learning to sail. They refused to add a dining room or a bar, insisting Rocky would never become "just a parking place for kids." Members have guarded that character ever since.',
+    'Happy and John White felt strongly that Rocky should be a family-oriented club with no dining room or bar, the activities planned for children who wanted to learn to sail. They were adamant they would never let Rocky become "just a parking place for kids." The number of memberships has been restricted ever since.',
 };
 
 export const board = {
