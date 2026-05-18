@@ -17,6 +17,7 @@ A collection of applications, agents, and skills exploring Claude Code's capabil
 | [Ghostty Explainer](./apps/ghostty-explainer/) | App | Interactive contributor's guide to Ghostty | Complete |
 | [Email-to-LLM](./apps/email-llm-poc/) | App | Email conversations with AI via SendGrid | Initial Spike |
 | [Investor DD System](./apps/investor-dd-system/) | App | AI-powered due diligence for hedge funds | Planning |
+| [Rocky Point Club](./apps/rocky-point-club/) | App | Modern rebuild of a sailing club website | Initial Spike |
 | [Forensic Accounting](./agents/forensic-accounting/) | Agent | Detect earnings manipulation with Beneish M-Score | Complete |
 | [Management Integrity](./agents/equity-mgmt-integrity/) | Agent | Track if management keeps commitments | Complete |
 | [Verbalized Sampling](./skills/verbalized-sampling/) | Skill | Research-backed prompts for diverse outputs | Complete |
@@ -69,6 +70,10 @@ Proof-of-concept enabling turn-by-turn conversations with an LLM via email. Fire
 ### Investor Due Diligence Management System
 AI-powered system to streamline hedge fund LP due diligence. RAG-based answer drafting, consistency checking, smart routing to SMEs, and complete audit trail.
 **Status:** Planning | [Learn more](./apps/investor-dd-system/)
+
+### Rocky Point Club
+Modern rebuild of the Rocky Point Club website (a 1927 family sailing/swim club in Old Greenwich, CT). Next.js 15 + Tailwind v4, content crawled from the existing site, deploy-ready on Vercel. Stage one is the public site; stage two adds a Supabase-backed members area.
+**Status:** Initial Spike | [Learn more](./apps/rocky-point-club/)
 
 ---
 
@@ -133,4 +138,4 @@ Each experiment may have its own license. Generally provided for educational and
 
 ---
 
-**Last updated:** January 2026
+**Last updated:** May 2026

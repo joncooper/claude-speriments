@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+@theme {
+  /* Nautical heritage palette */
+  --color-navy-950: #061629;
+  --color-navy-900: #0a2440;
+  --color-navy-800: #0e3052;
+  --color-marine-700: #14466b;
+  --color-marine-600: #1c5a85;
+  --color-marine-500: #2f7aa8;
+  --color-marine-400: #5a9ec6;
+  --color-sky-100: #dde9f0;
+  --color-sky-50: #eef4f8;
+  --color-sand-50: #faf6ed;
+  --color-sand-100: #f2e9d6;
+  --color-sand-200: #e7dac0;
+  --color-cream: #fffdf8;
+  --color-brass-600: #a9842f;
+  --color-brass-500: #c19a4b;
+  --color-brass-400: #d6b471;
+  --color-ink: #18222f;
+
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: 0.75rem;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: var(--color-sand-50);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--color-navy-900);
+  }
+  ::selection {
+    background: var(--color-brass-400);
+    color: var(--color-navy-950);
+  }
+}
+
+@layer components {
+  .container-rpc {
+    width: 100%;
+    max-width: 76rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+  @media (min-width: 768px) {
+    .container-rpc { padding-inline: 2rem; }
+  }
+
+  /* Thin brass rule used as a heritage divider */
+  .rule-brass {
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      var(--color-brass-500) 15%,
+      var(--color-brass-500) 85%,
+      transparent
+    );
+  }
+
+  .link-underline {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-repeat: no-repeat;
+    background-position: left 100%;
+    transition: background-size 0.25s ease;
+  }
+  .link-underline:hover {
+    background-size: 100% 1px;
+  }
+}
+
+/* Subtle ripple texture for hero/section backgrounds */
+.wave-divider {
+  display: block;
+  width: 100%;
+  height: 48px;
+  color: inherit;
+}
