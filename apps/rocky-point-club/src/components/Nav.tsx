@@ -47,7 +47,7 @@ export function Nav() {
               href="/members"
               className="rounded-full border border-marine-600 px-4 py-2 text-xs font-semibold tracking-widest text-marine-600 uppercase transition-colors hover:bg-marine-600 hover:text-cream"
             >
-              Members
+              Members Only
             </Link>
           </li>
         </ul>
@@ -101,7 +101,7 @@ export function Nav() {
                 onClick={() => setOpen(false)}
                 className="mt-2 mb-3 inline-block rounded-full border border-marine-600 px-4 py-2 text-xs font-semibold tracking-widest text-marine-600 uppercase"
               >
-                Members
+                Members Only
               </Link>
             </li>
           </ul>

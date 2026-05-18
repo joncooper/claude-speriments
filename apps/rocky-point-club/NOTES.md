@@ -1,5 +1,33 @@
 # Implementation Notes
 
+## Content principle (important)
+
+This rebuild modernizes **look, structure, and maintainability only**. All
+visible copy is the club's own words, reproduced **verbatim** from the live
+rockypointclub.com (crawled May 2026), down to its punctuation, capitalization,
+and spelling (e.g. the site's own "Scholfield" / "Schofield", "“ Just a parking
+place for kids.”"). Rewriting copy is a job for club members, later — not this
+codebase.
+
+- An early draft built `site.ts` from AI *summaries* of the pages, which
+  paraphrased and editorialized. That was wrong and has been fully replaced:
+  every page now renders raw text pulled directly from the source HTML.
+- Page headings use the club's own headings ("About Rocky Point", "Aquatics
+  Programs Overview", "Sailing Information", "Contact Us", "2026 Board of
+  Governors"). Navigation uses the club's own section names ("About",
+  "Aquatics", "Entertainment", "Sailing", "Members Only").
+- The home page contains only what the live home page contains: the name, the
+  Bigelow quote + its attribution, "WELCOME", the bulletin line, and the
+  admissions call-to-action. Section cards carry section names only — no
+  invented descriptions.
+- Nothing is invented to fill design space. The Entertainment page is a
+  calendar link (as the live page is); the 404 is neutral.
+- **Senior Waiting List:** the live page also publishes a roster of ~37 named
+  families. That personal data is deliberately **not** hard-coded into this
+  public repository — it is a Board Secretary record that belongs in the
+  stage-two members area. Only the page's verbatim instructional text is shown.
+  Flag for the club: confirm how they want this handled.
+
 ## Why this stack
 
 - **Next.js 15 + static prerender** — the user asked to deploy on Vercel. Next.js is

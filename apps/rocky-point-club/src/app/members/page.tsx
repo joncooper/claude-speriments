@@ -1,34 +1,28 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { members, club } from "@/content/site";
+import { membersArea, club } from "@/content/site";
 import { PageHeader, Section } from "@/components/ui";
 
 export const metadata: Metadata = {
-  title: "Members",
-  description:
-    "The Rocky Point Club members area — coming in stage two with secure login.",
+  title: "Members Only",
 };
 
 export default function MembersPage() {
   return (
     <>
-      <PageHeader
-        eyebrow="Members Only"
-        title={members.title}
-        intro={members.intro}
-      />
+      <PageHeader eyebrow="Members Only" title={membersArea.heading} />
 
       <Section>
         <div className="mx-auto max-w-2xl rounded-card border border-sand-200 bg-cream p-8 text-center md:p-12">
           <p className="inline-flex items-center gap-2 rounded-full bg-brass-500/15 px-4 py-1.5 text-xs font-semibold tracking-widest text-brass-600 uppercase">
-            Coming in stage two
+            Stage two
           </p>
           <p className="mt-6 leading-relaxed text-ink/75">
-            {members.stageTwoNote}
+            {membersArea.note}
           </p>
 
           <div className="mt-8 grid gap-2 text-left sm:grid-cols-2">
-            {members.plannedSections.map((s) => (
+            {membersArea.sections.map((s) => (
               <div
                 key={s}
                 className="flex items-center gap-3 rounded-md bg-sky-50 px-4 py-3 text-sm text-ink/70"
@@ -40,7 +34,6 @@ export default function MembersPage() {
           </div>
 
           <p className="mt-8 text-sm text-ink/60">
-            Need a form or document now?{" "}
             <a
               href={`mailto:${club.email}`}
               className="text-marine-600 link-underline"
@@ -52,7 +45,7 @@ export default function MembersPage() {
             href="/"
             className="mt-8 inline-block text-sm font-semibold tracking-wide text-marine-600 uppercase"
           >
-            ← Back home
+            ← Home
           </Link>
         </div>
       </Section>

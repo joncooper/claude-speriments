@@ -4,23 +4,17 @@ import { PageHeader, Section } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "Aquatics",
-  description:
-    "Swim team, dive team, lessons, pre-team, and water polo at Rocky Point Club.",
 };
 
 export default function AquaticsPage() {
   return (
     <>
-      <PageHeader
-        eyebrow="By the Water"
-        title={aquatics.title}
-        intro={aquatics.intro}
-      />
+      <PageHeader eyebrow="Aquatics" title={aquatics.heading} />
 
       <Section>
         <div className="mb-12 inline-flex items-center gap-3 rounded-full bg-brass-500/15 px-5 py-2 text-sm font-semibold text-brass-600">
           <span className="h-2 w-2 rounded-full bg-brass-500" />
-          {aquatics.registrationNote}
+          {aquatics.registrationLine}
         </div>
 
         <div className="space-y-6">
@@ -29,16 +23,19 @@ export default function AquaticsPage() {
               key={p.name}
               className="rounded-card border border-sand-200 bg-cream p-7 md:p-9"
             >
-              <div className="flex flex-wrap items-baseline justify-between gap-3">
-                <h3 className="text-2xl">{p.name}</h3>
-                <span className="text-sm font-medium tracking-wide text-marine-600">
-                  {p.schedule}
-                </span>
+              <h2 className="text-2xl">{p.name}</h2>
+              <div className="mt-4 space-y-4 leading-relaxed text-ink/80">
+                {p.paragraphs.map((para) => (
+                  <p key={para.slice(0, 24)}>{para}</p>
+                ))}
               </div>
-              <p className="mt-1 text-sm font-semibold tracking-wide text-brass-600 uppercase">
-                {p.ages}
-              </p>
-              <p className="mt-4 leading-relaxed text-ink/75">{p.body}</p>
+              {"ages" in p && p.ages && (
+                <ul className="mt-5 space-y-1 border-l-2 border-brass-400 pl-5 text-sm text-ink/75">
+                  {p.ages.map((a) => (
+                    <li key={a}>{a}</li>
+                  ))}
+                </ul>
+              )}
             </article>
           ))}
         </div>

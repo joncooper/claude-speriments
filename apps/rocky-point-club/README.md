@@ -30,23 +30,28 @@ Every page is statically prerendered — no server, no database, fast and cheap 
 ```
 src/
 ├── app/                 # Routes (App Router)
-│   ├── page.tsx         # Home
-│   ├── about/           # History timeline + Board of Governors
-│   ├── membership/      # Admissions + membership categories
-│   ├── aquatics/        # Swim/dive/water polo programs
-│   ├── sailing/         # Junior + adult sailing
-│   ├── events/          # Social calendar
-│   ├── contact/         # Address, phones, map, directions
-│   └── members/         # Stage-two portal placeholder
+│   ├── page.tsx         # Home (Welcome + Bigelow quote + admissions CTA)
+│   ├── about/           # About Rocky Point (history) + Board of Governors
+│   ├── admissions/      # Membership criteria, bylaw, senior waiting list
+│   ├── aquatics/        # Aquatics Programs Overview
+│   ├── sailing/         # Sailing Information + Junior Sailing Programs
+│   ├── entertainment/   # Entertainment & Event Information (calendar link)
+│   ├── contact/         # Contact Us — address, phones, directions
+│   └── members/         # Members Only — stage-two placeholder
 ├── components/          # Nav, Footer, Burgee, shared UI
 └── content/site.ts      # ← Single source of truth for ALL copy
 ```
 
 ### Editing content
 
-All site copy lives in **`src/content/site.ts`**. Board members, program details,
-event lists, contact info, and membership categories are plain data — a member can
-update the season's board or program schedule there without touching any components.
+All site copy lives in **`src/content/site.ts`** as plain data, so a member can
+update the season's board or a program schedule without touching components.
+
+**The copy is the club's own words, verbatim** from the live site. This rebuild
+modernizes the look and structure only — it does not rewrite the language.
+When updating, match the live site's wording exactly; any rewording is a
+decision for club members, not this codebase. See `NOTES.md` ("Content
+principle").
 
 ## Develop
 
@@ -72,11 +77,13 @@ bun run start
 
 ## Content source
 
-All copy was crawled from the existing rockypointclub.com (public pages, May 2026):
-history, Board of Governors (2026), membership categories, aquatics and sailing
-programs, the social calendar, and contact details. The members-only section
-(photo directory, dues, forms, Rocky Pointer archive, tennis, video) is intentionally
-deferred to stage two — see `ICEBOX.md`.
+All copy is reproduced **verbatim** from the existing rockypointclub.com public
+pages (crawled May 2026): About Rocky Point (history), the 2026 Board of
+Governors, the admissions/membership criteria and bylaw text, the aquatics and
+sailing programs, and the contact details. The password-protected members-only
+section (photo directory, dues, forms, Rocky Pointer archive, tennis, video) is
+deferred to stage two — see `ICEBOX.md`. The Senior Waiting List's personal
+roster is intentionally not committed to this repo (see `NOTES.md`).
 
 ## Notes & roadmap
 

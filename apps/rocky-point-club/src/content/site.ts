@@ -1,125 +1,93 @@
-// Single source of truth for site content.
-// Sourced from the existing rockypointclub.com (crawled May 2026).
-// Members can edit this file to update copy without touching components.
+// VERBATIM content from rockypointclub.com (crawled May 2026).
+//
+// PRINCIPLE: This rebuild modernizes the *look, structure, and
+// maintainability* of the site only. The words are the club's own and must
+// not be paraphrased or rewritten. When the live site's copy changes, edit
+// the strings here to match — do not "improve" the wording. Any rewriting of
+// copy is a decision for club members, not this codebase.
+//
+// Punctuation, spelling, and capitalization are reproduced as they appear on
+// the live site (including the club's own quotes and quirks).
 
 export const club = {
   name: "Rocky Point Club",
-  tagline: "A family club on Long Island Sound since 1927",
-  established: 1927,
+  legalName: "The Rocky Point Club, Inc.",
   address: {
     line1: "60 Rocky Point Road",
     line2: "Old Greenwich, CT 06870",
   },
-  coords: { lat: 41.017263, lng: -73.55868699999996, label: '41°1’1" N, 73°33’30" W' },
-  phones: [
-    { label: "Gatehouse", value: "203-637-2397" },
-    { label: "Manager / Grounds", value: "203-637-3620" },
-  ],
+  coordsLine: `Lat 41º1'1" N   Long 73º33'30"W`,
   email: "info@rockypointclub.com",
+  phones: {
+    gatehouse: "203-637-2397",
+    managerGrounds: "203-637-3620",
+  },
+  staff: ["Jimmy Ramaley, Manager", "Pete Cantazaro, Grounds Manager"],
   emails: {
     general: "info@rockypointclub.com",
     juniorSailing: "jrsailing@rockypointclub.com",
-    adultSailing: "sailing@rockypointclub.com",
+    sailing: "sailing@rockypointclub.com",
+    secretary: "secretary@rockypointclub.com",
   },
-  staff: [
-    { name: "Jimmy Ramaley", role: "Manager" },
-    { name: "Pete Cantazaro", role: "Grounds Manager" },
-  ],
-  facebook: "https://www.facebook.com/groups/rockypointclub",
 };
 
-export const heroQuote = {
-  text:
-    "A marine view as picturesque as any that can be found in the world — a little beach of solid stone, a little bay, a slender rocky peninsula, and a lighthouse in the distance, all properly combined with passing boats to suggest the charm of the great ocean.",
-  attribution: "Edward Bigelow, 1927",
-};
-
-export const welcome = {
-  heading: "Welcome to Rocky",
-  body:
-    "Tucked onto a rocky peninsula reaching into Long Island Sound, Rocky Point Club has been a summer home for Old Greenwich families since 1927. Sailing, swimming, and good company — by the water, the way it has always been.",
-  cta: { label: "Explore membership", href: "/membership" },
-};
-
+// Top-level navigation mirrors the live site's own section names.
 export const nav = [
   { label: "About", href: "/about" },
-  { label: "Membership", href: "/membership" },
   { label: "Aquatics", href: "/aquatics" },
+  { label: "Entertainment", href: "/entertainment" },
   { label: "Sailing", href: "/sailing" },
-  { label: "Events", href: "/events" },
   { label: "Contact", href: "/contact" },
 ];
 
-export const highlights = [
-  {
-    title: "Junior Sailing",
-    blurb:
-      "A six-week program for ages 6–17, from first time in an Opti to the racing team — taught the way Rocky has always taught it.",
-    href: "/sailing",
-  },
-  {
-    title: "Aquatics",
-    blurb:
-      "Swim team, dive team, lessons, and water polo on the Sound. Competitive when it counts, joyful all summer.",
-    href: "/aquatics",
-  },
-  {
-    title: "Summer at the Point",
-    blurb:
-      "Cocktail evenings, the Fourth of July fireworks, BYO nights, and the regatta — the social calendar that holds the season together.",
-    href: "/events",
-  },
+export const bigelowQuote = {
+  text:
+    "A marine view as picturesque as any that can be found in the world - a little beach of solid stone, a little bay, a slender rocky peninsula, and a lighthouse in the distance, all properly combined with passing boats to suggest the charm of the great ocean.",
+  attribution:
+    "Written by Edward Bigelow, publisher of The Guide to Nature, as he looked out over the waters of Long Island Sound from Rocky Point in 1927.",
+};
+
+export const home = {
+  heading: "Welcome",
+  bulletinLine:
+    "Read our bulletin for Rocky updates, activities, events and more!",
+  admissionsCta:
+    "Interested in joining Rocky Point Club? Learn more about the admissions process here.",
+};
+
+// Section cards on the home page use only the club's own section names —
+// no marketing copy is invented.
+export const homeSections = [
+  { label: "About", href: "/about" },
+  { label: "Aquatics", href: "/aquatics" },
+  { label: "Sailing", href: "/sailing" },
+  { label: "Entertainment", href: "/entertainment" },
 ];
 
 export const history = {
-  title: "History",
-  intro:
-    "Rocky Point Club has been part of Old Greenwich life for nearly a century — through hurricanes, the Depression, and the steady hands of members who rebuilt it more than once.",
-  timeline: [
-    {
-      year: "1927",
-      title: "The Rocky Point Bathes open",
-      body:
-        "William W. Schofield — with grand plans for the whole Rocky Point–Meadowbank area — opens the Rocky Point Bathes on June 1, 1927.",
-    },
-    {
-      year: "1938–1941",
-      title: "Depression and storm",
-      body:
-        "Schofield weathers the Great Depression and the 1938 hurricane. An offer to sell to the Town of Greenwich for $100,000 in 1940 is rejected in favor of Tod's Point. The property goes into foreclosure on December 15, 1941.",
-    },
-    {
-      year: "1943",
-      title: "Happy and John White buy Rocky",
-      body:
-        "On April 23, 1943, John Hazen White buys Rocky Point Club for $35,000. He and Happy White own it until 1953, holding it firmly to a family-oriented club with no dining room or bar.",
-    },
-    {
-      year: "1950",
-      title: "Rebuilt by its members",
-      body:
-        'On November 24, 1950, a hurricane flattens Rocky and the club virtually disappears. "The first reaction was shock; the second was to ‘go get the wood.’" Members rebuild it themselves on four shifts each weekend from early December until opening day.',
-    },
-    {
-      year: "1953–1954",
-      title: "The members buy Rocky",
-      body:
-        'The club is incorporated in 1953; in 1954 the White family sells Rocky to the members for $79,088.00. An offer of the Meadowbank property for $15,000 is turned down after "considerable deliberation and controversy" — there were members who feared Rocky might get "grand ideas."',
-    },
+  heading: "About Rocky Point",
+  attribution: bigelowQuote.attribution,
+  beachQuote:
+    "“The beach development is, as claimed by local real estate agents, the best in the world.’ Skilled engineering and enormous expenditures for several years have brought it to marvelous perfection in beauty, comfort, and convenience”. E.F. Bigelow",
+  briefHistoryLabel: "A brief history...",
+  paragraphs: [
+    "William W. Schofield, with grand plans for the whole Rocky Point – Meadowbank area, was the founder. The Rocky Point Bathes opened June 1st 1927.",
+    "Scholfield weathered the Great Depression of the 30’s and the Great Hurricane of 1938, but by 1940, with the threat of war looming, he offered to sell Rocky to the Town of Greenwich for $100,000. His offer was rejected in favor of the 147 acre Tod’s Point property. Foreclosure procedures were completed on December 15, 1941. Mortgage holders kept Rocky open the next summer and tried to promote the use of the club.",
+    "On April 23, 1943, John Hazen White bought Rocky Point Club for $35,000.",
+    "Happy and John White owned the club until 1953. They felt strongly that it should be a family – oriented club with no dining room or bar. They wanted most of the activities planned for children who wanted to learn to sail. They were adamant that they would never let Rocky become “ Just a parking place for kids.”",
+    "On November 24, 1950, a hurricane flattened Rocky, the club virtually disappeared. The first reaction was shock; the second was to “go get the wood.” The members rebuilt the club. A rigorous schedule was set up for the four shifts each weekend from early December until opening day.",
+    "In 1953 Rocky was incorporated and in 1954 the White family sold Rocky to the members. The purchase price was $79,088.00. The property at the end of Meadowbank was offered for $15,000 but after considerable deliberation and controversy, the offer was turned down. There were members who feared Rocky might get “grand ideas.” The number of memberships at the Rocky Point Club has been restricted through the years.",
   ],
-  philosophy:
-    'Happy and John White felt strongly that Rocky should be a family-oriented club with no dining room or bar, the activities planned for children who wanted to learn to sail. They were adamant they would never let Rocky become "just a parking place for kids." The number of memberships has been restricted ever since.',
 };
 
 export const board = {
-  title: "Board of Governors",
-  year: 2026,
+  heading: "2026 Board of Governors",
   officers: [
     { role: "President", name: "Brian Amen" },
     { role: "Vice-President", name: "John Palmer" },
     { role: "Secretary", name: "Heather DeVries" },
     { role: "Treasurer", name: "Doug Fenton" },
-    { role: "Assistant Treasurer", name: "Chiara Carter" },
+    { role: "Assist. Treasurer", name: "Chiara Carter" },
   ],
   chairs: [
     { role: "Aquatics", name: "Kara Mendelsohn" },
@@ -133,178 +101,309 @@ export const board = {
   ],
 };
 
-export const membership = {
-  title: "Membership",
-  intro:
-    "Rocky has always kept its membership small and family-oriented. Prospective members are introduced through a sponsor and seconder; the categories below cover the stages of a Rocky membership over a lifetime.",
-  applyNote:
-    "New member inquiries begin with a sponsor and a seconder from the current membership. Reach out to the Membership Committee through the club office to start a conversation.",
-  categories: [
-    {
-      name: "Active Membership",
-      summary:
-        "The standard family membership — full access to sailing, aquatics, the waterfront, and the social calendar for the household.",
-    },
-    {
-      name: "Senior Membership",
-      summary:
-        "For members who are 65 years of age and have been members for 20 years, recognizing a lifetime at Rocky with adjusted dues.",
-    },
-    {
-      name: "Non-Resident Membership",
-      summary:
-        "For Active, Senior, or Inactive members who move their primary residence 50 or more miles from Greenwich.",
-    },
-    {
-      name: "Inactive Membership",
-      summary:
-        "Hold your place in the club through a season away, with the right to return to active status.",
-    },
-    {
-      name: "Return to Active",
-      summary:
-        "The path back from Inactive or Non-Resident status to a full Active membership.",
-    },
-    {
-      name: "Senior Waiting List",
-      summary:
-        "Members approaching Senior eligibility can join the waiting list as places become available.",
-    },
-  ],
-};
-
 export const aquatics = {
-  title: "Aquatics",
-  intro:
-    "Swimming at Rocky runs all summer — from first lessons off the dock to championship dual meets against the strongest clubs in the division.",
-  registrationNote: "Aquatics registration opens April 12th.",
+  heading: "Aquatics Programs Overview",
+  registrationLine: "Registration for aquatics programs will open on April 12th.",
   programs: [
     {
       name: "Swim Team",
-      ages: "School-age and up",
-      schedule: "Monday–Saturday",
-      body:
-        'Practices start after school in early June and move to mornings for the summer; sessions run 60–90 minutes with twice-weekly "Starts & Turns" clinics. Five dual meets against Division 1 clubs lead into the Divisional and County Championships for qualified swimmers.',
-    },
-    {
-      name: "Swim Lessons",
-      ages: "Ages 4–14 (as of June 15)",
-      schedule: "Tuesday–Friday",
-      body:
-        'Lessons meet Tuesday–Friday as scheduled. All swim team members aged 14 and under participate. The season ends with a "Lesson Meet" where swimmers show their progress.',
+      paragraphs: [
+        "The Swim Team meets Monday through Saturday, beginning after school toward the beginning of June, and transitioning to morning practices. Practices are 60-90 minutes in length. “Starts & Turns” sessions are offered 2x per week to help swimmers work on these critical skills - block starts and flip turns. There are 5 “Dual Meets” with other Division 1 clubs, followed by Divisional Championships and County Championships at the end of the season (must qualify).",
+      ],
     },
     {
       name: "Pre-Team",
-      ages: "Age 5+",
-      schedule: "Tuesday–Friday",
-      body:
-        "The bridge between lessons and the swim team — building endurance, strokes, and confidence for first-time competitors.",
+      paragraphs: [
+        "Pre-team meets daily Tuesday - Friday, typically in the afternoon. It is geared toward children age 5 years old by June 15 (and older) who can swim at least 1 length of the big pool WITHOUT assistance, but are not yet ready for the swim team. Pre-team culminates in a 1-2 Pre-team Meets with another club toward the end of the season. Evaluations will be held in early June to determine if children are ready for the Pre-team. There is no pre-team on days when the Swim Team has a meet.",
+      ],
     },
     {
-      name: "Dive Team & Diving Lessons",
-      ages: "School-age and up",
-      schedule: "Mon–Sat (team) · Tue–Fri (lessons)",
-      body:
-        "Springboard diving instruction and a competitive dive team that travels to meets alongside the swim team.",
+      name: "Swim Lessons",
+      paragraphs: [
+        "Swim lessons meet daily Tuesday - Friday, as scheduled. Swim lessons are available to all swimmers between the ages of 4-14 years (as of June 15). Children do NOT need to be on swim team, however all swim team members 14&U are expected to take a swim lesson as well. Swim lessons culminate in the “Lesson Meet” at the end of the season for all swimmers to show their progress! There are no swim lessons on days when the Swim Team has a meet.",
+      ],
+    },
+    {
+      name: "Diving Team",
+      paragraphs: [
+        "The Dive Team meets Monday through Saturday, beginning after school toward the beginning of June, and transitioning to morning practices. Practices are 60 minutes in length. There are 5 “Dual Meets” and County Championships at the end of the season (must qualify).",
+      ],
+    },
+    {
+      name: "Diving Lessons",
+      paragraphs: [
+        "Dive lessons meet daily Tuesday - Friday, as scheduled. Dive lessons are available to all swimmers between the ages of 4-14 years (as of June 15). Children do NOT need to be on dive team, however all dive team members 14&U are expected to take a dive lesson as well. Dive lessons culminate in the “Lesson Meet” at the end of the season for all divers to show their progress! There are no dive lessons on days when the Swim Team has a meet.",
+      ],
+    },
+    {
+      name: "Synchronized Swimming",
+      paragraphs: [
+        "“Synchro” is open to both boys and girls. Swimmers will be grouped together with other swimmers of their age &/or ability. These groupings are generally done by age and are at the discretion of the Synchro Chair(s) and the Synchro Coach. Synchro groups meet 2x per week, culminating in the spectacular Synchro Show at the end of the season.",
+      ],
     },
     {
       name: "Water Polo",
-      ages: "Mini: 10 & under · Juniors: 11–13 · Seniors: 14–17",
-      schedule: "Monday–Friday",
-      body:
-        'Age-grouped water polo with safety first — coaches evaluate readiness so, in the program’s words, "we want to make sure everyone is safe."',
+      paragraphs: [
+        "Water Polo Teams practice daily Monday - Friday. For anyone new to the RPC water polo program and considering participation in water polo only, there will be a swim evaluation and coaches will evaluate whether your child is sufficiently water safe to participate in the water polo team.",
+        "As it relates to participation in the water polo teams, please make sure that your player is a strong enough and confident enough swimmer for the practices and games. We want to make sure everyone is safe. Even after the evaluation, if the water polo coaches notice that your player is not strong enough, they will let you know and may suggest he/she attend some swim practices to strengthen that ability.",
+        "While we recognize that many players have commitments to outside teams, we encourage players to attend practice whenever possible for the purpose of team building and for coaches to get to know players. Every effort will be made to give players playing time during games, with the understanding that this is a competitive league and our goal is to win, particularly in the championship games.",
+        "Rocky typically fields Junior A & B teams, as well as Mini A & B teams. Evaluations and rostering will be done during the first week of practice by the Head Water Polo Coach in conjunction with Coach Lowe. Once the rosters are submitted to FCSL, they are set for the season. The B teams will be competing in Division 3.",
+      ],
+      ages: [
+        "Mini : 10 & Under",
+        "Juniors : 11-13",
+        "Seniors : 14-17",
+        "A players age is determined on June 15th each year under FCSL Rules.",
+      ],
     },
   ],
 };
 
 export const sailing = {
-  title: "Sailing",
-  intro:
-    'Sailing is the heart of Rocky. "The goal of our program is to teach sailing in a safe and fun environment while following US Sailing guidelines."',
+  heading: "Sailing Information",
+  welcome: "Welcome to Rocky’s Sailing Program!",
   junior: {
-    title: "Junior Sailing",
-    body:
-      "An active program for roughly 40–50 children ages 6–16, sailing Optis, Fevas, and Ideal 18s. Summer 2026 offers a six-week program running June 23rd through July 31st; members register by May 15th.",
-    levels: [
-      {
-        name: "Little Puffs",
-        ages: "6–8",
-        detail:
-          "Introduction to sailing aboard Ideal 18s with an instructor onboard. Tuesdays–Fridays, 10:30 am–12:30 pm.",
-      },
-      {
-        name: "Opti 1",
-        ages: "8–11",
-        detail:
-          "Independent boat handling. Mondays 9:25 am–12:10 pm; Tuesdays–Fridays 1:00–4:00 pm.",
-      },
-      {
-        name: "Opti 2 Racing Team",
-        ages: "10–15",
-        detail:
-          "Racing rules and strategy; requires mastering Opti 1 skills. Mondays 9:05–11:50 am; Tuesdays–Fridays 1:45–4:45 pm.",
-      },
-      {
-        name: "Feva & Laser 4.7 / Radial",
-        ages: "12–17",
-        detail:
-          "Fast double- and single-handed boats with a focus on technique; requires Opti 2 mastery and minimum weight guidance. Mondays 9:05–11:50 am; Tuesdays–Fridays 1:30–4:30 pm.",
-      },
-    ],
+    heading: "Junior Sailing Program & Mandatory Forms",
+    intro:
+      "Rocky Point Club has a long history of enthusiastic amateur sailing. We have a very active Opti, Feva and Ideal 18 sailing program for 40-50 children ranging in age from 6-16 years. The goal of our program is to teach sailing in a safe and fun environment while following US Sailing guidelines. The program generally runs for 6 weeks from the last week in June through the first week in August.",
     requirements: [
-      "Pass the mandatory swim test",
-      "USCG-approved life vest with attached whistle",
-      "Signed Rocky Liability and Medical Release form",
-      "JSALIS membership ($75 first child, $100 for two, $125 for three or more)",
+      "All sailing courses require the participant to have his /her own boat or rent one",
+      "All sailors must have a USCG approved life jacket and appropriate footwear",
+      "All class participants must have on file a Rocky Fleet Usage Agreement for Class Participation",
+      "All junior sailors are required to have a membership in the Long Island Junior Sailing Association at the cost of $75 for the first child, $100 for two children, and $125 for three or more children. These fees will be billed to your Rocky account. Questions? Email: jrsailing@rockypointclub.com",
     ],
-    costNote:
-      "Member fees are billed directly to your account. Private lessons are $80/hour. Non-members pay by check.",
-    contact: "jrsailing@rockypointclub.com",
   },
   adult: {
-    title: "Adult Sailing",
-    body:
-      "Sailing courses and fleet usage for adult members. Members who wish to skipper the club's Ideal 18s independently earn certified skipper status and complete the Fleet Usage Agreement Certification annually. The program includes organized regattas and recreational sailing.",
+    heading: "Adult Sailing Program & Mandatory Forms",
     requirements: [
-      "Properly fitted life jacket and appropriate footwear",
-      "Signed Fleet Usage Agreement for class participation",
-      "Certified skipper status for independent Ideal 18 use (renewed annually)",
+      "All sailors must have properly fitted life jacket and appropriate footwear.",
+      "All class participants must have on file a Rocky Fleet Usage Agreement for Class Participation",
+      "In order to use one of the Club’s Ideal 18s outside of class and on your own as the skipper, you must be a CERTIFIED SKIPPER and sign the FLEET USAGE AGREEMENT. This must be done EVERY YEAR so that we can keep the registry current.",
     ],
-    contact: "sailing@rockypointclub.com",
+    closing:
+      "For a list of Rocky Adult Sailing programs and Rocky Regattas, visit the Sailing Calendar. Questions? Email: sailing@rockypointclub.com",
   },
 };
 
-export const events = {
-  title: "Events",
+export const juniorSailing = {
+  heading: "Junior Sailing Programs",
   intro:
-    "The social season at Rocky is woven through the summer — read the Rocky Pointer bulletin for the full, up-to-date calendar.",
-  recurring: [
-    { name: "Spring Social", when: "Spring", body: "The season opener as the club comes back to life for the year." },
-    { name: "June Cocktails", when: "June", body: "An evening on the lawn as summer gets underway." },
-    { name: "Father's Day Breakfast", when: "June", body: "A morning tradition by the water." },
-    { name: "Fourth of July Fireworks", when: "July 4", body: "The signature night of the Rocky calendar, with guest registration for the evening." },
-    { name: "BYO Nights", when: "July–August", body: "Bring-your-own evenings throughout the high summer." },
-    { name: "Regatta", when: "Summer", body: "The club regatta — racing and shoreside celebration." },
-    { name: "Jaws Dinner", when: "Summer", body: "A beloved themed club dinner." },
-    { name: "Members' Night", when: "Summer", body: "An evening for the membership to gather." },
-    { name: "Point-to-Point Swim", when: "Summer", body: "The open-water swim across the bay." },
-    { name: "Mah Jongg", when: "Ongoing", body: "Regular gatherings through the season." },
+    "The Rocky Point Sailing Program is available to members and non-members between the ages of 6 and 17. Whether you are just starting out with Little Puffs or an experienced racer, we have something for everyone! Summer 2026 will offer a six-week sailing program. Members must register by May 15th.",
+  scheduleLine:
+    "Junior Sailing Program - June 23rd to July 31st (Class times are subject to change based on registrations and aquatic scheduling)",
+  levels: [
+    {
+      name: "Little Puffs (6 - 8 years old)",
+      body:
+        "This class is a great introduction for first-time sailors. Small groups will be exposed to sailing on an Ideal 18 with an instructor onboard each boat. Young sailors will learn safety and good boating habits on the water with supervised tiller time.",
+      times: ["Tuesdays - Fridays, 10:30 am - 12:30 pm (no class on swim meet days)"],
+    },
+    {
+      name: "Opti 1 (8 - 11 years old)",
+      body:
+        "Opti 1 is geared toward learning to sail a small boat on your own. Sailors will learn the basics of sailing, including how to rig and maneuver a boat independently. As confidence grows and basic sailing skills are attained, these sailors will be encouraged to participate in the Rocky regattas.",
+      times: ["Mondays, 9:25 am - 12:10 pm", "Tuesdays - Fridays, 1:00 - 4:00 pm"],
+    },
+    {
+      name: "Opti 2 Racing Team (10 - 15 years old)",
+      body:
+        "For those eager to get out on the water and have fun, Opti 2 students will learn more advanced sailing skills, including racing rules, strategy, and tactics. These sailors are strongly encouraged to participate in the Ice Cream Cup regattas at Rocky, as well as those at local clubs.",
+      requirement: "Requirement: Master Opti 1 skills",
+      times: ["Mondays, 9:05 am - 11:50 am", "Tuesdays - Fridays, 1:45 - 4:45 pm"],
+    },
+    {
+      name: "Feva & Laser 4.7/Radial (12 - 17 years old)",
+      body:
+        "More experienced sailors will enjoy sailing fast moving double-handed Fevas and Lasers. Classes will focus on sailing drills, heel control, basic aerodynamics, sail shape controls and self-rescue techniques. These sailors are strongly encouraged to participate in local regattas.",
+      requirement: "Requirements: Master Opti 2 skills and meet minimum weight guidance",
+      times: ["Mondays, 9:05 am - 11:50 am", "Tuesdays - Fridays, 1:30 - 4:30 pm"],
+    },
+  ],
+  firstDay: {
+    heading: "Required for the first day of class",
+    items: [
+      "All sailors must have on file the Rocky Liability and Medical Release form",
+      "USCG-approved life vest with attached whistle",
+      "Closed-toe water shoes (no flip flops)",
+      "Sun shirt",
+      "Sunblock",
+      "Hat",
+      "Water bottle",
+      "Sunglasses with leash (recommended but not required)",
+    ],
+  },
+  sections: [
+    {
+      heading: "Program Fees",
+      paragraphs: [
+        "Member fees are billed directly to your account. Non-members can pay the club directly via check prior to the start of the sailing program.",
+      ],
+    },
+    {
+      heading: "Non-member sailors",
+      paragraphs: [
+        "Junior Sailing is available to non-members between the ages of 6 and 17 on a space-available basis and subject to non-member rates. Please email jrsailing@rockypointclub.com with the name, age and sailing class of interest.",
+      ],
+    },
+    {
+      heading: "JSALIS Membership",
+      paragraphs: [
+        "All junior sailors are required to have a membership in the Junior Sailing Association of the Long Island Sound (JSALIS) at the cost of $75 for the first child, $100 for two children, and $125 for three or more children. These fees will be billed to your Rocky account. For more information and to register visit: https://jsalis.org/parents/roster-registration.",
+      ],
+    },
+    {
+      heading: "Boats",
+      paragraphs: [
+        "Opti 1, Opti 2, Feva & Laser classes require the sailor to have their own boat or rent one. You may request to rent a Rocky Optimist or Feva during the registration process and oversubscribed boats will be allocated by lottery. Boat Locker in Bridgeport, CT is also a great resource for summer boat rentals and will deliver to the club. Please contact Boat Locker directly for the latest pricing.",
+      ],
+    },
+    {
+      heading: "Equipment Maintenance and Repair",
+      paragraphs: [
+        "All boats and sailing equipment must pass safety check-in with one of Rocky’s sailing instructors before they can be used in the program. Please see the calendar for scheduled times. Junior sailors are responsible for their own equipment during the sailing season. Sailors who have rented boats from Rocky’s fleet are responsible for the care of their boat to class expectations. They are also responsible for notifying the instructors of breakage or damage. Sailors and their parents are ultimately responsible for the equipment.",
+      ],
+    },
+    {
+      heading: "Swim Test",
+      paragraphs: [
+        "All new and returning sailors are required to complete a swim test before the start of the program. This involves swimming from the Rocky Point docks to the first set of buoys and back while wearing a USCG-approved life vest with an attached whistle. While treading water, the sailors will also take off their life jackets, tread water for an additional one minute and then put their life jackets back on while in the water. It is mandatory that your child pass the swim test before participation in the program. Please see the calendar for scheduled times.",
+      ],
+    },
+    {
+      heading: "Regatta Preparation",
+      paragraphs: [
+        "Junior sailors may participate in JSA sponsored regattas for which they qualify by age, experience, and area. Rocky Point Club is in JSA Area B. A regatta fee is required for each race that each sailor chooses to enter. The Sailing Program Director will determine which sailors are eligible for each regatta. JSA sponsored regattas are done on ClubSpot. Parents are responsible for setting up a profile for each sailor and registering for each regatta.",
+        "Parents/guardians are responsible for transporting their children and their boats to any regattas that they attend. Instructors cannot drive junior sailors. At least one adult per participating boat must be present to facilitate preparation and registration prior to a regatta at the regatta venue and facilitate the proper derigging and breakdown of boats and equipment after a regatta at the regatta venue.",
+        "Optimists and Lasers can be transported on top of cars. Fevas must be transported by trailer. Boat trailers are considered a part of the vehicle to which they are attached. Make sure that your automobile liability insurance covers the trailer. All sailors and parents, including those renting Rocky boats, are responsible for making sure the boats and rigs, if applicable, are properly secured onto the trailer or vehicle for transport. All other equipment must be transported by car to the regatta venue.",
+        "At regattas, parents and friends are welcome to watch the race from a distance on the water. Spectators must be careful not to create wakes or windage and must stay well clear of the racecourse. The Racing Rules of Sailing prohibit outside assistance of any kind during a race, and regatta rules may require that non-racers stay well-clear between races as well.",
+        "To access the full JSA of LIS calendar please go to the JSA website at www.jsalis.org and click on Calendar at the top of the home page. Please refer to the following Regatta Preparation Guide for an overview of responsibilities on regatta days.",
+      ],
+    },
+    {
+      heading: "Weather Policy",
+      paragraphs: [
+        "We will make every effort to hold junior sailing classes on all scheduled program days, but the weather is unpredictable. Prior to each class, the head sailing instructor will consult with our waterfront staff to determine if it is safe for our sailors to head out on the water. On days with too much/too little wind or threat of a storm, junior sailors will participate in dryland lessons and/or sailing-related arts & crafts or games. On very hot days please be sure to send enough water and a reusable water bottle to be refilled throughout the day. Please be sure to check the weather daily and send any clothing or gear items your child may need.",
+      ],
+    },
+    {
+      heading: "Private Lessons",
+      paragraphs: [
+        "Rocky offers private lesson opportunities at the cost of $80 per hour. Please contact the Sailing Program Director to schedule.",
+      ],
+    },
+  ],
+  questionsEmail: "jrsailing@rockypointclub.com",
+};
+
+export const entertainment = {
+  heading: "Entertainment & Event Information",
+  // The live Entertainment page is a calendar. No event copy is invented here;
+  // it links to the club's existing events calendar.
+  calendarUrl: "https://www.rockypointclub.com/events-calendar",
+  calendarLabel: "View the Events Calendar",
+};
+
+export const admissions = {
+  heading: "Admissions",
+  homeCta:
+    "Interested in joining Rocky Point Club? Learn more about the admissions process here.",
+  categories: [
+    {
+      name: "Senior Membership",
+      formTitle: "RPC Senior Membership Request Form",
+      criteriaLabel: "CRITERIA:",
+      criteria: [
+        "Must be 65 years of age",
+        "Must have been a member of the club for 20 years",
+        "Joint membership requires each member to meet the above criteria.",
+      ],
+      note: "Click here for the most current Senior Waiting List.",
+      noteHref: "/admissions#senior-waiting-list",
+    },
+    {
+      name: "Non-Resident Membership",
+      formTitle: "Change Membership to Non-Resident Status",
+      statement:
+        "To: The Members of the RPC Board of Governors\n\nI request permission from the Rocky Point Club Board of Governors to change my membership status to that of Non-Resident. I certify that our primary residence is the address stated below which is located 50 or more miles from Greenwich. I have read and understand the provisions of the Club’s by-laws pertaining to Non-Resident Membership (as set forth below), including the fact that such membership is on an annual basis and at the discretion of the Board of Governors, and agree to comply with such provisions.",
+      bylawHeading: "Article II, Section d. Non-Resident",
+      bylaw:
+        "Non-Resident Membership shall be available to Active, Senior, or Inactive Members who transfer primary residence to a location fifty or more miles from Greenwich, provided that such Member retains his or her Club Debenture and Bonds, purchases any new Debenture and Bonds issued during said period of Membership, and pays the annual dues and assessments prescribed for such Membership as required by these By-Laws. A Non-Resident Member shall have the right to vote but no locker facility will be reserved. Moreover, such Member's use of the Club facilities shall be limited to a period not to exceed three weeks in any fiscal year. The number of Non-Resident Members shall not exceed twelve (12). Non-Resident Membership shall be on an annual basis and at the discretion of the Board of Governors. A Non-Resident Member wishing to renew such status, or to request reinstatement as an Active Member must notify the Board of Governors in writing prior to February 1st . To fill a vacancy caused by the resignation or other reduction in the number of Active Members such Non-Resident Member shall have priority over any other applicant except an Inactive Member.",
+    },
+    {
+      name: "Change of Membership Status to Inactive",
+      formTitle: "Change of Membership Status to Inactive",
+      statement: "To: Members of the Board of Governors",
+    },
+    {
+      name: "Change from Individual to Joint Membership",
+      formTitle: "Change from Individual to Joint Membership",
+      statement:
+        "To: The Members of the RPC Board of Governors\n\nI request permission from the Rocky Point Club Board of Governors to change my membership status from Individual to Joint membership. We hereby certify that I understand the requirements for such membership status as set forth in the Rocky Point Club bylaws and will fulfill all conditions set out therein. We further state that we will comply with the regulations stated in the by-laws and with the provisions of the Neighborhood Agreement governing the new status.",
+    },
+    {
+      name: "Change Membership Status to Active",
+      formTitle: "Change Membership Status to Active",
+      statement:
+        "To: The Members of the RPC Board of Governors\n\nI request permission from the Rocky Point Club Board of Governors to change my membership status to Active. I hereby certify that I understand the requirements for such membership status as set forth in the Rocky Point Club bylaws and will fulfill all conditions set out therein. We further state that we will comply with the regulations stated in the by-laws and with the provisions of the Neighborhood Agreement governing the new status.",
+    },
+  ],
+  seniorWaitingList: {
+    heading: "Senior Waiting List",
+    // The live page also publishes a roster of named families. That personal
+    // data is intentionally NOT hard-coded into this repository — it is a
+    // member record the Board Secretary maintains and belongs in the
+    // stage-two members area, not a public source tree. The instructional
+    // text below is reproduced verbatim.
+    instructions:
+      "To apply for senior membership, please fill out the form on our website: https://www.rockypointclub.com/senior-membership. Please contact the RPC Board Secretary at secretary@rockypointclub.com if you have any questions regarding Senior Membership.",
+    rosterNote:
+      "The current Senior Waiting List roster is maintained by the Board Secretary and will live in the members area (stage two).",
+  },
+};
+
+export const membersArea = {
+  heading: "Members Only",
+  // Placeholder only. The live members-only section (Photo Directory, Club
+  // Dues & Fees, Club Forms, Member Information, Rocky Merchandise, Rocky
+  // Photo Album, Rocky Pointer, FSCL Club Information, Tennis, Video,
+  // Contact Information) is password-protected and out of scope for stage
+  // one. No member content is reproduced or invented here.
+  note:
+    "The members-only section is moving behind a secure login in stage two. For now, members continue to use the existing site.",
+  sections: [
+    "Photo Directory",
+    "Club Dues & Fees",
+    "Club Forms",
+    "Member Information",
+    "Rocky Merchandise",
+    "Rocky Photo Album",
+    "Rocky Pointer",
+    "FSCL Club Information",
+    "Tennis",
+    "Video",
+    "Contact Information",
   ],
 };
 
-export const members = {
-  title: "Members",
-  intro:
-    "The members-only area — photo directory, dues & fees, forms, the Rocky Pointer bulletin archive, tennis, and club video — is moving to a secure member login.",
-  stageTwoNote:
-    "This portal is coming in stage two. For now, members continue to use the existing site for directory and forms. If you need a form or document in the meantime, contact the club office.",
-  plannedSections: [
-    "Photo Directory",
-    "Dues & Fees",
-    "Member Forms",
-    "Rocky Pointer Bulletin Archive",
-    "Tennis",
-    "Club Video & Photo Album",
-    "Contact Info",
+export const contact = {
+  heading: "Contact Us",
+  directionsHeading: "Directions:",
+  directionsIntro: "From Exit 5 on I-95 (Total Distance 2.6 miles):",
+  directions: [
+    "Turn right onto U.S. 1 N/E Putnam Ave",
+    "Turn right onto Sound Beach Ave",
+    "Turn right to stay on Sound Beach Ave",
+    "Turn right onto Shore Rd",
+    "Take the 2nd left onto Rocky Point Rd",
+    "Rocky Point Club will be the end of the road",
+  ],
+  speedNotice:
+    "NOTE THE SPEED LIMIT ON ROCKY POINT ROAD IS 15 MPH. PLEASE BE CONSIDERATE TO OUR NEIGHBORS",
+  troubleshootingHeading: "Troubleshooting:",
+  troubleshooting: [
+    "If you have changes to your email address or are not receiving Rocky Point communication please contact us at info@rockypointclub.com",
+    "Check your spam folder",
+    "Drag Rocky Point emails back into your inbox",
+    "Add Rocky Point emails to your contacts to ensure future emails do not get blocked or sent to spam folder.",
   ],
 };

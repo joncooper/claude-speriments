@@ -20,14 +20,12 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: `${club.name} — A family club on Long Island Sound`,
+    default: club.name,
     template: `%s — ${club.name}`,
   },
-  description:
-    "Rocky Point Club is a family sailing and swimming club on Long Island Sound in Old Greenwich, Connecticut, established 1927.",
+  description: `${club.legalName} — ${club.address.line1}, ${club.address.line2}`,
   openGraph: {
-    title: `${club.name}`,
-    description: club.tagline,
+    title: club.name,
     type: "website",
   },
 };

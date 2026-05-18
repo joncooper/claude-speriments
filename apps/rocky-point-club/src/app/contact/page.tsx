@@ -1,20 +1,10 @@
 import type { Metadata } from "next";
-import { club } from "@/content/site";
+import { club, contact } from "@/content/site";
 import { PageHeader, Section } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "Contact",
-  description:
-    "Contact Rocky Point Club — address, phone, email, and directions in Old Greenwich, CT.",
 };
-
-const directions = [
-  "Take Exit 5 off I-95 (approximately 2.6 miles to the club).",
-  "Turn onto U.S. Route 1 North.",
-  "Continue to Sound Beach Avenue, then Shore Road.",
-  "Turn onto Rocky Point Road and follow it to the end.",
-  "Please observe the 15 mph speed limit on Rocky Point Road.",
-];
 
 export default function ContactPage() {
   const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(
@@ -23,64 +13,52 @@ export default function ContactPage() {
 
   return (
     <>
-      <PageHeader
-        eyebrow="Visit"
-        title="Contact"
-        intro="At the end of Rocky Point Road, where the peninsula meets Long Island Sound."
-      />
+      <PageHeader eyebrow="Contact" title={contact.heading} />
 
       <Section>
         <div className="grid gap-12 md:grid-cols-2">
           <div>
-            <h2 className="text-2xl">The Club</h2>
-            <address className="mt-4 text-lg not-italic text-ink/80">
+            <p className="font-display text-xl text-navy-900">
+              {club.legalName}
+            </p>
+            <address className="mt-2 text-lg not-italic text-ink/80">
               {club.address.line1}
               <br />
               {club.address.line2}
             </address>
-            <p className="mt-1 font-mono text-xs tracking-wide text-ink/50">
-              {club.coords.label}
+            <p className="mt-4">
+              <a
+                href={`mailto:${club.email}`}
+                className="text-marine-600 link-underline"
+              >
+                {club.email}
+              </a>
             </p>
 
-            <dl className="mt-8 space-y-4">
-              {club.phones.map((p) => (
-                <div key={p.label}>
-                  <dt className="text-xs font-semibold tracking-widest text-brass-600 uppercase">
-                    {p.label}
-                  </dt>
-                  <dd className="text-lg text-ink/85">
-                    <a href={`tel:${p.value.replace(/-/g, "")}`}>{p.value}</a>
-                  </dd>
-                </div>
-              ))}
+            <dl className="mt-8 space-y-3 text-ink/80">
               <div>
                 <dt className="text-xs font-semibold tracking-widest text-brass-600 uppercase">
-                  Email
+                  Gatehouse
                 </dt>
                 <dd className="text-lg">
-                  <a
-                    href={`mailto:${club.email}`}
-                    className="text-marine-600 link-underline"
-                  >
-                    {club.email}
+                  <a href={`tel:${club.phones.gatehouse.replace(/-/g, "")}`}>
+                    {club.phones.gatehouse}
                   </a>
                 </dd>
               </div>
+              {club.staff.map((s) => (
+                <p key={s}>{s}</p>
+              ))}
+              <p className="text-lg">
+                <a href={`tel:${club.phones.managerGrounds.replace(/-/g, "")}`}>
+                  {club.phones.managerGrounds}
+                </a>
+              </p>
             </dl>
 
-            <div className="mt-8">
-              <h3 className="text-xs font-semibold tracking-widest text-brass-600 uppercase">
-                Staff
-              </h3>
-              <ul className="mt-3 space-y-1 text-ink/80">
-                {club.staff.map((s) => (
-                  <li key={s.name}>
-                    <span className="font-medium">{s.name}</span>
-                    <span className="text-ink/55"> — {s.role}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <p className="mt-8 font-mono text-xs tracking-wide text-ink/50">
+              {club.coordsLine}
+            </p>
           </div>
 
           <div>
@@ -88,23 +66,44 @@ export default function ContactPage() {
               <iframe
                 title="Map to Rocky Point Club"
                 src={mapSrc}
-                className="h-72 w-full"
+                className="h-64 w-full"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
               />
             </div>
-            <h3 className="mt-8 text-xs font-semibold tracking-widest text-brass-600 uppercase">
-              Directions
-            </h3>
+
+            <h2 className="mt-8 text-xs font-semibold tracking-widest text-brass-600 uppercase">
+              {contact.directionsHeading}
+            </h2>
+            <p className="mt-3 text-sm font-medium text-ink/80">
+              {contact.directionsIntro}
+            </p>
             <ol className="mt-3 space-y-2 text-sm text-ink/75">
-              {directions.map((d, i) => (
+              {contact.directions.map((d, i) => (
                 <li key={d} className="flex gap-3">
                   <span className="font-display text-brass-600">{i + 1}.</span>
                   {d}
                 </li>
               ))}
             </ol>
+            <p className="mt-4 text-sm font-semibold text-navy-900">
+              {contact.speedNotice}
+            </p>
           </div>
+        </div>
+
+        <div className="mt-16 rounded-card bg-sky-50 p-8">
+          <h2 className="text-xs font-semibold tracking-widest text-brass-600 uppercase">
+            {contact.troubleshootingHeading}
+          </h2>
+          <ul className="mt-4 space-y-2 text-sm text-ink/75">
+            {contact.troubleshooting.map((t) => (
+              <li key={t.slice(0, 24)} className="flex gap-3">
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brass-500" />
+                {t}
+              </li>
+            ))}
+          </ul>
         </div>
       </Section>
     </>

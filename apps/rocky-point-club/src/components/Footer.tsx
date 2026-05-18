@@ -13,18 +13,16 @@ export function Footer() {
               {club.name}
             </span>
           </div>
-          <p className="mt-4 max-w-xs text-sm leading-relaxed text-sky-100/70">
-            {club.tagline}
-          </p>
+          <p className="mt-4 text-sm text-sky-100/70">{club.legalName}</p>
           <p className="mt-4 font-mono text-xs tracking-wide text-sky-100/50">
-            {club.coords.label}
+            {club.coordsLine}
           </p>
         </div>
 
         <div>
-          <h3 className="text-xs font-semibold tracking-widest text-brass-400 uppercase">
+          <h2 className="text-xs font-semibold tracking-widest text-brass-400 uppercase">
             Explore
-          </h3>
+          </h2>
           <ul className="mt-4 space-y-2 text-sm">
             {nav.map((item) => (
               <li key={item.href}>
@@ -41,26 +39,25 @@ export function Footer() {
                 href="/members"
                 className="text-sky-100/80 transition-colors hover:text-cream"
               >
-                Members
+                Members Only
               </Link>
             </li>
           </ul>
         </div>
 
         <div>
-          <h3 className="text-xs font-semibold tracking-widest text-brass-400 uppercase">
+          <h2 className="text-xs font-semibold tracking-widest text-brass-400 uppercase">
             Visit
-          </h3>
+          </h2>
           <address className="mt-4 space-y-1 text-sm not-italic text-sky-100/80">
             <p>{club.address.line1}</p>
             <p>{club.address.line2}</p>
           </address>
           <ul className="mt-4 space-y-1 text-sm text-sky-100/80">
-            {club.phones.map((p) => (
-              <li key={p.label}>
-                <span className="text-sky-100/50">{p.label}:</span> {p.value}
-              </li>
-            ))}
+            <li>
+              <span className="text-sky-100/50">Gatehouse</span>{" "}
+              {club.phones.gatehouse}
+            </li>
             <li>
               <a
                 href={`mailto:${club.email}`}
@@ -76,8 +73,7 @@ export function Footer() {
       <div className="border-t border-white/10">
         <div className="container-rpc flex flex-col items-center justify-between gap-2 py-6 text-xs text-sky-100/50 md:flex-row">
           <p>
-            © {new Date().getFullYear()} {club.name}. Established{" "}
-            {club.established}.
+            © {new Date().getFullYear()} {club.legalName}
           </p>
           <p>Old Greenwich, Connecticut</p>
         </div>
