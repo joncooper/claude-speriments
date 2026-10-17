@@ -1,0 +1,601 @@
+  0           0 RESUME                   0
+
+  4           2 NOP
+
+  7           4 LOAD_CONST               0 (<code object abstractmethod at 0x7f54f8846a70, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 7>)
+              6 MAKE_FUNCTION            0
+              8 STORE_NAME               0 (abstractmethod)
+
+ 28          10 PUSH_NULL
+             12 LOAD_BUILD_CLASS
+             14 LOAD_CONST               1 (<code object abstractclassmethod at 0x7f54f8679ed0, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 28>)
+             16 MAKE_FUNCTION            0
+             18 LOAD_CONST               2 ('abstractclassmethod')
+             20 LOAD_NAME                1 (classmethod)
+             22 PRECALL                  3
+             26 CALL                     3
+             36 STORE_NAME               2 (abstractclassmethod)
+
+ 48          38 PUSH_NULL
+             40 LOAD_BUILD_CLASS
+             42 LOAD_CONST               3 (<code object abstractstaticmethod at 0x7f54f867a410, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 48>)
+             44 MAKE_FUNCTION            0
+             46 LOAD_CONST               4 ('abstractstaticmethod')
+             48 LOAD_NAME                3 (staticmethod)
+             50 PRECALL                  3
+             54 CALL                     3
+             64 STORE_NAME               4 (abstractstaticmethod)
+
+ 68          66 PUSH_NULL
+             68 LOAD_BUILD_CLASS
+             70 LOAD_CONST               5 (<code object abstractproperty at 0x7f54f88470f0, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 68>)
+             72 MAKE_FUNCTION            0
+             74 LOAD_CONST               6 ('abstractproperty')
+             76 LOAD_NAME                5 (property)
+             78 PRECALL                  3
+             82 CALL                     3
+             92 STORE_NAME               6 (abstractproperty)
+
+ 84          94 NOP
+
+ 85          96 LOAD_CONST               7 (0)
+             98 LOAD_CONST               8 (('get_cache_token', '_abc_init', '_abc_register', '_abc_instancecheck', '_abc_subclasscheck', '_get_dump', '_reset_registry', '_reset_caches'))
+            100 IMPORT_NAME              7 (_abc)
+            102 IMPORT_FROM              8 (get_cache_token)
+            104 STORE_NAME               8 (get_cache_token)
+            106 IMPORT_FROM              9 (_abc_init)
+            108 STORE_NAME               9 (_abc_init)
+            110 IMPORT_FROM             10 (_abc_register)
+            112 STORE_NAME              10 (_abc_register)
+            114 IMPORT_FROM             11 (_abc_instancecheck)
+            116 STORE_NAME              11 (_abc_instancecheck)
+            118 IMPORT_FROM             12 (_abc_subclasscheck)
+            120 STORE_NAME              12 (_abc_subclasscheck)
+            122 IMPORT_FROM             13 (_get_dump)
+            124 STORE_NAME              13 (_get_dump)
+            126 IMPORT_FROM             14 (_reset_registry)
+            128 STORE_NAME              14 (_reset_registry)
+            130 IMPORT_FROM             15 (_reset_caches)
+            132 STORE_NAME              15 (_reset_caches)
+            134 POP_TOP
+
+ 92         136 PUSH_NULL
+            138 LOAD_BUILD_CLASS
+            140 LOAD_CONST               9 (<code object ABCMeta at 0x7f54f8680830, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 92>)
+            142 MAKE_FUNCTION            0
+            144 LOAD_CONST              10 ('ABCMeta')
+            146 LOAD_NAME               16 (type)
+            148 PRECALL                  3
+            152 CALL                     3
+            162 STORE_NAME              17 (ABCMeta)
+            164 JUMP_FORWARD            26 (to 218)
+        >>  166 PUSH_EXC_INFO
+
+ 88         168 LOAD_NAME               18 (ImportError)
+            170 CHECK_EXC_MATCH
+            172 POP_JUMP_FORWARD_IF_FALSE    18 (to 210)
+            174 POP_TOP
+
+ 89         176 LOAD_CONST               7 (0)
+            178 LOAD_CONST              11 (('ABCMeta', 'get_cache_token'))
+            180 IMPORT_NAME             19 (_py_abc)
+            182 IMPORT_FROM             17 (ABCMeta)
+            184 STORE_NAME              17 (ABCMeta)
+            186 IMPORT_FROM              8 (get_cache_token)
+            188 STORE_NAME               8 (get_cache_token)
+            190 POP_TOP
+
+ 90         192 LOAD_CONST              12 ('abc')
+            194 LOAD_NAME               17 (ABCMeta)
+            196 STORE_ATTR              20 (__module__)
+            206 POP_EXCEPT
+            208 JUMP_FORWARD             4 (to 218)
+
+ 88     >>  210 RERAISE                  0
+        >>  212 COPY                     3
+            214 POP_EXCEPT
+            216 RERAISE                  1
+
+146     >>  218 LOAD_CONST              13 (<code object update_abstractmethods at 0x33a93ab0, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 146>)
+            220 MAKE_FUNCTION            0
+            222 STORE_NAME              21 (update_abstractmethods)
+
+184         224 PUSH_NULL
+            226 LOAD_BUILD_CLASS
+            228 LOAD_CONST              14 (<code object ABC at 0x7f54f8847500, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 184>)
+            230 MAKE_FUNCTION            0
+            232 LOAD_CONST              15 ('ABC')
+            234 LOAD_NAME               17 (ABCMeta)
+            236 KW_NAMES                16
+            238 PRECALL                  3
+            242 CALL                     3
+            252 STORE_NAME              22 (ABC)
+            254 LOAD_CONST              17 (None)
+            256 RETURN_VALUE
+ExceptionTable:
+  96 to 134 -> 166 [0]
+  166 to 204 -> 212 [1] lasti
+  210 to 210 -> 212 [1] lasti
+
+Disassembly of <code object abstractmethod at 0x7f54f8846a70, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 7>:
+  7           0 RESUME                   0
+
+  8           2 NOP
+
+ 24           4 LOAD_CONST               1 (True)
+              6 LOAD_FAST                0 (funcobj)
+              8 STORE_ATTR               0 (__isabstractmethod__)
+
+ 25          18 LOAD_FAST                0 (funcobj)
+             20 RETURN_VALUE
+
+Disassembly of <code object abstractclassmethod at 0x7f54f8679ed0, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 28>:
+              0 MAKE_CELL                0 (__class__)
+
+ 28           2 RESUME                   0
+              4 LOAD_NAME                0 (__name__)
+              6 STORE_NAME               1 (__module__)
+              8 LOAD_CONST               0 ('abstractclassmethod')
+             10 STORE_NAME               2 (__qualname__)
+
+ 29          12 NOP
+
+ 41          14 LOAD_CONST               1 (True)
+             16 STORE_NAME               3 (__isabstractmethod__)
+
+ 43          18 LOAD_CLOSURE             0 (__class__)
+             20 BUILD_TUPLE              1
+             22 LOAD_CONST               2 (<code object __init__ at 0x7f54f87f7750, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 43>)
+             24 MAKE_FUNCTION            8 (closure)
+             26 STORE_NAME               4 (__init__)
+             28 LOAD_CLOSURE             0 (__class__)
+             30 COPY                     1
+             32 STORE_NAME               5 (__classcell__)
+             34 RETURN_VALUE
+
+Disassembly of <code object __init__ at 0x7f54f87f7750, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 43>:
+              0 COPY_FREE_VARS           1
+
+ 43           2 RESUME                   0
+
+ 44           4 LOAD_CONST               1 (True)
+              6 LOAD_FAST                1 (callable)
+              8 STORE_ATTR               0 (__isabstractmethod__)
+
+ 45          18 PUSH_NULL
+             20 LOAD_GLOBAL              2 (super)
+             32 PRECALL                  0
+             36 CALL                     0
+             46 LOAD_METHOD              2 (__init__)
+             68 LOAD_FAST                1 (callable)
+             70 PRECALL                  1
+             74 CALL                     1
+             84 POP_TOP
+             86 LOAD_CONST               0 (None)
+             88 RETURN_VALUE
+
+Disassembly of <code object abstractstaticmethod at 0x7f54f867a410, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 48>:
+              0 MAKE_CELL                0 (__class__)
+
+ 48           2 RESUME                   0
+              4 LOAD_NAME                0 (__name__)
+              6 STORE_NAME               1 (__module__)
+              8 LOAD_CONST               0 ('abstractstaticmethod')
+             10 STORE_NAME               2 (__qualname__)
+
+ 49          12 NOP
+
+ 61          14 LOAD_CONST               1 (True)
+             16 STORE_NAME               3 (__isabstractmethod__)
+
+ 63          18 LOAD_CLOSURE             0 (__class__)
+             20 BUILD_TUPLE              1
+             22 LOAD_CONST               2 (<code object __init__ at 0x7f54f87f72d0, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 63>)
+             24 MAKE_FUNCTION            8 (closure)
+             26 STORE_NAME               4 (__init__)
+             28 LOAD_CLOSURE             0 (__class__)
+             30 COPY                     1
+             32 STORE_NAME               5 (__classcell__)
+             34 RETURN_VALUE
+
+Disassembly of <code object __init__ at 0x7f54f87f72d0, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 63>:
+              0 COPY_FREE_VARS           1
+
+ 63           2 RESUME                   0
+
+ 64           4 LOAD_CONST               1 (True)
+              6 LOAD_FAST                1 (callable)
+              8 STORE_ATTR               0 (__isabstractmethod__)
+
+ 65          18 PUSH_NULL
+             20 LOAD_GLOBAL              2 (super)
+             32 PRECALL                  0
+             36 CALL                     0
+             46 LOAD_METHOD              2 (__init__)
+             68 LOAD_FAST                1 (callable)
+             70 PRECALL                  1
+             74 CALL                     1
+             84 POP_TOP
+             86 LOAD_CONST               0 (None)
+             88 RETURN_VALUE
+
+Disassembly of <code object abstractproperty at 0x7f54f88470f0, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 68>:
+ 68           0 RESUME                   0
+              2 LOAD_NAME                0 (__name__)
+              4 STORE_NAME               1 (__module__)
+              6 LOAD_CONST               0 ('abstractproperty')
+              8 STORE_NAME               2 (__qualname__)
+
+ 69          10 NOP
+
+ 81          12 LOAD_CONST               1 (True)
+             14 STORE_NAME               3 (__isabstractmethod__)
+             16 LOAD_CONST               2 (None)
+             18 RETURN_VALUE
+
+Disassembly of <code object ABCMeta at 0x7f54f8680830, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 92>:
+              0 MAKE_CELL                0 (__class__)
+
+ 92           2 RESUME                   0
+              4 LOAD_NAME                0 (__name__)
+              6 STORE_NAME               1 (__module__)
+              8 LOAD_CONST               0 ('ABCMeta')
+             10 STORE_NAME               2 (__qualname__)
+
+ 93          12 NOP
+
+105          14 LOAD_CLOSURE             0 (__class__)
+             16 BUILD_TUPLE              1
+             18 LOAD_CONST               1 (<code object __new__ at 0x7f54f87f7870, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 105>)
+             20 MAKE_FUNCTION            8 (closure)
+             22 STORE_NAME               3 (__new__)
+
+110          24 LOAD_CONST               2 (<code object register at 0x7f54f867a170, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 110>)
+             26 MAKE_FUNCTION            0
+             28 STORE_NAME               4 (register)
+
+117          30 LOAD_CONST               3 (<code object __instancecheck__ at 0x7f54f867a330, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 117>)
+             32 MAKE_FUNCTION            0
+             34 STORE_NAME               5 (__instancecheck__)
+
+121          36 LOAD_CONST               4 (<code object __subclasscheck__ at 0x7f54f867a090, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 121>)
+             38 MAKE_FUNCTION            0
+             40 STORE_NAME               6 (__subclasscheck__)
+
+125          42 LOAD_CONST               9 ((None,))
+             44 LOAD_CONST               6 (<code object _dump_registry at 0x33a94540, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 125>)
+             46 MAKE_FUNCTION            1 (defaults)
+             48 STORE_NAME               7 (_dump_registry)
+
+137          50 LOAD_CONST               7 (<code object _abc_registry_clear at 0x7f54f867a6b0, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 137>)
+             52 MAKE_FUNCTION            0
+             54 STORE_NAME               8 (_abc_registry_clear)
+
+141          56 LOAD_CONST               8 (<code object _abc_caches_clear at 0x7f54f867a5d0, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 141>)
+             58 MAKE_FUNCTION            0
+             60 STORE_NAME               9 (_abc_caches_clear)
+             62 LOAD_CLOSURE             0 (__class__)
+             64 COPY                     1
+             66 STORE_NAME              10 (__classcell__)
+             68 RETURN_VALUE
+
+Disassembly of <code object __new__ at 0x7f54f87f7870, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 105>:
+              0 COPY_FREE_VARS           1
+
+105           2 RESUME                   0
+
+106           4 PUSH_NULL
+              6 PUSH_NULL
+              8 LOAD_GLOBAL              0 (super)
+             20 PRECALL                  0
+             24 CALL                     0
+             34 LOAD_ATTR                1 (__new__)
+             44 LOAD_FAST                0 (mcls)
+             46 LOAD_FAST                1 (name)
+             48 LOAD_FAST                2 (bases)
+             50 LOAD_FAST                3 (namespace)
+             52 BUILD_TUPLE              4
+             54 BUILD_MAP                0
+             56 LOAD_FAST                4 (kwargs)
+             58 DICT_MERGE               1
+             60 CALL_FUNCTION_EX         1
+             62 STORE_FAST               5 (cls)
+
+107          64 PUSH_NULL
+             66 LOAD_GLOBAL              4 (_abc_init)
+             78 LOAD_FAST                5 (cls)
+             80 PRECALL                  1
+             84 CALL                     1
+             94 POP_TOP
+
+108          96 LOAD_FAST                5 (cls)
+             98 RETURN_VALUE
+
+Disassembly of <code object register at 0x7f54f867a170, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 110>:
+110           0 RESUME                   0
+
+111           2 NOP
+
+115           4 PUSH_NULL
+              6 LOAD_GLOBAL              0 (_abc_register)
+             18 LOAD_FAST                0 (cls)
+             20 LOAD_FAST                1 (subclass)
+             22 PRECALL                  2
+             26 CALL                     2
+             36 RETURN_VALUE
+
+Disassembly of <code object __instancecheck__ at 0x7f54f867a330, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 117>:
+117           0 RESUME                   0
+
+118           2 NOP
+
+119           4 PUSH_NULL
+              6 LOAD_GLOBAL              0 (_abc_instancecheck)
+             18 LOAD_FAST                0 (cls)
+             20 LOAD_FAST                1 (instance)
+             22 PRECALL                  2
+             26 CALL                     2
+             36 RETURN_VALUE
+
+Disassembly of <code object __subclasscheck__ at 0x7f54f867a090, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 121>:
+121           0 RESUME                   0
+
+122           2 NOP
+
+123           4 PUSH_NULL
+              6 LOAD_GLOBAL              0 (_abc_subclasscheck)
+             18 LOAD_FAST                0 (cls)
+             20 LOAD_FAST                1 (subclass)
+             22 PRECALL                  2
+             26 CALL                     2
+             36 RETURN_VALUE
+
+Disassembly of <code object _dump_registry at 0x33a94540, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 125>:
+125           0 RESUME                   0
+
+126           2 NOP
+
+127           4 PUSH_NULL
+              6 LOAD_GLOBAL              0 (print)
+             18 LOAD_CONST               1 ('Class: ')
+             20 LOAD_FAST                0 (cls)
+             22 LOAD_ATTR                1 (__module__)
+             32 FORMAT_VALUE             0
+             34 LOAD_CONST               2 ('.')
+             36 LOAD_FAST                0 (cls)
+             38 LOAD_ATTR                2 (__qualname__)
+             48 FORMAT_VALUE             0
+             50 BUILD_STRING             4
+             52 LOAD_FAST                1 (file)
+             54 KW_NAMES                 3
+             56 PRECALL                  2
+             60 CALL                     2
+             70 POP_TOP
+
+128          72 PUSH_NULL
+             74 LOAD_GLOBAL              0 (print)
+             86 LOAD_CONST               4 ('Inv. counter: ')
+             88 PUSH_NULL
+             90 LOAD_GLOBAL              6 (get_cache_token)
+            102 PRECALL                  0
+            106 CALL                     0
+            116 FORMAT_VALUE             0
+            118 BUILD_STRING             2
+            120 LOAD_FAST                1 (file)
+            122 KW_NAMES                 3
+            124 PRECALL                  2
+            128 CALL                     2
+            138 POP_TOP
+
+130         140 PUSH_NULL
+            142 LOAD_GLOBAL              8 (_get_dump)
+            154 LOAD_FAST                0 (cls)
+            156 PRECALL                  1
+            160 CALL                     1
+
+129         170 UNPACK_SEQUENCE          4
+            174 STORE_FAST               2 (_abc_registry)
+            176 STORE_FAST               3 (_abc_cache)
+            178 STORE_FAST               4 (_abc_negative_cache)
+
+130         180 STORE_FAST               5 (_abc_negative_cache_version)
+
+131         182 PUSH_NULL
+            184 LOAD_GLOBAL              0 (print)
+            196 LOAD_CONST               5 ('_abc_registry: ')
+            198 LOAD_FAST                2 (_abc_registry)
+            200 FORMAT_VALUE             2 (repr)
+            202 BUILD_STRING             2
+            204 LOAD_FAST                1 (file)
+            206 KW_NAMES                 3
+            208 PRECALL                  2
+            212 CALL                     2
+            222 POP_TOP
+
+132         224 PUSH_NULL
+            226 LOAD_GLOBAL              0 (print)
+            238 LOAD_CONST               6 ('_abc_cache: ')
+            240 LOAD_FAST                3 (_abc_cache)
+            242 FORMAT_VALUE             2 (repr)
+            244 BUILD_STRING             2
+            246 LOAD_FAST                1 (file)
+            248 KW_NAMES                 3
+            250 PRECALL                  2
+            254 CALL                     2
+            264 POP_TOP
+
+133         266 PUSH_NULL
+            268 LOAD_GLOBAL              0 (print)
+            280 LOAD_CONST               7 ('_abc_negative_cache: ')
+            282 LOAD_FAST                4 (_abc_negative_cache)
+            284 FORMAT_VALUE             2 (repr)
+            286 BUILD_STRING             2
+            288 LOAD_FAST                1 (file)
+            290 KW_NAMES                 3
+            292 PRECALL                  2
+            296 CALL                     2
+            306 POP_TOP
+
+134         308 PUSH_NULL
+            310 LOAD_GLOBAL              0 (print)
+            322 LOAD_CONST               8 ('_abc_negative_cache_version: ')
+            324 LOAD_FAST                5 (_abc_negative_cache_version)
+            326 FORMAT_VALUE             2 (repr)
+            328 BUILD_STRING             2
+
+135         330 LOAD_FAST                1 (file)
+
+134         332 KW_NAMES                 3
+            334 PRECALL                  2
+            338 CALL                     2
+            348 POP_TOP
+            350 LOAD_CONST               0 (None)
+            352 RETURN_VALUE
+
+Disassembly of <code object _abc_registry_clear at 0x7f54f867a6b0, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 137>:
+137           0 RESUME                   0
+
+138           2 NOP
+
+139           4 PUSH_NULL
+              6 LOAD_GLOBAL              0 (_reset_registry)
+             18 LOAD_FAST                0 (cls)
+             20 PRECALL                  1
+             24 CALL                     1
+             34 POP_TOP
+             36 LOAD_CONST               0 (None)
+             38 RETURN_VALUE
+
+Disassembly of <code object _abc_caches_clear at 0x7f54f867a5d0, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 141>:
+141           0 RESUME                   0
+
+142           2 NOP
+
+143           4 PUSH_NULL
+              6 LOAD_GLOBAL              0 (_reset_caches)
+             18 LOAD_FAST                0 (cls)
+             20 PRECALL                  1
+             24 CALL                     1
+             34 POP_TOP
+             36 LOAD_CONST               0 (None)
+             38 RETURN_VALUE
+
+Disassembly of <code object update_abstractmethods at 0x33a93ab0, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 146>:
+146           0 RESUME                   0
+
+147           2 NOP
+
+162           4 PUSH_NULL
+              6 LOAD_GLOBAL              0 (hasattr)
+             18 LOAD_FAST                0 (cls)
+             20 LOAD_CONST               1 ('__abstractmethods__')
+             22 PRECALL                  2
+             26 CALL                     2
+             36 POP_JUMP_FORWARD_IF_TRUE     2 (to 42)
+
+166          38 LOAD_FAST                0 (cls)
+             40 RETURN_VALUE
+
+168     >>   42 PUSH_NULL
+             44 LOAD_GLOBAL              2 (set)
+             56 PRECALL                  0
+             60 CALL                     0
+             70 STORE_FAST               1 (abstracts)
+
+171          72 LOAD_FAST                0 (cls)
+             74 LOAD_ATTR                2 (__bases__)
+             84 GET_ITER
+        >>   86 FOR_ITER                80 (to 248)
+             88 STORE_FAST               2 (scls)
+
+172          90 PUSH_NULL
+             92 LOAD_GLOBAL              6 (getattr)
+            104 LOAD_FAST                2 (scls)
+            106 LOAD_CONST               1 ('__abstractmethods__')
+            108 LOAD_CONST               2 (())
+            110 PRECALL                  3
+            114 CALL                     3
+            124 GET_ITER
+        >>  126 FOR_ITER                59 (to 246)
+            128 STORE_FAST               3 (name)
+
+173         130 PUSH_NULL
+            132 LOAD_GLOBAL              6 (getattr)
+            144 LOAD_FAST                0 (cls)
+            146 LOAD_FAST                3 (name)
+            148 LOAD_CONST               0 (None)
+            150 PRECALL                  3
+            154 CALL                     3
+            164 STORE_FAST               4 (value)
+
+174         166 PUSH_NULL
+            168 LOAD_GLOBAL              6 (getattr)
+            180 LOAD_FAST                4 (value)
+            182 LOAD_CONST               3 ('__isabstractmethod__')
+            184 LOAD_CONST               4 (False)
+            186 PRECALL                  3
+            190 CALL                     3
+            200 POP_JUMP_FORWARD_IF_FALSE    21 (to 244)
+
+175         202 LOAD_FAST                1 (abstracts)
+            204 LOAD_METHOD              4 (add)
+            226 LOAD_FAST                3 (name)
+            228 PRECALL                  1
+            232 CALL                     1
+            242 POP_TOP
+        >>  244 JUMP_BACKWARD           60 (to 126)
+
+172     >>  246 JUMP_BACKWARD           81 (to 86)
+
+177     >>  248 LOAD_FAST                0 (cls)
+            250 LOAD_ATTR                5 (__dict__)
+            260 LOAD_METHOD              6 (items)
+            282 PRECALL                  0
+            286 CALL                     0
+            296 GET_ITER
+        >>  298 FOR_ITER                44 (to 388)
+            300 UNPACK_SEQUENCE          2
+            304 STORE_FAST               3 (name)
+            306 STORE_FAST               4 (value)
+
+178         308 PUSH_NULL
+            310 LOAD_GLOBAL              6 (getattr)
+            322 LOAD_FAST                4 (value)
+            324 LOAD_CONST               3 ('__isabstractmethod__')
+            326 LOAD_CONST               4 (False)
+            328 PRECALL                  3
+            332 CALL                     3
+            342 POP_JUMP_FORWARD_IF_FALSE    21 (to 386)
+
+179         344 LOAD_FAST                1 (abstracts)
+            346 LOAD_METHOD              4 (add)
+            368 LOAD_FAST                3 (name)
+            370 PRECALL                  1
+            374 CALL                     1
+            384 POP_TOP
+        >>  386 JUMP_BACKWARD           45 (to 298)
+
+180     >>  388 PUSH_NULL
+            390 LOAD_GLOBAL             14 (frozenset)
+            402 LOAD_FAST                1 (abstracts)
+            404 PRECALL                  1
+            408 CALL                     1
+            418 LOAD_FAST                0 (cls)
+            420 STORE_ATTR               8 (__abstractmethods__)
+
+181         430 LOAD_FAST                0 (cls)
+            432 RETURN_VALUE
+
+Disassembly of <code object ABC at 0x7f54f8847500, file "../linux64_dropbox_virtual_env/lib/python3.11/abc.py", line 184>:
+184           0 RESUME                   0
+              2 LOAD_NAME                0 (__name__)
+              4 STORE_NAME               1 (__module__)
+              6 LOAD_CONST               0 ('ABC')
+              8 STORE_NAME               2 (__qualname__)
+
+185          10 NOP
+
+188          12 LOAD_CONST               1 (())
+             14 STORE_NAME               3 (__slots__)
+             16 LOAD_CONST               2 (None)
+             18 RETURN_VALUE

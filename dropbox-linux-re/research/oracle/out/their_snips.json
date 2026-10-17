@@ -1,0 +1,70 @@
+{
+"pass": {
+"code": "97007d002300",
+"names": [],
+"consts": [
+"None"
+]
+},
+"load_a": {
+"code": "97008e002300",
+"names": [
+"a"
+],
+"consts": []
+},
+"add": {
+"code": "97008e008e01830000002300",
+"names": [
+"a",
+"b"
+],
+"consts": []
+},
+"call": {
+"code": "970026008e008e01eb010000b30100000000000000002300",
+"names": [
+"f",
+"x"
+],
+"consts": []
+},
+"assign": {
+"code": "97007d005a007d012300",
+"names": [
+"a"
+],
+"consts": [
+"1",
+"None"
+]
+},
+"ret1": {
+"code": "97007d005f005a007d012300",
+"names": [
+"g"
+],
+"consts": [
+"<code object g at 0x7f24976965b0, file \"<s>\", line 1>",
+"None"
+]
+},
+"attr": {
+"code": "97008e00710100000000000000002300",
+"names": [
+"a",
+"b"
+],
+"consts": []
+},
+"import": {
+"code": "97007d007d0188005a007d012300",
+"names": [
+"os"
+],
+"consts": [
+"0",
+"None"
+]
+}
+}
