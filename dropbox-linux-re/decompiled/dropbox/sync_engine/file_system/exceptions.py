@@ -1,0 +1,5 @@
+# Source Generated with Decompyle++
+# File: exceptions.pyc (Python 3.11)
+
+from __future__ import absolute_import
+from dropbox.sync_engine_boundary.file_system_exceptions import AttrsModifiedError, create_directory_not_empty_error, create_file_exists_error, create_file_not_found_error, create_file_system_error, create_filename_too_long_error, create_fs_invalid_argument_error, create_infinite_kext_io_error, create_io_error, create_is_a_directory_error, create_no_such_attr_error, create_not_a_directory_error, create_permission_denied_error, DirectoryNotEmptyError, FileExistsError, FilenameTooLongError, FileNotFoundError, FileSystemError, FSInvalidArgumentError, InfiniteKextIOError, IsADirectoryError, NotADirectoryError, PermissionDeniedError

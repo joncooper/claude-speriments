@@ -1,0 +1,36 @@
+# Source Generated with Decompyle++
+# File: metadata_registry.pyc (Python 3.11)
+
+from typing import Text
+from dropbox.client.features.apollo_landing_surface.apollo_view_anchor import ApolloViewAnchor
+from dropbox.client.features.apollo_landing_surface.constants import APOLLO_LANDING_SURFACE_HEIGHT, APOLLO_LANDING_SURFACE_MIN_HEIGHT, APOLLO_LANDING_SURFACE_MIN_WIDTH, APOLLO_LANDING_SURFACE_WIDTH
+from dropbox.client.features.backup_app.view_anchor import BackupAppViewAnchor
+from dropbox.client.features.backup_quota_exempt_picker.view_anchor import BackupQuotaExemptPickerViewAnchor
+from dropbox.client.features.backup_restorations_onboarding.view_anchor import BackupRestorationsOnboardingViewAnchor
+from dropbox.client.features.backup_sku_onboarding.view_anchor import BackupSkuOnboardingViewAnchor
+from dropbox.client.features.backup_unlimited_storage_modal.view_anchor import BackupUnlimitedStorageModalViewAnchor
+from dropbox.client.features.computer_backup_custom_folder_picker.view_anchor import ComputerBackupCustomFolderPickerViewAnchor
+from dropbox.client.features.computer_backup_ssb_modal.view_anchor import ComputerBackupSsbModalViewAnchor
+from dropbox.client.features.debug_bridge_call_profiler.view_anchor import DebugBridgeCallProfilerViewAnchor
+from dropbox.client.features.debug_menu_override_stormcrow.view_anchor import OverrideStormcrowViewAnchor
+from dropbox.client.features.event_logger_display.event_logger_display import LoggerDisplayViewAnchor
+from dropbox.client.features.external_drive_backup_folder_picker.view_anchor import ExternalDriveBackupFolderPickerViewAnchor
+from dropbox.client.features.external_drive_backup_permissions.view_anchor import ExternalDriveBackupPermissionsViewAnchor
+from dropbox.client.features.file_provider_migration.ui.interim_carousel.view_anchor import FPInterimCarouselViewAnchor
+from dropbox.client.features.file_provider_migration.ui.post_migration_carousel.view_anchor import FPMigrationEducationCarouselViewAnchor
+from dropbox.client.features.file_provider_migration.ui.pre_migration_carousel.view_anchor import FPPreMigrationCarouselViewAnchor
+from dropbox.client.features.inspector.view_anchor import InspectorViewAnchor
+from dropbox.client.features.local_view_basic_example.basic_example_anchor import BasicExampleAnchor
+from dropbox.client.features.sync_everything_carousel.view_anchor import SyncEverythingCarouselViewAnchor
+from dropbox.client.features.sync_everything_preferences.view_anchor import SyncEverythingPreferencesViewAnchor
+from dropbox.client.features.tour.ui.view_anchor import TourViewAnchor
+from dropbox.foundation.html_views.common.content_metadata import FrameConfig, MacInvisibleConfig, ResizeConfig, StandaloneHtmlContentMetadata, TitleBarConfig, WindowsInvisibleConfig
+from dropbox.foundation.html_views.common.view import HtmlViewAffinityGroup
+from dropbox.foundation.types.rect import Size
+from dropbox.i18n import trans
+from dropbox.platform import IS_MAC
+DOC_CREATOR_WIDTH = 540
+DOC_CREATOR_HEIGHT = 196 if IS_MAC else 182
+DIG_CAROUSEL_HEIGHT = 420
+DIG_CAROUSEL_WIDTH = 700
+# WARNING: Decompyle incomplete

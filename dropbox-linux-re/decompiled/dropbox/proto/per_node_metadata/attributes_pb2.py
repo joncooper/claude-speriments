@@ -1,0 +1,152 @@
+# Source Generated with Decompyle++
+# File: attributes_pb2.pyc (Python 3.11)
+
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import descriptor_pool as _descriptor_pool
+from google.protobuf import runtime_version as _runtime_version
+from google.protobuf import symbol_database as _symbol_database
+from google.protobuf.internal import builder as _builder
+_runtime_version.ValidateProtobufRuntimeVersion(_runtime_version.Domain.PUBLIC, 6, 33, 6, '', 'dropbox/proto/per_node_metadata/attributes.proto')
+_sym_db = _symbol_database.Default()
+from dropbox.proto.encryption import encryption_types_pb2 as dropbox_dot_proto_dot_encryption_dot_encryption__types__pb2
+from dropbox.proto.rust import extensions_pb2 as dropbox_dot_proto_dot_rust_dot_extensions__pb2
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n0dropbox/proto/per_node_metadata/attributes.proto\x12\x11per_node_metadata\x1a/dropbox/proto/encryption/encryption_types.proto\x1a#dropbox/proto/rust/extensions.proto"A\n\x0bFilePNMList\x12,\n\x08file_pnm\x18\x01 \x03(\x0b2\x1a.per_node_metadata.FilePNM:\x04\xb0\xb5\x18\x01"J\n\x10DirectoryPNMList\x120\n\x07dir_pnm\x18\x01 \x03(\x0b2\x1f.per_node_metadata.DirectoryPNM:\x04\xb0\xb5\x18\x01"J\n\x0eSymlinkPNMList\x122\n\x0bsymlink_pnm\x18\x01 \x03(\x0b2\x1d.per_node_metadata.SymlinkPNM:\x04\xb0\xb5\x18\x01"\xf0\x02\n\x07FilePNM\x127\n\x08test_pnm\x18\x01 \x01(\x0b2#.per_node_metadata.TestPNMAttributeH\x00\x12A\n\x12device_folder_link\x18\x03 \x01(\x0b2#.per_node_metadata.DeviceFolderLinkH\x00\x12:\n\x0epasswords_link\x18\x04 \x01(\x0b2 .per_node_metadata.PasswordsLinkH\x00\x12N\n\x19passwords_link_post_setup\x18\x05 \x01(\x0b2).per_node_metadata.PasswordsLinkPostSetupH\x00\x123\n\x0eencrypted_file\x18\x06 \x01(\x0b2\x19.encryption.EncryptedFileH\x00:\x04\xb0\xb5\x18\x01B\x10\n\x08pnm_type\x12\x04\x88\xb5\x18\x01J\x04\x08\x02\x10\x03R\nvault_link"\x99\x0e\n\x0cDirectoryPNM\x127\n\x08test_pnm\x18\x01 \x01(\x0b2#.per_node_metadata.TestPNMAttributeH\x00\x12G\n\x15device_folder_generic\x18\x02 \x01(\x0b2&.per_node_metadata.DeviceFolderGenericH\x00\x12?\n\x11device_sub_folder\x18\x04 \x01(\x0b2".per_node_metadata.DeviceSubFolderH\x00\x12?\n\x11device_folder_mac\x18\x05 \x01(\x0b2".per_node_metadata.DeviceFolderMacH\x00\x12G\n\x15device_folder_windows\x18\x06 \x01(\x0b2&.per_node_metadata.DeviceFolderWindowsH\x00\x12F\n\x15device_folder_no_icon\x18\x07 \x01(\x0b2%.per_node_metadata.DeviceFolderNoIconH\x00\x12E\n\x14family_shared_folder\x18\x08 \x01(\x0b2%.per_node_metadata.FamilySharedFolderH\x00\x12:\n\x0eexternal_drive\x18\t \x01(\x0b2 .per_node_metadata.ExternalDriveH\x00\x12G\n\x15pifs_migration_folder\x18\n \x01(\x0b2&.per_node_metadata.PifsMigrationFolderH\x00\x12C\n\x13fission_mount_point\x18\x0b \x01(\x0b2$.per_node_metadata.FissionMountPointH\x00\x12]\n!computer_backup_device_folder_mac\x18\x0c \x01(\x0b20.per_node_metadata.ComputerBackupDeviceFolderMacH\x00\x12e\n%computer_backup_device_folder_windows\x18\r \x01(\x0b24.per_node_metadata.ComputerBackupDeviceFolderWindowsH\x00\x12e\n%computer_backup_device_folder_generic\x18\x0e \x01(\x0b24.per_node_metadata.ComputerBackupDeviceFolderGenericH\x00\x12X\n\x1ecomputer_backup_desktop_folder\x18\x0f \x01(\x0b2..per_node_metadata.ComputerBackupDesktopFolderH\x00\x12\\\n computer_backup_documents_folder\x18\x10 \x01(\x0b20.per_node_metadata.ComputerBackupDocumentsFolderH\x00\x12\\\n computer_backup_downloads_folder\x18\x11 \x01(\x0b20.per_node_metadata.ComputerBackupDownloadsFolderH\x00\x12Z\n\x1fcomputer_backup_pictures_folder\x18\x12 \x01(\x0b2/.per_node_metadata.ComputerBackupPicturesFolderH\x00\x12T\n\x1ccomputer_backup_music_folder\x18\x13 \x01(\x0b2,.per_node_metadata.ComputerBackupMusicFolderH\x00\x12V\n\x1dcomputer_backup_videos_folder\x18\x14 \x01(\x0b2-.per_node_metadata.ComputerBackupVideosFolderH\x00\x12V\n\x1dcomputer_backup_custom_folder\x18\x15 \x01(\x0b2-.per_node_metadata.ComputerBackupCustomFolderH\x00\x12Y\n\x1fthird_party_fission_mount_point\x18\x16 \x01(\x0b2..per_node_metadata.ThirdPartyFissionMountPointH\x00\x127\n\x10encrypted_folder\x18\x17 \x01(\x0b2\x1b.encryption.EncryptedFolderH\x00:\x04\xb0\xb5\x18\x01B\x10\n\x08pnm_type\x12\x04\x88\xb5\x18\x01J\x04\x08\x03\x10\x04R\x0cvault_folder"]\n\nSymlinkPNM\x127\n\x08test_pnm\x18\x01 \x01(\x0b2#.per_node_metadata.TestPNMAttributeH\x00:\x04\xb0\xb5\x18\x01B\x10\n\x08pnm_type\x12\x04\x88\xb5\x18\x01"6\n\nDeviceInfo\x12\x11\n\tdevice_id\x18\x01 \x01(\t\x12\x0f\n\x07user_id\x18\x02 \x01(\x03:\x04\xb0\xb5\x18\x01"2\n\x10TestPNMAttribute\x12\x18\n\x10serialized_value\x18\x01 \x01(\x0c:\x04\xb0\xb5\x18\x01"U\n\x13DeviceFolderGeneric\x122\n\x0bdevice_info\x18\x02 \x01(\x0b2\x1d.per_node_metadata.DeviceInfo:\x04\xb0\xb5\x18\x01J\x04\x08\x01\x10\x02"\x1e\n\x10DeviceFolderLink:\x04\xb0\xb5\x18\x01J\x04\x08\x01\x10\x02"\xa6\x02\n\x0fDeviceSubFolder\x122\n\x0bdevice_info\x18\x02 \x01(\x0b2\x1d.per_node_metadata.DeviceInfo\x12H\n\x0esubfolder_type\x18\x03 \x01(\x0e20.per_node_metadata.DeviceSubFolder.SubfolderType"\x88\x01\n\rSubfolderType\x12\n\n\x06OTHERS\x10\x00\x12\x0b\n\x07DESKTOP\x10\x01\x12\r\n\tDOCUMENTS\x10\x02\x12\r\n\tDOWNLOADS\x10\x03\x12\x0c\n\x08PICTURES\x10\x04\x12\t\n\x05MUSIC\x10\x05\x12\n\n\x06VIDEOS\x10\x06\x12\n\n\x06MOVIES\x10\x07\x12\x0f\n\x0bSCREENSHOTS\x10\x08:\x04\xb0\xb5\x18\x01J\x04\x08\x01\x10\x02"Q\n\x0fDeviceFolderMac\x122\n\x0bdevice_info\x18\x02 \x01(\x0b2\x1d.per_node_metadata.DeviceInfo:\x04\xb0\xb5\x18\x01J\x04\x08\x01\x10\x02"U\n\x13DeviceFolderWindows\x122\n\x0bdevice_info\x18\x02 \x01(\x0b2\x1d.per_node_metadata.DeviceInfo:\x04\xb0\xb5\x18\x01J\x04\x08\x01\x10\x02"h\n\x12DeviceFolderNoIcon\x12\x18\n\x10serialized_value\x18\x01 \x01(\x0c\x122\n\x0bdevice_info\x18\x02 \x01(\x0b2\x1d.per_node_metadata.DeviceInfo:\x04\xb0\xb5\x18\x01"_\n\x1dComputerBackupDeviceFolderMac\x122\n\x0bdevice_info\x18\x02 \x01(\x0b2\x1d.per_node_metadata.DeviceInfo:\x04\xb0\xb5\x18\x01J\x04\x08\x01\x10\x02"c\n!ComputerBackupDeviceFolderWindows\x122\n\x0bdevice_info\x18\x02 \x01(\x0b2\x1d.per_node_metadata.DeviceInfo:\x04\xb0\xb5\x18\x01J\x04\x08\x01\x10\x02"c\n!ComputerBackupDeviceFolderGeneric\x122\n\x0bdevice_info\x18\x02 \x01(\x0b2\x1d.per_node_metadata.DeviceInfo:\x04\xb0\xb5\x18\x01J\x04\x08\x01\x10\x02"]\n\x1bComputerBackupDesktopFolder\x122\n\x0bdevice_info\x18\x02 \x01(\x0b2\x1d.per_node_metadata.DeviceInfo:\x04\xb0\xb5\x18\x01J\x04\x08\x01\x10\x02"_\n\x1dComputerBackupDocumentsFolder\x122\n\x0bdevice_info\x18\x02 \x01(\x0b2\x1d.per_node_metadata.DeviceInfo:\x04\xb0\xb5\x18\x01J\x04\x08\x01\x10\x02"_\n\x1dComputerBackupDownloadsFolder\x122\n\x0bdevice_info\x18\x02 \x01(\x0b2\x1d.per_node_metadata.DeviceInfo:\x04\xb0\xb5\x18\x01J\x04\x08\x01\x10\x02"^\n\x1cComputerBackupPicturesFolder\x122\n\x0bdevice_info\x18\x02 \x01(\x0b2\x1d.per_node_metadata.DeviceInfo:\x04\xb0\xb5\x18\x01J\x04\x08\x01\x10\x02"[\n\x19ComputerBackupMusicFolder\x122\n\x0bdevice_info\x18\x02 \x01(\x0b2\x1d.per_node_metadata.DeviceInfo:\x04\xb0\xb5\x18\x01J\x04\x08\x01\x10\x02"\\\n\x1aComputerBackupVideosFolder\x122\n\x0bdevice_info\x18\x02 \x01(\x0b2\x1d.per_node_metadata.DeviceInfo:\x04\xb0\xb5\x18\x01J\x04\x08\x01\x10\x02"\\\n\x1aComputerBackupCustomFolder\x122\n\x0bdevice_info\x18\x02 \x01(\x0b2\x1d.per_node_metadata.DeviceInfo:\x04\xb0\xb5\x18\x01J\x04\x08\x01\x10\x02"I\n\rExternalDrive\x122\n\x0bdevice_info\x18\x01 \x01(\x0b2\x1d.per_node_metadata.DeviceInfo:\x04\xb0\xb5\x18\x01"M\n\x11FissionMountPoint\x122\n\x0bdevice_info\x18\x01 \x01(\x0b2\x1d.per_node_metadata.DeviceInfo:\x04\xb0\xb5\x18\x01"#\n\x1bThirdPartyFissionMountPoint:\x04\xb0\xb5\x18\x01"\x1b\n\rPasswordsLink:\x04\xb0\xb5\x18\x01J\x04\x08\x01\x10\x02"$\n\x16PasswordsLinkPostSetup:\x04\xb0\xb5\x18\x01J\x04\x08\x01\x10\x02"\x1a\n\x12FamilySharedFolder:\x04\xb0\xb5\x18\x01"\x1b\n\x13PifsMigrationFolder:\x04\xb0\xb5\x18\x01BH\n#com.dropbox.proto.per_node_metadataP\x01Z\x1fdropbox/proto/per_node_metadatab\x06proto3')
+_globals = globals()
+_builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'dropbox.proto.per_node_metadata.attributes_pb2', _globals)
+if not _descriptor._USE_C_DESCRIPTORS:
+    _globals['DESCRIPTOR']._loaded_options = None
+    _globals['DESCRIPTOR']._serialized_options = b'\n#com.dropbox.proto.per_node_metadataP\x01Z\x1fdropbox/proto/per_node_metadata'
+    _globals['_FILEPNMLIST']._loaded_options = None
+    _globals['_FILEPNMLIST']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_DIRECTORYPNMLIST']._loaded_options = None
+    _globals['_DIRECTORYPNMLIST']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_SYMLINKPNMLIST']._loaded_options = None
+    _globals['_SYMLINKPNMLIST']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_FILEPNM'].oneofs_by_name['pnm_type']._loaded_options = None
+    _globals['_FILEPNM'].oneofs_by_name['pnm_type']._serialized_options = b'\x88\xb5\x18\x01'
+    _globals['_FILEPNM']._loaded_options = None
+    _globals['_FILEPNM']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_DIRECTORYPNM'].oneofs_by_name['pnm_type']._loaded_options = None
+    _globals['_DIRECTORYPNM'].oneofs_by_name['pnm_type']._serialized_options = b'\x88\xb5\x18\x01'
+    _globals['_DIRECTORYPNM']._loaded_options = None
+    _globals['_DIRECTORYPNM']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_SYMLINKPNM'].oneofs_by_name['pnm_type']._loaded_options = None
+    _globals['_SYMLINKPNM'].oneofs_by_name['pnm_type']._serialized_options = b'\x88\xb5\x18\x01'
+    _globals['_SYMLINKPNM']._loaded_options = None
+    _globals['_SYMLINKPNM']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_DEVICEINFO']._loaded_options = None
+    _globals['_DEVICEINFO']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_TESTPNMATTRIBUTE']._loaded_options = None
+    _globals['_TESTPNMATTRIBUTE']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_DEVICEFOLDERGENERIC']._loaded_options = None
+    _globals['_DEVICEFOLDERGENERIC']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_DEVICEFOLDERLINK']._loaded_options = None
+    _globals['_DEVICEFOLDERLINK']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_DEVICESUBFOLDER']._loaded_options = None
+    _globals['_DEVICESUBFOLDER']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_DEVICEFOLDERMAC']._loaded_options = None
+    _globals['_DEVICEFOLDERMAC']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_DEVICEFOLDERWINDOWS']._loaded_options = None
+    _globals['_DEVICEFOLDERWINDOWS']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_DEVICEFOLDERNOICON']._loaded_options = None
+    _globals['_DEVICEFOLDERNOICON']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_COMPUTERBACKUPDEVICEFOLDERMAC']._loaded_options = None
+    _globals['_COMPUTERBACKUPDEVICEFOLDERMAC']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_COMPUTERBACKUPDEVICEFOLDERWINDOWS']._loaded_options = None
+    _globals['_COMPUTERBACKUPDEVICEFOLDERWINDOWS']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_COMPUTERBACKUPDEVICEFOLDERGENERIC']._loaded_options = None
+    _globals['_COMPUTERBACKUPDEVICEFOLDERGENERIC']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_COMPUTERBACKUPDESKTOPFOLDER']._loaded_options = None
+    _globals['_COMPUTERBACKUPDESKTOPFOLDER']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_COMPUTERBACKUPDOCUMENTSFOLDER']._loaded_options = None
+    _globals['_COMPUTERBACKUPDOCUMENTSFOLDER']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_COMPUTERBACKUPDOWNLOADSFOLDER']._loaded_options = None
+    _globals['_COMPUTERBACKUPDOWNLOADSFOLDER']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_COMPUTERBACKUPPICTURESFOLDER']._loaded_options = None
+    _globals['_COMPUTERBACKUPPICTURESFOLDER']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_COMPUTERBACKUPMUSICFOLDER']._loaded_options = None
+    _globals['_COMPUTERBACKUPMUSICFOLDER']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_COMPUTERBACKUPVIDEOSFOLDER']._loaded_options = None
+    _globals['_COMPUTERBACKUPVIDEOSFOLDER']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_COMPUTERBACKUPCUSTOMFOLDER']._loaded_options = None
+    _globals['_COMPUTERBACKUPCUSTOMFOLDER']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_EXTERNALDRIVE']._loaded_options = None
+    _globals['_EXTERNALDRIVE']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_FISSIONMOUNTPOINT']._loaded_options = None
+    _globals['_FISSIONMOUNTPOINT']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_THIRDPARTYFISSIONMOUNTPOINT']._loaded_options = None
+    _globals['_THIRDPARTYFISSIONMOUNTPOINT']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_PASSWORDSLINK']._loaded_options = None
+    _globals['_PASSWORDSLINK']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_PASSWORDSLINKPOSTSETUP']._loaded_options = None
+    _globals['_PASSWORDSLINKPOSTSETUP']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_FAMILYSHAREDFOLDER']._loaded_options = None
+    _globals['_FAMILYSHAREDFOLDER']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_PIFSMIGRATIONFOLDER']._loaded_options = None
+    _globals['_PIFSMIGRATIONFOLDER']._serialized_options = b'\xb0\xb5\x18\x01'
+    _globals['_FILEPNMLIST']._serialized_start = 157
+    _globals['_FILEPNMLIST']._serialized_end = 222
+    _globals['_DIRECTORYPNMLIST']._serialized_start = 224
+    _globals['_DIRECTORYPNMLIST']._serialized_end = 298
+    _globals['_SYMLINKPNMLIST']._serialized_start = 300
+    _globals['_SYMLINKPNMLIST']._serialized_end = 374
+    _globals['_FILEPNM']._serialized_start = 377
+    _globals['_FILEPNM']._serialized_end = 745
+    _globals['_DIRECTORYPNM']._serialized_start = 748
+    _globals['_DIRECTORYPNM']._serialized_end = 2565
+    _globals['_SYMLINKPNM']._serialized_start = 2567
+    _globals['_SYMLINKPNM']._serialized_end = 2660
+    _globals['_DEVICEINFO']._serialized_start = 2662
+    _globals['_DEVICEINFO']._serialized_end = 2716
+    _globals['_TESTPNMATTRIBUTE']._serialized_start = 2718
+    _globals['_TESTPNMATTRIBUTE']._serialized_end = 2768
+    _globals['_DEVICEFOLDERGENERIC']._serialized_start = 2770
+    _globals['_DEVICEFOLDERGENERIC']._serialized_end = 2855
+    _globals['_DEVICEFOLDERLINK']._serialized_start = 2857
+    _globals['_DEVICEFOLDERLINK']._serialized_end = 2887
+    _globals['_DEVICESUBFOLDER']._serialized_start = 2890
+    _globals['_DEVICESUBFOLDER']._serialized_end = 3184
+    _globals['_DEVICESUBFOLDER_SUBFOLDERTYPE']._serialized_start = 3036
+    _globals['_DEVICESUBFOLDER_SUBFOLDERTYPE']._serialized_end = 3172
+    _globals['_DEVICEFOLDERMAC']._serialized_start = 3186
+    _globals['_DEVICEFOLDERMAC']._serialized_end = 3267
+    _globals['_DEVICEFOLDERWINDOWS']._serialized_start = 3269
+    _globals['_DEVICEFOLDERWINDOWS']._serialized_end = 3354
+    _globals['_DEVICEFOLDERNOICON']._serialized_start = 3356
+    _globals['_DEVICEFOLDERNOICON']._serialized_end = 3460
+    _globals['_COMPUTERBACKUPDEVICEFOLDERMAC']._serialized_start = 3462
+    _globals['_COMPUTERBACKUPDEVICEFOLDERMAC']._serialized_end = 3557
+    _globals['_COMPUTERBACKUPDEVICEFOLDERWINDOWS']._serialized_start = 3559
+    _globals['_COMPUTERBACKUPDEVICEFOLDERWINDOWS']._serialized_end = 3658
+    _globals['_COMPUTERBACKUPDEVICEFOLDERGENERIC']._serialized_start = 3660
+    _globals['_COMPUTERBACKUPDEVICEFOLDERGENERIC']._serialized_end = 3759
+    _globals['_COMPUTERBACKUPDESKTOPFOLDER']._serialized_start = 3761
+    _globals['_COMPUTERBACKUPDESKTOPFOLDER']._serialized_end = 3854
+    _globals['_COMPUTERBACKUPDOCUMENTSFOLDER']._serialized_start = 3856
+    _globals['_COMPUTERBACKUPDOCUMENTSFOLDER']._serialized_end = 3951
+    _globals['_COMPUTERBACKUPDOWNLOADSFOLDER']._serialized_start = 3953
+    _globals['_COMPUTERBACKUPDOWNLOADSFOLDER']._serialized_end = 4048
+    _globals['_COMPUTERBACKUPPICTURESFOLDER']._serialized_start = 4050
+    _globals['_COMPUTERBACKUPPICTURESFOLDER']._serialized_end = 4144
+    _globals['_COMPUTERBACKUPMUSICFOLDER']._serialized_start = 4146
+    _globals['_COMPUTERBACKUPMUSICFOLDER']._serialized_end = 4237
+    _globals['_COMPUTERBACKUPVIDEOSFOLDER']._serialized_start = 4239
+    _globals['_COMPUTERBACKUPVIDEOSFOLDER']._serialized_end = 4331
+    _globals['_COMPUTERBACKUPCUSTOMFOLDER']._serialized_start = 4333
+    _globals['_COMPUTERBACKUPCUSTOMFOLDER']._serialized_end = 4425
+    _globals['_EXTERNALDRIVE']._serialized_start = 4427
+    _globals['_EXTERNALDRIVE']._serialized_end = 4500
+    _globals['_FISSIONMOUNTPOINT']._serialized_start = 4502
+    _globals['_FISSIONMOUNTPOINT']._serialized_end = 4579
+    _globals['_THIRDPARTYFISSIONMOUNTPOINT']._serialized_start = 4581
+    _globals['_THIRDPARTYFISSIONMOUNTPOINT']._serialized_end = 4616
+    _globals['_PASSWORDSLINK']._serialized_start = 4618
+    _globals['_PASSWORDSLINK']._serialized_end = 4645
+    _globals['_PASSWORDSLINKPOSTSETUP']._serialized_start = 4647
+    _globals['_PASSWORDSLINKPOSTSETUP']._serialized_end = 4683
+    _globals['_FAMILYSHAREDFOLDER']._serialized_start = 4685
+    _globals['_FAMILYSHAREDFOLDER']._serialized_end = 4711
+    _globals['_PIFSMIGRATIONFOLDER']._serialized_start = 4713
+    _globals['_PIFSMIGRATIONFOLDER']._serialized_end = 4740
+    return None

@@ -1,0 +1,226 @@
+# Source Generated with Decompyle++
+# File: reactive_api_pb2.pyc (Python 3.11)
+
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import descriptor_pool as _descriptor_pool
+from google.protobuf import runtime_version as _runtime_version
+from google.protobuf import symbol_database as _symbol_database
+from google.protobuf.internal import builder as _builder
+_runtime_version.ValidateProtobufRuntimeVersion(_runtime_version.Domain.PUBLIC, 6, 33, 6, '', 'dropbox/proto/nucleus/reactive_api.proto')
+_sym_db = _symbol_database.Default()
+from dropbox.proto.rust import extensions_pb2 as dropbox_dot_proto_dot_rust_dot_extensions__pb2
+from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
+from dropbox.proto.nucleus import network_state_pb2 as dropbox_dot_proto_dot_nucleus_dot_network__state__pb2
+from dropbox.proto.nucleus import types_pb2 as dropbox_dot_proto_dot_nucleus_dot_types__pb2
+from dropbox.proto.nucleus import sync_epoch_pb2 as dropbox_dot_proto_dot_nucleus_dot_sync__epoch__pb2
+from dropbox.proto.nucleus import sync_failures_pb2 as dropbox_dot_proto_dot_nucleus_dot_sync__failures__pb2
+from dropbox.proto.nucleus import sync_engine_status_pb2 as dropbox_dot_proto_dot_nucleus_dot_sync__engine__status__pb2
+from dropbox.proto.nucleus import device_anchor_pb2 as dropbox_dot_proto_dot_nucleus_dot_device__anchor__pb2
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n(dropbox/proto/nucleus/reactive_api.proto\x12\x07nucleus\x1a#dropbox/proto/rust/extensions.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a)dropbox/proto/nucleus/network_state.proto\x1a!dropbox/proto/nucleus/types.proto\x1a&dropbox/proto/nucleus/sync_epoch.proto\x1a)dropbox/proto/nucleus/sync_failures.proto\x1a.dropbox/proto/nucleus/sync_engine_status.proto\x1a)dropbox/proto/nucleus/device_anchor.proto"\xfe\t\n\rReactiveEvent\x12\x13\n\x0bsequence_id\x18\x01 \x01(\x04\x12.\n\rsync_progress\x18\x02 \x01(\x0b2\x15.nucleus.SyncProgressH\x00\x12(\n\ndisk_space\x18\x03 \x01(\x0b2\x12.nucleus.DiskSpaceH\x00\x12<\n\x18sync_operation_completed\x18\x05 \x01(\x0b2\x18.nucleus.SyncOpCompletedH\x00\x129\n\x13sync_queue_snapshot\x18\x06 \x01(\x0b2\x1a.nucleus.SyncQueueSnapshotH\x00\x12>\n\x16sync_progress_for_file\x18\x08 \x01(\x0b2\x1c.nucleus.SyncProgressForFileH\x00\x12M\n\x1esync_progress_for_file_summary\x18\t \x01(\x0b2#.nucleus.SyncProgressForFileSummaryH\x00\x120\n\x0emerge_progress\x18\n \x01(\x0b2\x16.nucleus.MergeProgressH\x00\x12?\n\x16sync_completed_summary\x18\x0b \x01(\x0b2\x1d.nucleus.SyncCompletedSummaryH\x00\x125\n\x13remote_tree_updated\x18\x0c \x01(\x0b2\x16.google.protobuf.EmptyH\x00\x127\n\x12hidden_set_changed\x18\r \x01(\x0b2\x19.nucleus.HiddenSetChangedH\x00\x12>\n\x16sync_op_failed_summary\x18\x0e \x01(\x0b2\x1c.nucleus.SyncOpFailedSummaryH\x00\x12O\n\x1fsync_progress_for_device_anchor\x18\x0f \x01(\x0b2$.nucleus.SyncProgressForDeviceAnchorH\x00\x12^\n\'sync_progress_for_device_anchor_summary\x18\x10 \x01(\x0b2+.nucleus.SyncProgressForDeviceAnchorSummaryH\x00\x12S\n!sync_progress_for_computer_backup\x18\x11 \x01(\x0b2&.nucleus.SyncProgressForComputerBackupH\x00\x12b\n)sync_progress_for_computer_backup_summary\x18\x12 \x01(\x0b2-.nucleus.SyncProgressForComputerBackupSummaryH\x00\x12.\n\rnetwork_state\x18\x13 \x01(\x0b2\x15.nucleus.NetworkStateH\x00\x12/\n\x0emoved_to_trash\x18\x14 \x01(\x0b2\x15.nucleus.MovedToTrashH\x00\x12>\n\x16moved_to_trash_summary\x18\x15 \x01(\x0b2\x1c.nucleus.MovedToTrashSummaryH\x00\x127\n\x12sync_engine_status\x18\x16 \x01(\x0b2\x19.nucleus.SyncEngineStatusH\x00B\x0f\n\x07payload\x12\x04\x88\xb5\x18\x00"\x92\x01\n\x0fReactiveRequest\x12\'\n\x05empty\x18\x01 \x01(\x0b2\x16.google.protobuf.EmptyH\x00\x12E\n\x16sync_progress_for_file\x18\x02 \x01(\x0b2#.nucleus.SyncProgressForFileRequestH\x00B\x0f\n\x07payload\x12\x04\x88\xb5\x18\x00"\xe1\x05\n\x0fSyncingSnapshot\x12\x14\n\x0cupload_count\x18\x01 \x01(\x04\x12\x16\n\x0edownload_count\x18\x02 \x01(\x04\x12\x12\n\nhash_count\x18\x03 \x01(\x04\x12\x17\n\x0fupload_filename\x18\x04 \x01(\t\x12\x19\n\x11download_filename\x18\x05 \x01(\t\x12\x15\n\rhash_filename\x18\x0f \x01(\t\x12/\n\rsync_failures\x18\x06 \x03(\x0b2\x18.nucleus.SyncFailureType\x12\x15\n\rhash_ops_rate\x18\x07 \x01(\x01\x12\x17\n\x0fupload_ops_rate\x18\x08 \x01(\x01\x12\x19\n\x11download_ops_rate\x18\t \x01(\x01\x12\x1a\n\x12upload_bytes_count\x18\n \x01(\x04\x12\x1c\n\x14download_bytes_count\x18\x0b \x01(\x04\x12\x19\n\x11upload_bytes_rate\x18\x0c \x01(\x01\x12\x1b\n\x13download_bytes_rate\x18\r \x01(\x01\x12&\n\nsync_epoch\x18\x10 \x01(\x0b2\x12.nucleus.SyncEpoch\x12\x18\n\x10utc_current_time\x18\x11 \x01(\x04\x12\x12\n\np2p_in_use\x18\x12 \x01(\x08\x124\n\x0fprotocol_synced\x18\x13 \x01(\x0b2\x15.nucleus.SyncedCursorB\x04\xc0\xb5\x18\x01\x12\x1d\n\x15encrypted_stubs_count\x18\x14 \x01(\x04\x12\x18\n\x10sync_lag_in_secs\x18\x15 \x01(\x03\x12\x18\n\x10remote_tree_size\x18\x16 \x01(\x04\x12#\n\x1balternate_synced_name_count\x18\x17 \x01(\x04\x12\x15\n\ris_over_quota\x18\x18 \x01(\x08\x12\x1d\n\x10percent_complete\x18\x19 \x01(\x02H\x00\x88\x01\x01B\x13\n\x11_percent_completeJ\x04\x08\x0e\x10\x0f"*\n\x0cSyncedCursor\x12\x1a\n\x12synced_list_cursor\x18\x01 \x01(\x0c"\x80\x03\n\x0cSyncProgress\x12*\n\x08starting\x18\x01 \x01(\x0b2\x16.google.protobuf.EmptyH\x00\x12,\n\x08indexing\x18\x02 \x01(\x0b2\x18.nucleus.SyncingSnapshotH\x00\x12/\n\rreassociating\x18\x03 \x01(\x0b2\x16.google.protobuf.EmptyH\x00\x12(\n\x06paused\x18\x04 \x01(\x0b2\x16.google.protobuf.EmptyH\x00\x12+\n\x07syncing\x18\x05 \x01(\x0b2\x18.nucleus.SyncingSnapshotH\x00\x12\'\n\x06synced\x18\x06 \x01(\x0b2\x15.nucleus.SyncedCursorH\x00\x12+\n\tmigrating\x18\x07 \x01(\x0b2\x16.google.protobuf.EmptyH\x00\x12)\n\x07listing\x18\t \x01(\x0b2\x16.google.protobuf.EmptyH\x00B\r\n\x05phase\x12\x04\x88\xb5\x18\x00"\x8e\x01\n\tDiskSpace\x12-\n\x06status\x18\x01 \x01(\x0e2\x1d.nucleus.DiskSpace.SyncStatus"R\n\nSyncStatus\x12\x16\n\x12UNKNOWN_DISK_SPACE\x10\x00\x12\n\n\x06NORMAL\x10\x01\x12\x1a\n\x16SYNC_BLOCKED_LOW_SPACE\x10\x02\x1a\x04\x90\xb5\x18\x01"\x80\x07\n\nSyncedFile\x121\n\toperation\x18\x01 \x01(\x0b2\x18.nucleus.SyncedFile.TypeB\x04\xc0\xb5\x18\x00\x12)\n\x06object\x18\x02 \x01(\x0b2\x13.nucleus.SyncObjectB\x04\xc0\xb5\x18\x00\x122\n\x10revision_details\x18\x03 \x01(\x0b2\x18.nucleus.RevisionDetails\x12\x1c\n\x14task_duration_millis\x18\x04 \x01(\x04\x1a\xaa\x01\n\x11ReconstructMoveOp\x12-\n\x0esrc_dir_fileid\x18\x01 \x01(\x0b2\x0f.nucleus.FileIdB\x04\xc0\xb5\x18\x00\x127\n\x12src_rr_server_path\x18\x02 \x01(\x0b2\x15.nucleus.RRServerPathB\x04\xc0\xb5\x18\x00\x12-\n\x0edst_dir_fileid\x18\x03 \x01(\x0b2\x0f.nucleus.FileIdB\x04\xc0\xb5\x18\x00\x1a\x94\x04\n\x04Type\x12,\n\ncommit_add\x18\x01 \x01(\x0b2\x16.google.protobuf.EmptyH\x00\x12-\n\x0bcommit_edit\x18\x02 \x01(\x0b2\x16.google.protobuf.EmptyH\x00\x12/\n\rcommit_delete\x18\x03 \x01(\x0b2\x16.google.protobuf.EmptyH\x00\x12-\n\x0bcommit_move\x18\t \x01(\x0b2\x16.google.protobuf.EmptyH\x00\x12&\n\x04hide\x18\x04 \x01(\x0b2\x16.google.protobuf.EmptyH\x00\x121\n\x0freconstruct_add\x18\x05 \x01(\x0b2\x16.google.protobuf.EmptyH\x00\x122\n\x10reconstruct_edit\x18\x06 \x01(\x0b2\x16.google.protobuf.EmptyH\x00\x124\n\x12reconstruct_delete\x18\x07 \x01(\x0b2\x16.google.protobuf.EmptyH\x00\x124\n\x12reconstruct_recall\x18\x08 \x01(\x0b2\x16.google.protobuf.EmptyH\x00\x12A\n\x10reconstruct_move\x18\n \x01(\x0b2%.nucleus.SyncedFile.ReconstructMoveOpH\x00B\x11\n\toperation\x12\x04\x88\xb5\x18\x00"\x85\x01\n\x11SyncedUserSummary\x12\x0f\n\x07user_id\x18\x01 \x01(\x03\x12\x11\n\tnum_files\x18\x02 \x01(\x04\x12\x17\n\x0fnum_files_added\x18\x03 \x01(\x04\x12\x19\n\x11num_files_deleted\x18\x04 \x01(\x04\x12\x18\n\x10num_files_edited\x18\x05 \x01(\x04"q\n\rSyncedSummary\x125\n\x11user_summary_list\x18\x01 \x03(\x0b2\x1a.nucleus.SyncedUserSummary\x12)\n\x0crecent_files\x18\x02 \x03(\x0b2\x13.nucleus.SyncedFile"\x7f\n\x0fSyncOpCompleted\x12*\n\x0bsynced_file\x18\x01 \x01(\x0b2\x13.nucleus.SyncedFileH\x00\x120\n\x0esynced_summary\x18\x02 \x01(\x0b2\x16.nucleus.SyncedSummaryH\x00B\x0e\n\x06entity\x12\x04\x88\xb5\x18\x00"l\n\x14SyncCompletedSummary\x124\n\x17recent_sync_completions\x18\x01 \x03(\x0b2\x13.nucleus.SyncedFile\x12\x1e\n\x16total_sync_completions\x18\x02 \x01(\x04"\x9e\x01\n\nUserAction\x12*\n\x06action\x18\x01 \x01(\x0e2\x1a.nucleus.UserAction.Action"d\n\x06Action\x12\x17\n\x13UNKNOWN_USER_ACTION\x10\x00\x12\x0c\n\x08USER_ADD\x10\x01\x12\r\n\tUSER_EDIT\x10\x02\x12\x0f\n\x0bUSER_DELETE\x10\x03\x12\r\n\tUSER_MOVE\x10\x04\x1a\x04\x90\xb5\x18\x01"\x88\x01\n\x0cEngineAction\x12,\n\x06action\x18\x01 \x01(\x0e2\x1c.nucleus.EngineAction.Action"J\n\x06Action\x12\x19\n\x15UNKNOWN_ENGINE_ACTION\x10\x00\x12\t\n\x05FIXUP\x10\x01\x12\x14\n\x10ENGINE_OPERATION\x10\x02\x1a\x04\x90\xb5\x18\x01"\xe5\x01\n\x11SyncQueueDownload\x12*\n\x0breconstruct\x18\x01 \x01(\x0b2\x13.nucleus.UserActionH\x00\x12.\n\x0cengine_fixup\x18\x02 \x01(\x0b2\x16.google.protobuf.EmptyH\x00\x122\n\x10smartsync_recall\x18\x03 \x01(\x0b2\x16.google.protobuf.EmptyH\x00\x122\n\x10revision_details\x18\x04 \x01(\x0b2\x18.nucleus.RevisionDetailsB\x0c\n\x04type\x12\x04\x88\xb5\x18\x00"F\n\x0fSyncQueueUpload\x12%\n\x06commit\x18\x01 \x01(\x0b2\x13.nucleus.UserActionH\x00B\x0c\n\x04type\x12\x04\x88\xb5\x18\x00"\x83\x01\n\x10SyncQueueProcess\x12.\n\rengine_action\x18\x01 \x01(\x0b2\x15.nucleus.EngineActionH\x00\x121\n\x0fsmartsync_evict\x18\x02 \x01(\x0b2\x16.google.protobuf.EmptyH\x00B\x0c\n\x04type\x12\x04\x88\xb5\x18\x00"\xf6\x01\n\x0cSyncQueueJob\x12%\n\x06fileid\x18\x01 \x01(\x0b2\x0f.nucleus.FileIdB\x04\xc0\xb5\x18\x00\x12*\n\x06upload\x18\x02 \x01(\x0b2\x18.nucleus.SyncQueueUploadH\x00\x12.\n\x08download\x18\x03 \x01(\x0b2\x1a.nucleus.SyncQueueDownloadH\x00\x12,\n\x07process\x18\x04 \x01(\x0b2\x19.nucleus.SyncQueueProcessH\x00\x12\'\n\x08priority\x18\x05 \x01(\x0e2\x15.nucleus.SyncPriorityB\x0c\n\x04type\x12\x04\x88\xb5\x18\x00"O\n\x14FileProgressSnapshot\x12%\n\x06fileid\x18\x01 \x01(\x0b2\x0f.nucleus.FileIdB\x04\xc0\xb5\x18\x00\x12\x10\n\x08progress\x18\x02 \x01(\x04"\x94\x01\n\x11SyncQueueSnapshot\x12\x13\n\x0bqueue_count\x18\x01 \x01(\x04\x12/\n\x10sample_top_items\x18\x02 \x03(\x0b2\x15.nucleus.SyncQueueJob\x129\n\x12progress_snapshots\x18\x03 \x03(\x0b2\x1d.nucleus.FileProgressSnapshot"C\n\x1aSyncProgressForFileRequest\x12%\n\x06fileid\x18\x01 \x01(\x0b2\x0f.nucleus.FileIdB\x04\xc0\xb5\x18\x00"M\n\x1dSyncProgressForFileActiveInfo\x12\x17\n\x0fcompleted_bytes\x18\x01 \x01(\x04\x12\x13\n\x0btotal_bytes\x18\x02 \x01(\x04"\xa9\x04\n\x13SyncProgressForFile\x12%\n\x06fileid\x18\x01 \x01(\x0b2\x0f.nucleus.FileIdB\x04\xc0\xb5\x18\x00\x12:\n\x05start\x18\x02 \x01(\x0b2).nucleus.SyncProgressForFile.InitialStateH\x00\x12:\n\x06active\x18\x03 \x01(\x0b2(.nucleus.SyncProgressForFile.ActiveStateH\x00\x128\n\x05final\x18\x04 \x01(\x0b2\'.nucleus.SyncProgressForFile.FinalStateH\x00\x1a\xa4\x01\n\nFinalState\x12&\n\x04done\x18\x01 \x01(\x0b2\x16.google.protobuf.EmptyH\x00\x122\n\x10fileid_not_found\x18\x02 \x01(\x0b2\x16.google.protobuf.EmptyH\x00\x12+\n\tcancelled\x18\x03 \x01(\x0b2\x16.google.protobuf.EmptyH\x00B\r\n\x05final\x12\x04\x88\xb5\x18\x00\x1as\n\x0bActiveState\x12\x10\n\x08progress\x18\x01 \x01(\x04\x12D\n\x12upload_or_download\x18\x02 \x01(\x0b2&.nucleus.SyncProgressForFileActiveInfoH\x00B\x0c\n\x04type\x12\x04\x88\xb5\x18\x00\x1a\x0e\n\x0cInitialStateB\r\n\x05state\x12\x04\x88\xb5\x18\x00"\xd0\x01\n\x1aSyncProgressForFileSummary\x12[\n\x12fileid_to_progress\x18\x01 \x03(\x0b29.nucleus.SyncProgressForFileSummary.FileidToProgressEntryB\x04\xc0\xb5\x18\x00\x1aU\n\x15FileidToProgressEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12+\n\x05value\x18\x02 \x01(\x0b2\x1c.nucleus.SyncProgressForFile:\x028\x01"n\n\rMergeProgress\x12%\n\x06fileid\x18\x01 \x01(\x0b2\x0f.nucleus.FileIdB\x04\xc0\xb5\x18\x01\x12\x18\n\x10total_file_count\x18\x02 \x01(\x04\x12\x1c\n\x14completed_file_count\x18\x03 \x01(\x04"#\n\x10HiddenSetChanged\x12\x0f\n\x07changed\x18\x01 \x01(\x08"\xbe\x02\n\x0cSyncOpFailed\x125\n\toperation\x18\x01 \x01(\x0e2\x1c.nucleus.SyncOpFailed.OpTypeB\x04\xc0\xb5\x18\x00\x124\n\x0csync_failure\x18\x02 \x01(\x0b2\x18.nucleus.SyncFailureTypeB\x04\xc0\xb5\x18\x00\x128\n\tdirection\x18\x03 \x01(\x0e2\x1f.nucleus.SyncOpFailed.DirectionB\x04\xc0\xb5\x18\x00"[\n\x06OpType\x12\x07\n\x03ADD\x10\x00\x12\x08\n\x04EDIT\x10\x01\x12\n\n\x06DELETE\x10\x03\x12\x08\n\x04MOVE\x10\x04\x12\x08\n\x04HIDE\x10\x05\x12\x08\n\x04HASH\x10\x06\x12\n\n\x06RECALL\x10\x07\x12\x08\n\x04LIST\x10\x08"*\n\tDirection\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x06\n\x02UP\x10\x01\x12\x08\n\x04DOWN\x10\x02"E\n\x13SyncOpFailedSummary\x12.\n\x0fsync_op_faileds\x18\x01 \x03(\x0b2\x15.nucleus.SyncOpFailed"\xa0\x04\n\x1bSyncProgressForDeviceAnchor\x12%\n\x06fileid\x18\x01 \x01(\x0b2\x0f.nucleus.FileIdB\x04\xc0\xb5\x18\x00\x12G\n\x07syncing\x18\x02 \x01(\x0b24.nucleus.SyncProgressForDeviceAnchor.ActiveSyncStateH\x00\x12L\n\x08indexing\x18\x03 \x01(\x0b28.nucleus.SyncProgressForDeviceAnchor.ActiveIndexingStateH\x00\x12>\n\x04done\x18\x04 \x01(\x0b2..nucleus.SyncProgressForDeviceAnchor.DoneStateH\x00\x12=\n\x13device_anchor_state\x18\x05 \x01(\x0e2\x1a.nucleus.DeviceAnchorStateB\x04\xc0\xb5\x18\x00\x1a\x0b\n\tDoneState\x1aQ\n\x0fActiveSyncState\x12\x10\n\x08progress\x18\x01 \x01(\x04\x12\x13\n\x0btotal_bytes\x18\x02 \x01(\x04\x12\x17\n\x0fcompleted_bytes\x18\x03 \x01(\x04\x1aU\n\x13ActiveIndexingState\x12\x10\n\x08progress\x18\x01 \x01(\x04\x12\x13\n\x0btotal_bytes\x18\x02 \x01(\x04\x12\x17\n\x0fcompleted_bytes\x18\x03 \x01(\x04B\r\n\x05state\x12\x04\x88\xb5\x18\x00"\xe8\x01\n"SyncProgressForDeviceAnchorSummary\x12c\n\x12progress_by_fileid\x18\x01 \x03(\x0b2A.nucleus.SyncProgressForDeviceAnchorSummary.ProgressByFileidEntryB\x04\xc0\xb5\x18\x00\x1a]\n\x15ProgressByFileidEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x123\n\x05value\x18\x02 \x01(\x0b2$.nucleus.SyncProgressForDeviceAnchor:\x028\x01"\xe9\x03\n\x1dSyncProgressForComputerBackup\x12%\n\x06fileid\x18\x01 \x01(\x0b2\x0f.nucleus.FileIdB\x04\xc0\xb5\x18\x00\x12I\n\x07syncing\x18\x02 \x01(\x0b26.nucleus.SyncProgressForComputerBackup.ActiveSyncStateH\x00\x12N\n\x08indexing\x18\x03 \x01(\x0b2:.nucleus.SyncProgressForComputerBackup.ActiveIndexingStateH\x00\x12@\n\x04done\x18\x04 \x01(\x0b20.nucleus.SyncProgressForComputerBackup.DoneStateH\x00\x1a\x0b\n\tDoneState\x1aQ\n\x0fActiveSyncState\x12\x10\n\x08progress\x18\x01 \x01(\x04\x12\x13\n\x0btotal_bytes\x18\x02 \x01(\x04\x12\x17\n\x0fcompleted_bytes\x18\x03 \x01(\x04\x1aU\n\x13ActiveIndexingState\x12\x10\n\x08progress\x18\x01 \x01(\x04\x12\x13\n\x0btotal_bytes\x18\x02 \x01(\x04\x12\x17\n\x0fcompleted_bytes\x18\x03 \x01(\x04B\r\n\x05state\x12\x04\x88\xb5\x18\x00"\xee\x01\n$SyncProgressForComputerBackupSummary\x12e\n\x12progress_by_fileid\x18\x01 \x03(\x0b2C.nucleus.SyncProgressForComputerBackupSummary.ProgressByFileidEntryB\x04\xc0\xb5\x18\x00\x1a_\n\x15ProgressByFileidEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x125\n\x05value\x18\x02 \x01(\x0b2&.nucleus.SyncProgressForComputerBackup:\x028\x01"\xce\x01\n\x0cMovedToTrash\x12\x19\n\x0bfolder_path\x18\x01 \x01(\tB\x04\xc0\xb5\x18\x00\x12\x17\n\tnum_files\x18\x02 \x01(\rB\x04\xc0\xb5\x18\x00\x12!\n\x17first_trashed_file_path\x18\x03 \x01(\tH\x00\x12\x18\n\nnew_delete\x18\x04 \x01(\x08B\x04\xc0\xb5\x18\x00\x12+\n\x1ddelete_with_unknown_timestamp\x18\x05 \x01(\x08B\x04\xc0\xb5\x18\x00B \n\x18trashed_file_path_option\x12\x04\x88\xb5\x18\x01"\xbe\x01\n\x13MovedToTrashSummary\x123\n\x0emoved_to_trash\x18\x01 \x03(\x0b2\x15.nucleus.MovedToTrashB\x04\xc0\xb5\x18\x00\x12<\n\x17moved_to_trash_existing\x18\x02 \x03(\x0b2\x15.nucleus.MovedToTrashB\x04\xc0\xb5\x18\x00\x124\n&contains_delete_with_unknown_timestamp\x18\x03 \x01(\x08B\x04\xc0\xb5\x18\x00B\x0c\xa2\x02\tNucleusSEb\x06proto3')
+_globals = globals()
+_builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'dropbox.proto.nucleus.reactive_api_pb2', _globals)
+if not _descriptor._USE_C_DESCRIPTORS:
+    _globals['DESCRIPTOR']._loaded_options = None
+    _globals['DESCRIPTOR']._serialized_options = b'\xa2\x02\tNucleusSE'
+    _globals['_REACTIVEEVENT'].oneofs_by_name['payload']._loaded_options = None
+    _globals['_REACTIVEEVENT'].oneofs_by_name['payload']._serialized_options = b'\x88\xb5\x18\x00'
+    _globals['_REACTIVEREQUEST'].oneofs_by_name['payload']._loaded_options = None
+    _globals['_REACTIVEREQUEST'].oneofs_by_name['payload']._serialized_options = b'\x88\xb5\x18\x00'
+    _globals['_SYNCINGSNAPSHOT'].fields_by_name['protocol_synced']._loaded_options = None
+    _globals['_SYNCINGSNAPSHOT'].fields_by_name['protocol_synced']._serialized_options = b'\xc0\xb5\x18\x01'
+    _globals['_SYNCPROGRESS'].oneofs_by_name['phase']._loaded_options = None
+    _globals['_SYNCPROGRESS'].oneofs_by_name['phase']._serialized_options = b'\x88\xb5\x18\x00'
+    _globals['_DISKSPACE_SYNCSTATUS']._loaded_options = None
+    _globals['_DISKSPACE_SYNCSTATUS']._serialized_options = b'\x90\xb5\x18\x01'
+    _globals['_SYNCEDFILE_RECONSTRUCTMOVEOP'].fields_by_name['src_dir_fileid']._loaded_options = None
+    _globals['_SYNCEDFILE_RECONSTRUCTMOVEOP'].fields_by_name['src_dir_fileid']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_SYNCEDFILE_RECONSTRUCTMOVEOP'].fields_by_name['src_rr_server_path']._loaded_options = None
+    _globals['_SYNCEDFILE_RECONSTRUCTMOVEOP'].fields_by_name['src_rr_server_path']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_SYNCEDFILE_RECONSTRUCTMOVEOP'].fields_by_name['dst_dir_fileid']._loaded_options = None
+    _globals['_SYNCEDFILE_RECONSTRUCTMOVEOP'].fields_by_name['dst_dir_fileid']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_SYNCEDFILE_TYPE'].oneofs_by_name['operation']._loaded_options = None
+    _globals['_SYNCEDFILE_TYPE'].oneofs_by_name['operation']._serialized_options = b'\x88\xb5\x18\x00'
+    _globals['_SYNCEDFILE'].fields_by_name['operation']._loaded_options = None
+    _globals['_SYNCEDFILE'].fields_by_name['operation']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_SYNCEDFILE'].fields_by_name['object']._loaded_options = None
+    _globals['_SYNCEDFILE'].fields_by_name['object']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_SYNCOPCOMPLETED'].oneofs_by_name['entity']._loaded_options = None
+    _globals['_SYNCOPCOMPLETED'].oneofs_by_name['entity']._serialized_options = b'\x88\xb5\x18\x00'
+    _globals['_USERACTION_ACTION']._loaded_options = None
+    _globals['_USERACTION_ACTION']._serialized_options = b'\x90\xb5\x18\x01'
+    _globals['_ENGINEACTION_ACTION']._loaded_options = None
+    _globals['_ENGINEACTION_ACTION']._serialized_options = b'\x90\xb5\x18\x01'
+    _globals['_SYNCQUEUEDOWNLOAD'].oneofs_by_name['type']._loaded_options = None
+    _globals['_SYNCQUEUEDOWNLOAD'].oneofs_by_name['type']._serialized_options = b'\x88\xb5\x18\x00'
+    _globals['_SYNCQUEUEUPLOAD'].oneofs_by_name['type']._loaded_options = None
+    _globals['_SYNCQUEUEUPLOAD'].oneofs_by_name['type']._serialized_options = b'\x88\xb5\x18\x00'
+    _globals['_SYNCQUEUEPROCESS'].oneofs_by_name['type']._loaded_options = None
+    _globals['_SYNCQUEUEPROCESS'].oneofs_by_name['type']._serialized_options = b'\x88\xb5\x18\x00'
+    _globals['_SYNCQUEUEJOB'].oneofs_by_name['type']._loaded_options = None
+    _globals['_SYNCQUEUEJOB'].oneofs_by_name['type']._serialized_options = b'\x88\xb5\x18\x00'
+    _globals['_SYNCQUEUEJOB'].fields_by_name['fileid']._loaded_options = None
+    _globals['_SYNCQUEUEJOB'].fields_by_name['fileid']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_FILEPROGRESSSNAPSHOT'].fields_by_name['fileid']._loaded_options = None
+    _globals['_FILEPROGRESSSNAPSHOT'].fields_by_name['fileid']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_SYNCPROGRESSFORFILEREQUEST'].fields_by_name['fileid']._loaded_options = None
+    _globals['_SYNCPROGRESSFORFILEREQUEST'].fields_by_name['fileid']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_SYNCPROGRESSFORFILE_FINALSTATE'].oneofs_by_name['final']._loaded_options = None
+    _globals['_SYNCPROGRESSFORFILE_FINALSTATE'].oneofs_by_name['final']._serialized_options = b'\x88\xb5\x18\x00'
+    _globals['_SYNCPROGRESSFORFILE_ACTIVESTATE'].oneofs_by_name['type']._loaded_options = None
+    _globals['_SYNCPROGRESSFORFILE_ACTIVESTATE'].oneofs_by_name['type']._serialized_options = b'\x88\xb5\x18\x00'
+    _globals['_SYNCPROGRESSFORFILE'].oneofs_by_name['state']._loaded_options = None
+    _globals['_SYNCPROGRESSFORFILE'].oneofs_by_name['state']._serialized_options = b'\x88\xb5\x18\x00'
+    _globals['_SYNCPROGRESSFORFILE'].fields_by_name['fileid']._loaded_options = None
+    _globals['_SYNCPROGRESSFORFILE'].fields_by_name['fileid']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_SYNCPROGRESSFORFILESUMMARY_FILEIDTOPROGRESSENTRY']._loaded_options = None
+    _globals['_SYNCPROGRESSFORFILESUMMARY_FILEIDTOPROGRESSENTRY']._serialized_options = b'8\x01'
+    _globals['_SYNCPROGRESSFORFILESUMMARY'].fields_by_name['fileid_to_progress']._loaded_options = None
+    _globals['_SYNCPROGRESSFORFILESUMMARY'].fields_by_name['fileid_to_progress']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_MERGEPROGRESS'].fields_by_name['fileid']._loaded_options = None
+    _globals['_MERGEPROGRESS'].fields_by_name['fileid']._serialized_options = b'\xc0\xb5\x18\x01'
+    _globals['_SYNCOPFAILED'].fields_by_name['operation']._loaded_options = None
+    _globals['_SYNCOPFAILED'].fields_by_name['operation']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_SYNCOPFAILED'].fields_by_name['sync_failure']._loaded_options = None
+    _globals['_SYNCOPFAILED'].fields_by_name['sync_failure']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_SYNCOPFAILED'].fields_by_name['direction']._loaded_options = None
+    _globals['_SYNCOPFAILED'].fields_by_name['direction']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_SYNCPROGRESSFORDEVICEANCHOR'].oneofs_by_name['state']._loaded_options = None
+    _globals['_SYNCPROGRESSFORDEVICEANCHOR'].oneofs_by_name['state']._serialized_options = b'\x88\xb5\x18\x00'
+    _globals['_SYNCPROGRESSFORDEVICEANCHOR'].fields_by_name['fileid']._loaded_options = None
+    _globals['_SYNCPROGRESSFORDEVICEANCHOR'].fields_by_name['fileid']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_SYNCPROGRESSFORDEVICEANCHOR'].fields_by_name['device_anchor_state']._loaded_options = None
+    _globals['_SYNCPROGRESSFORDEVICEANCHOR'].fields_by_name['device_anchor_state']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_SYNCPROGRESSFORDEVICEANCHORSUMMARY_PROGRESSBYFILEIDENTRY']._loaded_options = None
+    _globals['_SYNCPROGRESSFORDEVICEANCHORSUMMARY_PROGRESSBYFILEIDENTRY']._serialized_options = b'8\x01'
+    _globals['_SYNCPROGRESSFORDEVICEANCHORSUMMARY'].fields_by_name['progress_by_fileid']._loaded_options = None
+    _globals['_SYNCPROGRESSFORDEVICEANCHORSUMMARY'].fields_by_name['progress_by_fileid']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_SYNCPROGRESSFORCOMPUTERBACKUP'].oneofs_by_name['state']._loaded_options = None
+    _globals['_SYNCPROGRESSFORCOMPUTERBACKUP'].oneofs_by_name['state']._serialized_options = b'\x88\xb5\x18\x00'
+    _globals['_SYNCPROGRESSFORCOMPUTERBACKUP'].fields_by_name['fileid']._loaded_options = None
+    _globals['_SYNCPROGRESSFORCOMPUTERBACKUP'].fields_by_name['fileid']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_SYNCPROGRESSFORCOMPUTERBACKUPSUMMARY_PROGRESSBYFILEIDENTRY']._loaded_options = None
+    _globals['_SYNCPROGRESSFORCOMPUTERBACKUPSUMMARY_PROGRESSBYFILEIDENTRY']._serialized_options = b'8\x01'
+    _globals['_SYNCPROGRESSFORCOMPUTERBACKUPSUMMARY'].fields_by_name['progress_by_fileid']._loaded_options = None
+    _globals['_SYNCPROGRESSFORCOMPUTERBACKUPSUMMARY'].fields_by_name['progress_by_fileid']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_MOVEDTOTRASH'].oneofs_by_name['trashed_file_path_option']._loaded_options = None
+    _globals['_MOVEDTOTRASH'].oneofs_by_name['trashed_file_path_option']._serialized_options = b'\x88\xb5\x18\x01'
+    _globals['_MOVEDTOTRASH'].fields_by_name['folder_path']._loaded_options = None
+    _globals['_MOVEDTOTRASH'].fields_by_name['folder_path']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_MOVEDTOTRASH'].fields_by_name['num_files']._loaded_options = None
+    _globals['_MOVEDTOTRASH'].fields_by_name['num_files']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_MOVEDTOTRASH'].fields_by_name['new_delete']._loaded_options = None
+    _globals['_MOVEDTOTRASH'].fields_by_name['new_delete']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_MOVEDTOTRASH'].fields_by_name['delete_with_unknown_timestamp']._loaded_options = None
+    _globals['_MOVEDTOTRASH'].fields_by_name['delete_with_unknown_timestamp']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_MOVEDTOTRASHSUMMARY'].fields_by_name['moved_to_trash']._loaded_options = None
+    _globals['_MOVEDTOTRASHSUMMARY'].fields_by_name['moved_to_trash']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_MOVEDTOTRASHSUMMARY'].fields_by_name['moved_to_trash_existing']._loaded_options = None
+    _globals['_MOVEDTOTRASHSUMMARY'].fields_by_name['moved_to_trash_existing']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_MOVEDTOTRASHSUMMARY'].fields_by_name['contains_delete_with_unknown_timestamp']._loaded_options = None
+    _globals['_MOVEDTOTRASHSUMMARY'].fields_by_name['contains_delete_with_unknown_timestamp']._serialized_options = b'\xc0\xb5\x18\x00'
+    _globals['_REACTIVEEVENT']._serialized_start = 372
+    _globals['_REACTIVEEVENT']._serialized_end = 1650
+    _globals['_REACTIVEREQUEST']._serialized_start = 1653
+    _globals['_REACTIVEREQUEST']._serialized_end = 1799
+    _globals['_SYNCINGSNAPSHOT']._serialized_start = 1802
+    _globals['_SYNCINGSNAPSHOT']._serialized_end = 2539
+    _globals['_SYNCEDCURSOR']._serialized_start = 2541
+    _globals['_SYNCEDCURSOR']._serialized_end = 2583
+    _globals['_SYNCPROGRESS']._serialized_start = 2586
+    _globals['_SYNCPROGRESS']._serialized_end = 2970
+    _globals['_DISKSPACE']._serialized_start = 2973
+    _globals['_DISKSPACE']._serialized_end = 3115
+    _globals['_DISKSPACE_SYNCSTATUS']._serialized_start = 3033
+    _globals['_DISKSPACE_SYNCSTATUS']._serialized_end = 3115
+    _globals['_SYNCEDFILE']._serialized_start = 3118
+    _globals['_SYNCEDFILE']._serialized_end = 4014
+    _globals['_SYNCEDFILE_RECONSTRUCTMOVEOP']._serialized_start = 3309
+    _globals['_SYNCEDFILE_RECONSTRUCTMOVEOP']._serialized_end = 3479
+    _globals['_SYNCEDFILE_TYPE']._serialized_start = 3482
+    _globals['_SYNCEDFILE_TYPE']._serialized_end = 4014
+    _globals['_SYNCEDUSERSUMMARY']._serialized_start = 4017
+    _globals['_SYNCEDUSERSUMMARY']._serialized_end = 4150
+    _globals['_SYNCEDSUMMARY']._serialized_start = 4152
+    _globals['_SYNCEDSUMMARY']._serialized_end = 4265
+    _globals['_SYNCOPCOMPLETED']._serialized_start = 4267
+    _globals['_SYNCOPCOMPLETED']._serialized_end = 4394
+    _globals['_SYNCCOMPLETEDSUMMARY']._serialized_start = 4396
+    _globals['_SYNCCOMPLETEDSUMMARY']._serialized_end = 4504
+    _globals['_USERACTION']._serialized_start = 4507
+    _globals['_USERACTION']._serialized_end = 4665
+    _globals['_USERACTION_ACTION']._serialized_start = 4565
+    _globals['_USERACTION_ACTION']._serialized_end = 4665
+    _globals['_ENGINEACTION']._serialized_start = 4668
+    _globals['_ENGINEACTION']._serialized_end = 4804
+    _globals['_ENGINEACTION_ACTION']._serialized_start = 4730
+    _globals['_ENGINEACTION_ACTION']._serialized_end = 4804
+    _globals['_SYNCQUEUEDOWNLOAD']._serialized_start = 4807
+    _globals['_SYNCQUEUEDOWNLOAD']._serialized_end = 5036
+    _globals['_SYNCQUEUEUPLOAD']._serialized_start = 5038
+    _globals['_SYNCQUEUEUPLOAD']._serialized_end = 5108
+    _globals['_SYNCQUEUEPROCESS']._serialized_start = 5111
+    _globals['_SYNCQUEUEPROCESS']._serialized_end = 5242
+    _globals['_SYNCQUEUEJOB']._serialized_start = 5245
+    _globals['_SYNCQUEUEJOB']._serialized_end = 5491
+    _globals['_FILEPROGRESSSNAPSHOT']._serialized_start = 5493
+    _globals['_FILEPROGRESSSNAPSHOT']._serialized_end = 5572
+    _globals['_SYNCQUEUESNAPSHOT']._serialized_start = 5575
+    _globals['_SYNCQUEUESNAPSHOT']._serialized_end = 5723
+    _globals['_SYNCPROGRESSFORFILEREQUEST']._serialized_start = 5725
+    _globals['_SYNCPROGRESSFORFILEREQUEST']._serialized_end = 5792
+    _globals['_SYNCPROGRESSFORFILEACTIVEINFO']._serialized_start = 5794
+    _globals['_SYNCPROGRESSFORFILEACTIVEINFO']._serialized_end = 5871
+    _globals['_SYNCPROGRESSFORFILE']._serialized_start = 5874
+    _globals['_SYNCPROGRESSFORFILE']._serialized_end = 6427
+    _globals['_SYNCPROGRESSFORFILE_FINALSTATE']._serialized_start = 6115
+    _globals['_SYNCPROGRESSFORFILE_FINALSTATE']._serialized_end = 6279
+    _globals['_SYNCPROGRESSFORFILE_ACTIVESTATE']._serialized_start = 6281
+    _globals['_SYNCPROGRESSFORFILE_ACTIVESTATE']._serialized_end = 6396
+    _globals['_SYNCPROGRESSFORFILE_INITIALSTATE']._serialized_start = 6398
+    _globals['_SYNCPROGRESSFORFILE_INITIALSTATE']._serialized_end = 6412
+    _globals['_SYNCPROGRESSFORFILESUMMARY']._serialized_start = 6430
+    _globals['_SYNCPROGRESSFORFILESUMMARY']._serialized_end = 6638
+    _globals['_SYNCPROGRESSFORFILESUMMARY_FILEIDTOPROGRESSENTRY']._serialized_start = 6553
+    _globals['_SYNCPROGRESSFORFILESUMMARY_FILEIDTOPROGRESSENTRY']._serialized_end = 6638
+    _globals['_MERGEPROGRESS']._serialized_start = 6640
+    _globals['_MERGEPROGRESS']._serialized_end = 6750
+    _globals['_HIDDENSETCHANGED']._serialized_start = 6752
+    _globals['_HIDDENSETCHANGED']._serialized_end = 6787
+    _globals['_SYNCOPFAILED']._serialized_start = 6790
+    _globals['_SYNCOPFAILED']._serialized_end = 7108
+    _globals['_SYNCOPFAILED_OPTYPE']._serialized_start = 6973
+    _globals['_SYNCOPFAILED_OPTYPE']._serialized_end = 7064
+    _globals['_SYNCOPFAILED_DIRECTION']._serialized_start = 7066
+    _globals['_SYNCOPFAILED_DIRECTION']._serialized_end = 7108
+    _globals['_SYNCOPFAILEDSUMMARY']._serialized_start = 7110
+    _globals['_SYNCOPFAILEDSUMMARY']._serialized_end = 7179
+    _globals['_SYNCPROGRESSFORDEVICEANCHOR']._serialized_start = 7182
+    _globals['_SYNCPROGRESSFORDEVICEANCHOR']._serialized_end = 7726
+    _globals['_SYNCPROGRESSFORDEVICEANCHOR_DONESTATE']._serialized_start = 7530
+    _globals['_SYNCPROGRESSFORDEVICEANCHOR_DONESTATE']._serialized_end = 7541
+    _globals['_SYNCPROGRESSFORDEVICEANCHOR_ACTIVESYNCSTATE']._serialized_start = 7543
+    _globals['_SYNCPROGRESSFORDEVICEANCHOR_ACTIVESYNCSTATE']._serialized_end = 7624
+    _globals['_SYNCPROGRESSFORDEVICEANCHOR_ACTIVEINDEXINGSTATE']._serialized_start = 7626
+    _globals['_SYNCPROGRESSFORDEVICEANCHOR_ACTIVEINDEXINGSTATE']._serialized_end = 7711
+    _globals['_SYNCPROGRESSFORDEVICEANCHORSUMMARY']._serialized_start = 7729
+    _globals['_SYNCPROGRESSFORDEVICEANCHORSUMMARY']._serialized_end = 7961
+    _globals['_SYNCPROGRESSFORDEVICEANCHORSUMMARY_PROGRESSBYFILEIDENTRY']._serialized_start = 7868
+    _globals['_SYNCPROGRESSFORDEVICEANCHORSUMMARY_PROGRESSBYFILEIDENTRY']._serialized_end = 7961
+    _globals['_SYNCPROGRESSFORCOMPUTERBACKUP']._serialized_start = 7964
+    _globals['_SYNCPROGRESSFORCOMPUTERBACKUP']._serialized_end = 8453
+    _globals['_SYNCPROGRESSFORCOMPUTERBACKUP_DONESTATE']._serialized_start = 7530
+    _globals['_SYNCPROGRESSFORCOMPUTERBACKUP_DONESTATE']._serialized_end = 7541
+    _globals['_SYNCPROGRESSFORCOMPUTERBACKUP_ACTIVESYNCSTATE']._serialized_start = 7543
+    _globals['_SYNCPROGRESSFORCOMPUTERBACKUP_ACTIVESYNCSTATE']._serialized_end = 7624
+    _globals['_SYNCPROGRESSFORCOMPUTERBACKUP_ACTIVEINDEXINGSTATE']._serialized_start = 7626
+    _globals['_SYNCPROGRESSFORCOMPUTERBACKUP_ACTIVEINDEXINGSTATE']._serialized_end = 7711
+    _globals['_SYNCPROGRESSFORCOMPUTERBACKUPSUMMARY']._serialized_start = 8456
+    _globals['_SYNCPROGRESSFORCOMPUTERBACKUPSUMMARY']._serialized_end = 8694
+    _globals['_SYNCPROGRESSFORCOMPUTERBACKUPSUMMARY_PROGRESSBYFILEIDENTRY']._serialized_start = 8599
+    _globals['_SYNCPROGRESSFORCOMPUTERBACKUPSUMMARY_PROGRESSBYFILEIDENTRY']._serialized_end = 8694
+    _globals['_MOVEDTOTRASH']._serialized_start = 8697
+    _globals['_MOVEDTOTRASH']._serialized_end = 8903
+    _globals['_MOVEDTOTRASHSUMMARY']._serialized_start = 8906
+    _globals['_MOVEDTOTRASHSUMMARY']._serialized_end = 9096
+    return None

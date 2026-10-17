@@ -1,0 +1,7 @@
+# Source Generated with Decompyle++
+# File: util.pyc (Python 3.11)
+
+from __future__ import absolute_import, division, print_function
+from dropbox.client.folder_tagger.constants import FolderTag
+from dropbox.proto.database.icons_pb2 import CAMERA_UPLOADS, DEVICE_FOLDER_DESKTOP, DEVICE_FOLDER_DOCUMENTS, DEVICE_FOLDER_DOWNLOADS, DEVICE_FOLDER_GENERIC, DEVICE_FOLDER_MAC, DEVICE_FOLDER_MUSIC, DEVICE_FOLDER_PICTURES, DEVICE_FOLDER_VIDEOS, DEVICE_FOLDER_WIN, DROPBOX, ENCRYPTED_TEAM_FOLDER, FAMILY_SHARED_FOLDER, SANDBOX, SHARED, SHARED_READ_ONLY, SHARED_VIEW_NAME_ONLY, TEAM_FOLDER, TEAM_FOLDER_READ_ONLY, TEAM_MEMBER_FOLDER, VAULT
+# WARNING: Decompyle incomplete

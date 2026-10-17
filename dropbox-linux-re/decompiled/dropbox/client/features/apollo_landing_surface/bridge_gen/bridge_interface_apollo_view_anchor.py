@@ -1,0 +1,20 @@
+# Source Generated with Decompyle++
+# File: bridge_interface_apollo_view_anchor.pyc (Python 3.11)
+
+from abc import ABC, abstractmethod
+from typing import List
+from dropbox.foundation.futures import Future
+from dropbox.client.features.account_switcher.bridge_gen.bridge_interface_account_switcher_vm import AccountSwitcherVMBridgeInterface
+from dropbox.client.features.api_v2.bridge_gen.bridge_interface_api_v2_client_untyped import ApiV2ClientUntypedBridgeInterface
+from dropbox.client.features.apollo_alerts.view_model.bridge_gen.bridge_interface_apollo_alerts_vm import ApolloAlertsVMBridgeInterface
+from dropbox.client.features.feature_flags.bridge_gen.bridge_interface_feature_flags_manager import FeatureFlagsManagerBridgeInterface
+from dropbox.client.features.network_state.view_model.bridge_gen.bridge_interface_network_state_vm import NetworkStateVMBridgeInterface
+from dropbox.client.features.sync_everything.view_model.bridge_gen.bridge_interface_sync_everything_manager_view_model import SyncEverythingManagerViewModelBridgeInterface
+from dropbox.client.features.users.bridge_gen.bridge_interface_users_vm import UsersVMBridgeInterface
+from dropbox.foundation.native_file_opener.bridge_gen.bridge_interface_native_file_opener import NativeFileOpenerBridgeInterface
+from dropbox.foundation.paths.bridge_gen.bridge_interface_user_folder_paths_wrapper import UserFolderPathsWrapperBridgeInterface
+
+class ApolloViewAnchorBridgeInterface(ABC):
+    pass
+# WARNING: Decompyle incomplete
+

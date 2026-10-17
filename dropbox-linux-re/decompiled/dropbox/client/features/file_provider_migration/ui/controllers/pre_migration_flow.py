@@ -1,0 +1,27 @@
+# Source Generated with Decompyle++
+# File: pre_migration_flow.pyc (Python 3.11)
+
+from typing import Optional
+from dropbox.client.authentication.account_interface import AccountInterface
+from dropbox.client.features.apollo_alerts.model.apollo_alerts import AlertResult, ApolloAlerts
+from dropbox.client.features.file_provider_migration.file_provider_migration_logger import FileProviderMigrationLogger
+from dropbox.client.features.file_provider_migration.migration_session import FPMigrationSessionData
+from dropbox.client.features.file_provider_migration.ui.pre_migration_carousel.bridge_gen.file_provider_action_surface import FileProviderActionSurface
+from dropbox.client.features.file_provider_migration.ui.pre_migration_carousel.bridge_gen.file_provider_migration_event import FileProviderMigrationEvent
+from dropbox.client.features.file_provider_migration.ui.pre_migration_carousel.bridge_gen.fp_migration_carousel_nav_params import FPMigrationCarouselNavParams
+from dropbox.client.features.file_provider_migration.ui.pre_migration_carousel.bridge_gen.fp_migration_carousel_variant import FpMigrationCarouselVariant
+from dropbox.client.features.file_provider_migration.ui.pre_migration_carousel.bridge_gen.fp_migration_status_code import FpMigrationStatusCode
+from dropbox.client.features.file_provider_migration.ui.strings import FileProviderStrings
+from dropbox.components.desktop_components import DesktopComponent
+from dropbox.foundation.asynchronous.exec_ctx import async_queued_method
+from dropbox.foundation.context.machine import MachineContext
+from dropbox.foundation.navigation_service.manifest_registry import FP_AUTO_MIGRATION_CAROUSEL, FP_MIGRATION_CAROUSEL
+from dropbox.foundation.navigation_service.view_interface import StandaloneViewIdentifier
+from dropbox.foundation.navigation_service.window_manager_delegate import WindowManagerDelegateInterface
+from dropbox.foundation.navigation_service.window_manager_delegate.types import WindowManagerDelegateType
+from dropbox.foundation.raii2.singleton import SingletonActor
+
+class PreMigrationFlowController(SingletonActor):
+    pass
+# WARNING: Decompyle incomplete
+

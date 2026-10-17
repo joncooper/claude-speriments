@@ -1,0 +1,31 @@
+# Source Generated with Decompyle++
+# File: external_drive_notifications.pyc (Python 3.11)
+
+from datetime import datetime, timedelta, timezone
+from typing import Optional
+from dropbox.client.authentication.account_interface import AccountInterface
+from dropbox.client.configuration.manager import ConfigurationManager
+from dropbox.client.features.desktop_rtt_client.rtt_client import DesktopRTTClient
+from dropbox.client.features.file_provider_migration.constants import FILE_PROVIDER_AUTO_MIGRATION_OPT_OUT_CONFIG_KEY, FILE_PROVIDER_MIGRATION_EXTERNAL_DRIVE_NOTIFICATIONS_STORMCROW, FILE_PROVIDER_OPT_OUT_DURING_SIGN_IN_CONFIG_KEY, FP_UPDATE_EXTERNAL_DRIVE_NOTIFICATION_LAST_SHOWN_TIME, FP_UPDATE_EXTERNAL_DRIVE_STICKY_LAST_DISMISSED_TIME
+from dropbox.client.features.file_provider_migration.file_provider_migration_logger import FileProviderMigrationLogger
+from dropbox.client.features.file_provider_migration.migration_session import FPMigrationSessionData
+from dropbox.client.features.file_provider_migration.notification_config import can_show_notification, get_dismiss_config
+from dropbox.client.features.file_provider_migration.ui.pre_migration_carousel.bridge_gen.file_provider_action_surface import FileProviderActionSurface
+from dropbox.client.features.file_provider_migration.ui.pre_migration_carousel.bridge_gen.file_provider_migration_event import FileProviderMigrationEvent
+from dropbox.client.features.file_provider_migration.ui.strings import FileProviderStrings
+from dropbox.client.features.legacy_ui_launcher import LegacyUILauncher
+from dropbox.client.notifications.legacy_notifications import FPUpdateExternalDriveStickyNotification
+from dropbox.client.notifications.loud_notifications.bubble_context import BubbleContext
+from dropbox.client.notifications.loud_notifications.loud_notification import LoudNotification, LoudNotificationButton, LoudNotificationType
+from dropbox.foundation.context.machine import MachineContext
+from dropbox.foundation.raii2 import Destroyable
+from dropbox.proto.growth_platform.rtt.triggers_pb2 import DesktopUserActionType
+from dropbox.trace import TRACE
+from dropbox.url_info import DropboxURLInfo
+NOTIFICATION_FREQUENCY = timedelta(days = 1)
+UPDATE_EXTERNAL_DRIVE_LINK = 'https://help.dropbox.com/installs/mac-external-drive-support'
+
+class UpdateExternalDriveNotifications(Destroyable):
+    pass
+# WARNING: Decompyle incomplete
+

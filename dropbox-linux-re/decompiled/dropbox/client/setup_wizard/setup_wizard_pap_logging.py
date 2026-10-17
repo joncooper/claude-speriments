@@ -1,0 +1,36 @@
+# Source Generated with Decompyle++
+# File: setup_wizard_pap_logging.pyc (Python 3.11)
+
+from typing import Any, Dict, FrozenSet, Optional, Type
+from uuid import uuid4
+from apex.analytics import AccountInformation
+from google.protobuf.message import Message
+from dropbox.client.analytics import log_pap_event
+from dropbox.client.authentication.account_interface import AccountInterface
+from dropbox.pap.events.enums.link_browser_error_reason_pb2 import LinkBrowserErrorReason
+from dropbox.pap.events.enums.merge_folders_mismatch_reason_pb2 import MergeFoldersMismatchReason
+from dropbox.pap.events.enums.view_close_reason_pb2 import ViewCloseReason
+from dropbox.pap.events.onboard.attempt_merge_folders_symlink_pb2 import Attempt_MergeFoldersSymlink
+from dropbox.pap.events.onboard.attempt_selective_sync_settings_pb2 import Attempt_SelectiveSyncSettings
+from dropbox.pap.events.onboard.attempt_setup_wizard_location_picker_pb2 import Attempt_SetupWizardLocationPicker
+from dropbox.pap.events.onboard.continue_merge_folders_cdm_match_pb2 import Continue_MergeFoldersCdmMatch
+from dropbox.pap.events.onboard.continue_merge_folders_pb2 import Continue_MergeFolders
+from dropbox.pap.events.onboard.continue_merge_folders_share_cdm_team_pb2 import Continue_MergeFoldersShareCdmTeam
+from dropbox.pap.events.onboard.continue_setup_wizard_nonce_pb2 import Continue_SetupWizardNonce
+from dropbox.pap.events.onboard.continue_setup_wizard_pb2 import Continue_SetupWizard
+from dropbox.pap.events.onboard.dismiss_setup_wizard_location_picker_pb2 import Dismiss_SetupWizardLocationPicker
+from dropbox.pap.events.onboard.dismiss_setup_wizard_onboarding_server_view_pb2 import Dismiss_SetupWizardOnboardingServerView
+from dropbox.pap.events.onboard.dismiss_setup_wizard_server_view_pb2 import Dismiss_SetupWizardServerView
+from dropbox.pap.events.onboard.fail_merge_folders_mismatch_pb2 import Fail_MergeFoldersMismatch
+from dropbox.pap.events.onboard.fail_merge_folders_path_check_pb2 import Fail_MergeFoldersPathCheck
+from dropbox.pap.events.onboard.link_setup_wizard_browser_pb2 import Link_SetupWizardBrowser
+from dropbox.pap.events.onboard.link_setup_wizard_preauth_pb2 import Link_SetupWizardPreauth
+from dropbox.pap.events.onboard.select_selective_sync_settings_pb2 import Select_SelectiveSyncSettings
+from dropbox.pap.events.onboard.select_setup_wizard_location_picker_pb2 import Select_SetupWizardLocationPicker
+from dropbox.pap.events.onboard.select_smart_sync_override_pb2 import Select_SmartSyncOverride
+from dropbox.pap.events.onboard.shown_selective_sync_settings_pb2 import Shown_SelectiveSyncSettings
+from dropbox.pap.events.onboard.shown_setup_wizard_location_picker_pb2 import Shown_SetupWizardLocationPicker
+from dropbox.pap.events.onboard.shown_setup_wizard_onboarding_server_view_pb2 import Shown_SetupWizardOnboardingServerView
+from dropbox.pap_event_logging.utils import EnumType, EnumValue, get_enum_value_for_string
+from dropbox.proto.pap.event_state_pb2 import EventState
+# WARNING: Decompyle incomplete

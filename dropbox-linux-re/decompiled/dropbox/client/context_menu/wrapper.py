@@ -1,0 +1,12 @@
+# Source Generated with Decompyle++
+# File: wrapper.pyc (Python 3.11)
+
+from dropbox.client.configuration.interface import LocalConfigurationInterface
+from dropbox.client.context_menu.interfaces import ContextMenuConfigInterface
+from dropbox.client.ui.common.utils import is_low_ui_mode
+from dropbox.preferences import CONTEXT_MENU_SHOW_COPY_LINK, CONTEXT_MENU_SHOW_FILE_INFO, CONTEXT_MENU_SHOW_GET_SIGNATURES, CONTEXT_MENU_SHOW_IGNORE_DONT_SYNC_TO_DROPBOX_COM, CONTEXT_MENU_SHOW_LOCK_UNLOCK_EDITING_REQUEST_TO_UNLOCK, CONTEXT_MENU_SHOW_MAKE_ONLINE_ONLY_MAKE_OFFLINE_ONLY, CONTEXT_MENU_SHOW_PREVIEW_WITH_DROPBOX, CONTEXT_MENU_SHOW_RENAME_TEAM_FOLDER, CONTEXT_MENU_SHOW_REVIEW_IN_REPLAY, CONTEXT_MENU_SHOW_SEND_AND_TRACK, CONTEXT_MENU_SHOW_SIGN_YOURSELF, CONTEXT_MENU_SHOW_TEAM_FOLDER_SETTINGS_SHARE, CONTEXT_MENU_SHOW_TRANSFER_A_COPY, CONTEXT_MENU_SHOW_VERSION_HISTORY, CONTEXT_MENU_SHOW_VIEW_ON_DROPBOX
+
+class ContextMenuConfigWrapper(ContextMenuConfigInterface):
+    pass
+# WARNING: Decompyle incomplete
+

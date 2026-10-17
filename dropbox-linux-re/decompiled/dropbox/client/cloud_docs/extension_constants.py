@@ -1,0 +1,54 @@
+# Source Generated with Decompyle++
+# File: extension_constants.pyc (Python 3.11)
+
+PACKAGE_EXTS = ('.app', '.bundle', '.framework', '.plugin', '.kext', '.pages', '.scriv', '.dtbase', '.keynote', '.oo3', '.numbers', '.vpdoc', '.mjdoc', '.key', '.rwtheme', '.curio', '.graffle', '.omniplan', '.xcodeproj', '.qdfm', '.rwsw', '.pkg', '.mpkg', '.band', '.mapset', '.sketch', '.ufo', '.xd', '.rtfd')
+PHOTO_EXTS = ('.jpg', '.jpeg', '.png', '.tiff', '.tif', '.gif', '.bmp', '.webp', '.wbmp')
+FONT_EXTS = ('.otf', '.ttf')
+TRANSCODE_IWORK_EXTS = ('.key', '.keynote')
+LIBRE_OFFICE_WORDPROC_EXTS = ('.odt', '.wpd')
+LIBRE_OFFICE_PRESENTATION_EXTS = ('.odp',)
+LIBRE_OFFICE_PDF_PREVIEW_EXTS = LIBRE_OFFICE_WORDPROC_EXTS + LIBRE_OFFICE_PRESENTATION_EXTS
+MSOFFICE_EXCEL_EXTS = ('.ods', '.xls', '.xlsx', '.xlsm', '.csv')
+MSOFFICE_WORDPROC_EXTS = ('.doc', '.docx', '.docm', '.rtf')
+MSOFFICE_PRESENTATION_EXTS = ('.ppt', '.pps', '.ppsx', '.ppsm', '.pptx', '.pptm')
+AUTOCAD_EXTS = ('.dwg',)
+MSOFFICE_NONEXCEL_EXTS = MSOFFICE_WORDPROC_EXTS + MSOFFICE_PRESENTATION_EXTS
+WORDPROC_EXTS = MSOFFICE_WORDPROC_EXTS + LIBRE_OFFICE_WORDPROC_EXTS
+PRESENTATION_EXTS = MSOFFICE_PRESENTATION_EXTS + LIBRE_OFFICE_PRESENTATION_EXTS
+PDF_EXTS = ('.pdf',)
+MSOFFICE_PDF_PREVIEW_EXTS = MSOFFICE_NONEXCEL_EXTS + PDF_EXTS
+MSOFFICE_DOC_EXTS = MSOFFICE_PDF_PREVIEW_EXTS + MSOFFICE_EXCEL_EXTS
+DOC_PDF_PREVIEW_EXTS = MSOFFICE_PDF_PREVIEW_EXTS + LIBRE_OFFICE_PDF_PREVIEW_EXTS
+ADOBECS_EXTS = ('.ai', '.eps')
+DOCUMENT_EXTS = MSOFFICE_DOC_EXTS + ADOBECS_EXTS + TRANSCODE_IWORK_EXTS + AUTOCAD_EXTS
+PAPER_CLOUD_DOC_EXTS = ('.paper', '.papert', '.binder')
+SHORTCUT_CLOUD_DOC_EXTS = ('.web',)
+GOOGLE_CLOUD_DOC_EXTS = ('.gdoc', '.gsheet', '.gslides')
+MSOFFICE_CLOUD_EXTS = ('.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx')
+CLOUD_DOC_EXTS = PAPER_CLOUD_DOC_EXTS + GOOGLE_CLOUD_DOC_EXTS + SHORTCUT_CLOUD_DOC_EXTS
+CLOUD_ENHANCED_EXTS = MSOFFICE_CLOUD_EXTS
+GENERATED_PREVIEW_EXTS = DOC_PDF_PREVIEW_EXTS + MSOFFICE_EXCEL_EXTS + ADOBECS_EXTS + AUTOCAD_EXTS + GOOGLE_CLOUD_DOC_EXTS + PAPER_CLOUD_DOC_EXTS
+CREATIVE_DOC_EXTS = ('.psd', '.svg', '.svgz')
+THUMBNAIL_IMAGE_EXTS = PHOTO_EXTS + CREATIVE_DOC_EXTS + ADOBECS_EXTS + FONT_EXTS
+TRANSCODE_VIDEO_EXTS = ('.3gp', '.3gpp', '.3gpp2', '.asf', '.avi', '.dv', '.flv', '.m2t', '.m4v', '.mkv', '.mov', '.mp4', '.mpg', '.mpeg', '.mts', '.mxf', '.oggtheora', '.ogv', '.rm', '.ts', '.vob', '.webm', '.wmv')
+THUMBNAIL_EXTS = THUMBNAIL_IMAGE_EXTS + TRANSCODE_VIDEO_EXTS
+GALLERY_IMAGE_EXTS = PHOTO_EXTS
+GALLERY_EXTS = GALLERY_IMAGE_EXTS + TRANSCODE_VIDEO_EXTS
+CODE_EXTS = ('.abap', '.ada', '.ahk', '.as', '.as3', '.ascx', '.asm', '.aspx', '.awk', '.bash', '.bat', '.bib', '.build', '.c', '.cc', '.cfc', '.cfm', '.cfml', '.cl', '.clj', '.cls', '.cmake', '.cmd', '.coffee', '.cpp', '.cpy', '.cs', '.css', '.cxx', '.d', '.di', '.diff', '.dtd', '.el', '.erb', '.erl', '.f', '.fs', '.fsi', '.gemfile', '.gemspec', '.go', '.groovy', '.gry', '.h', '.haml', '.handlebars', '.hbs', '.hh', '.hpp', '.hrl', '.hs', '.hxx', '.idl', '.inc', '.inf', '.ini', '.jade', '.java', '.js', '.json', '.jsp', '.jsx', '.less', '.lhs', '.lisp', '.lst', '.lua', '.m', '.make', '.ml', '.mli', '.mll', '.mly', '.mm', '.out', '.p', '.pas', '.patch', '.php', '.phtml', '.pl', '.plist', '.pm', '.pp', '.properties', '.py', '.pyw', '.r', '.rake', '.rb', '.rbx', '.reg', '.rest', '.rhtml', '.rprofile', '.rss', '.rst', '.s', '.sass', '.scala', '.scm', '.sconscript', '.sconstruct', '.script', '.scss', '.sh', '.sml', '.sql', '.swift', '.tex', '.tmpl', '.tpl', '.tsx', '.vb', '.vi', '.vim', '.wsdl', '.xhtml', '.xml', '.xsd', '.xsl', '.xslt', '.yaml', '.yml', '.zsh')
+EPUB_EXTS = ('.epub',)
+MARKDOWN_EXTS = ('.markdown', '.mdown', '.mkdn', '.md')
+PLAINTEXT_EXTS = ('.adp', '.asc', '.asp', '.bash_login', '.bash_logout', '.bash_profile', '.bashrc', '.bsh', '.builder', '.c++', '.capfile', '.cpt', '.cshtml', '.cson', '.csproj', '.ctp', '.ddl', '.dif', '.disco', '.dml', '.dtml', '.emakefile', '.f90', '.f95', '.fsscript', '.fsx', '.gitconfig', '.gvy', '.h++', '.hcp', '.htc', '.iim', '.inl', '.ipp', '.irbrc', '.jav', '.l', '.log', '.ltx', '.markdn', '.mud', '.nfo', '.opml', '.osascript', '.php2', '.php3', '.php4', '.php5', '.pod', '.profile', '.ps1', '.psd1', '.psm1', '.pt', '.rc', '.re', '.readme', '.resw', '.resx', '.rjs', '.rpy', '.rxml', '.sgml', '.shtml', '.sty', '.tcl', '.text', '.textile', '.tld', '.tli', '.txt', '.xoml', '.yaws')
+HTMLIFIED_PREVIEW_EXTS = CODE_EXTS + EPUB_EXTS + MARKDOWN_EXTS + PLAINTEXT_EXTS
+URL_FILE_EXTS = ('.url', '.website')
+WEBLOC_FILE_EXTS = ('.webloc',)
+LINK_FILE_EXTS = URL_FILE_EXTS + WEBLOC_FILE_EXTS
+AUDIO_EXTS = ('.oga', '.m4a', '.mp3', '.wma', '.aac', '.wav', '.aif', '.aiff')
+NON_GENERATED_HTML_EXTS = ('.htm', '.html')
+DOC_THUMBNAIL_PDF_EXTS = MSOFFICE_PDF_PREVIEW_EXTS
+DOC_THUMBNAIL_HTML_EXTS = MSOFFICE_EXCEL_EXTS
+DOC_THUMBNAIL_EXTS = DOC_THUMBNAIL_HTML_EXTS + DOC_THUMBNAIL_PDF_EXTS
+RAW_FILE_FOR_PREVIEW_EXTS = ('.gif', '.svg')
+INDEXED_VIDEO_EXTS = ('.3gp', '.3gpp', '.3gpp2', '.asf', '.avi', '.m4v', '.mov', '.mp4', '.mpeg', '.mpg', '.mkv', '.ts', '.webm', '.wmv')
+INDEXED_PHOTO_EXTS = ('.jpg', '.jpeg', '.png', '.tiff', '.tif', '.gif', '.bmp', '.wbmp', '.webp')
+INDEXED_PHOTO_AND_VIDEO_EXTS = frozenset(INDEXED_PHOTO_EXTS + INDEXED_VIDEO_EXTS)
+# WARNING: Decompyle incomplete

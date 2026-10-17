@@ -1,0 +1,394 @@
+# Source Generated with Decompyle++
+# File: main.pyc (Python 3.11)
+
+import errno
+import functools
+import itertools
+import os
+import pprint
+import random as insecure_random
+import sqlite3
+import subprocess
+import sys
+import threading
+import time
+import traceback
+import uuid
+from datetime import datetime, timezone
+from getopt import gnu_getopt as _getopt
+from sys import argv as _argv
+from types import TracebackType
+from typing import Any, Callable, cast, Dict, Iterable, List, Optional, Text, Tuple, TypeVar, Union
+from apex.context import context as apex_context
+import psutil
+from apex.context import ApexContext
+from apex.lifecycle import ApexUsedAfterCleanupException, CurrentlyPanickingException, set_shutdown as set_apex_shutdown
+from apex.metrics import Metric
+from apex.panic import RustPanicError, set_panic_handler
+from apex.util import process_architecture
+from apex.watchdog import is_monitored, monitor_session_id
+from cffi_transport.exceptions import ServiceError
+import build_number
+from build_number import is_electron_application
+from build_number.environment import DropboxData
+from build_number.features import feature_enabled, get_enabled_feature_states
+from lib.crashpad.api import add_simple_annotation
+from dropbox import fsutil, rclone
+from dropbox.api.v2.datatypes.account import DeviceInfo
+from dropbox.api.v2.datatypes.auth import DesktopHostKeyExchangeArg, DesktopHostKeyExchangeResult
+from dropbox.api.v2.datatypes.check import EchoArg
+from dropbox.app.machine_anchor import MachineAnchor
+from dropbox.app.machine_ui_dispatcher import MachineUiDispatcherDependencyProviderInterface, MachineUiDispatcherFactory
+from dropbox.app.user_anchor import UserAnchor
+from dropbox.app.user_ui_dispatcher import UserUiDispatcherDependencyProviderInterface, UserUiDispatcherFactory
+from dropbox.assertions import assert_
+from dropbox.async_timers import EventTimeoutHandler
+from dropbox.build_common import DROPBOX_SQLITE_VERSION, get_build_number
+from dropbox.callbacks import Handler
+from dropbox.client.analytics import initialize_global_analytics_client, update_global_analytics_account
+from dropbox.client.authentication.account import Account
+from dropbox.client.authentication.account_interface import AccountInterface
+from dropbox.client.authentication.auth_state import AuthState
+from dropbox.client.authentication.auth_thread import _AuthenticationThreadImpl, assert_on_auth_thread, AuthenticationThread, on_auth_thread, on_auth_thread_returns_none
+from dropbox.client.authentication.control_flow_helpers import FP_REVOKED_CONSENT_RESTART_KILLSWITCH, on_consent_changed, RootConsentHelper
+from dropbox.client.authentication.interface import AccountManagerInterface, ACCOUNTS_CHANGED_PRIORITY_EVENTS, ACCOUNTS_CHANGED_PRIORITY_GANDALF, LinkControllerInterface
+from dropbox.client.authentication.link_controller import LinkController
+from dropbox.client.authentication.manager import AccountManager
+from dropbox.client.authentication.oauth_env_bootstrap import bootstrap_host_from_oauth_env, oauth_env_bootstrap_enabled, OAuthEnvBootstrapError, pop_oauth_env_access_token
+from dropbox.client.authentication.register_host_helper import RegisterHostHelper
+from dropbox.client.authentication.role_change_handler import RoleChangeHandler
+from dropbox.client.authentication.types import AccountChangeType, AccountChangeTypeFilter, AccountDataSource
+from dropbox.client.automation import configure_automation
+from dropbox.client.autorestart import handle_autorestart_startup, handle_interactive_restart, RestartStatus, setup_autorestart
+from dropbox.client.background_worker import BackgroundWorkerThread, on_background_thread, on_background_thread_returns_none
+from dropbox.client.benchmarking.startup import ClientStartupBenchmarker, DUMMY_STARTUP_EVENT_BOOT_FAILED, STARTUP_EVENT_ACCOUNTS_LOADED, STARTUP_EVENT_APP_CRASHED, STARTUP_EVENT_APP_CRASHING_REPEATEDLY_DUE_TO_FAILED_CHECK_MERGE, STARTUP_EVENT_APP_CRASHING_REPEATEDLY_DUE_TO_MOVING, STARTUP_EVENT_APP_STARTED, STARTUP_EVENT_APP_STARTUP_FAILED_UNKNOWN, STARTUP_EVENT_APP_STUCK, STARTUP_EVENT_APPMODEL_FINISHED_LOADING, STARTUP_EVENT_APPMODEL_READY_SIGNALED, STARTUP_EVENT_BOOT_FAILED_STARTUP_HIGH, STARTUP_EVENT_BOOT_FAILED_TO_CREATE_KEY_STORE_AND_UNLINK_COOKIE, STARTUP_EVENT_BOOT_FAILED_TO_LOAD_ACCOUNTS, STARTUP_EVENT_BOOT_FAILED_TO_SETUP_ROOT, STARTUP_EVENT_BOOT_FAILED_TO_START_APP, STARTUP_EVENT_FINISHED_COMPONENT_LOADING, STARTUP_EVENT_LOAD_ACCOUNTS, STARTUP_EVENT_READY_STATE_HELPER_VIEW_READY, STARTUP_EVENT_SETUP_WIZARD_APPEARED, STARTUP_EVENT_SYNC_ENGINE_INITIALIZED, STARTUP_EVENT_SYNC_ENGINE_INITIALIZING, STARTUP_EVENT_TRAY_READY_NUCLEUS
+from dropbox.client.bolt.signalling import BoltClient
+from dropbox.client.bootloop_marker import assess_boot_loop
+from dropbox.client.bug_report_providers import AccountsProvider, BasicInformationProvider, NotificationSettingsProvider, ShellExtensionProvider, StatusLabelsProvider, SyncEngineStatsProvider, SyncInformationProvider
+from dropbox.client.bug_reporter import build_allows_bug_reporter, register_bug_report_provider
+from dropbox.client.camera_upload.camera_uploads import CameraUploads
+from dropbox.client.client_shmodel import ClientShmodel
+from dropbox.client.client_unlink import ClientUnlink
+from dropbox.client.client_unlink_wrapper import ClientUnlinkWrapper
+from dropbox.client.configuration.interface import LocalConfigurationInterface
+from dropbox.client.configuration.manager import ConfigurationManager
+from dropbox.client.configuration.prefs_report_origin import PrefsReportOrigin
+from dropbox.client.configuration.prefs_summary_reporter import PrefsSummaryReporter
+from dropbox.client.constants import AppDataPaths, DEFAULT_DROPBOX_FOLDER_NAME, DROPBOX_API_APP_KEY, get_omaha4_crashpad_usage_stats_folder_path, LOCAL_FORM
+from dropbox.client.contacts.contact_manager import ContactsBoltUpdateManager, ContactsManager
+from dropbox.client.db_exception import handle_corrupted_db as handle_corrupted_db_exception
+from dropbox.client.delete_on_unlink import DeleteOnUnlink
+from dropbox.client.deprecation import DeprecationLogic, DeprecationRequestController
+from dropbox.client.desktop_login import DesktopLogin
+from dropbox.client.device_info import get_device_info, get_process_start_time, report_mac_install_permission_info, set_machine_uuid_gandalf_callback, UNSAFE_get_raw_machine_uuid
+from dropbox.client.dynamic_contents.dynamic_contents_manager import DynamicContentsManager
+from dropbox.client.extension_crash_reporter import ExtensionCrashReporter
+from dropbox.client.external_monitoring import MonitoringController
+from dropbox.client.features.apollo_alerts.model.apollo_alerts import ApolloAlerts
+from dropbox.client.features.apollo_pathway_origins.bridge_gen.apollo_pathway_origin import ApolloPathwayOrigin
+from dropbox.client.features.app_model_watcher.app_model_watcher import ApplicationModelWatcher
+from dropbox.client.features.backup_instance.gating import BackupInstanceFeature
+from dropbox.client.features.backup_instance.manager import BackupInstanceManager
+from dropbox.client.features.backup_instance.utils import build_sync_engine_boundary_threadpool
+from dropbox.client.features.bolt.bolt_client_wrapper import BoltClientWrapper
+from dropbox.client.features.cloud_files_migration.constants import CLOUD_FILES_MIGRATION_START_TIME_CONFIG_KEY, CLOUD_FILES_MIGRATION_TOUR_ONLY_STORMCROW, CLOUD_FILES_MIGRATION_UI_STORMCROW, CLOUD_FILES_REPAIR_ROOT_STORMCROW, CLOUD_FILES_SESSION_ID_CONFIG_KEY, CLOUD_FILES_UNLINK_SEC_HOST_STORMCROW
+from dropbox.client.features.cloud_files_migration.event_reporter import CloudFilesConversionEventInfo, CloudFilesConversionEventType, report_cloud_files_conversion_event
+from dropbox.client.features.cloud_files_migration.gating import is_scheduled_to_be_on_cloud_files_root, mark_cloud_files_migration_opt_out, mark_cloud_files_migration_postponed, should_migrate_to_cloud_files
+from dropbox.client.features.cloud_files_migration.helpers import set_cf_migration_start_time
+from dropbox.client.features.cloud_files_migration.migration_manager import CloudFilesMigrationManager
+from dropbox.client.features.cloud_files_migration.notification_controller import CloudFilesMigrationNotificationController
+from dropbox.client.features.cloud_files_migration.state_machine import MigrationStateMachine
+from dropbox.client.features.cloud_files_migration.types import CloudFilesAccountMigrationState
+from dropbox.client.features.coauth.coauth_controller import CoauthController
+from dropbox.client.features.computer_backup.cb_manager_wrapper import ComputerBackupManagerWrapper
+from dropbox.client.features.desktop_logging.desktop_logger import DesktopLogger
+from dropbox.client.features.desktop_logging.event_enums import EventClass
+from dropbox.client.features.desktop_logging.logging_event import NonUserLoggingEvent, PAPLoggingEvent
+from dropbox.client.features.desktop_rtt_client.rtt_client import DesktopRTTClient
+from dropbox.client.features.download_on_demand.implementation import DownloadOnDemandController
+from dropbox.client.features.encrypted_folder.manager import EncryptedFolderManager
+from dropbox.client.features.event_logger_display.event_logger_display import LoggerDisplayVM
+from dropbox.client.features.external_drive_backup.gating import ExternalDriveBackupFeature
+from dropbox.client.features.external_drive_backup.manager import ExternalBackupManager
+from dropbox.client.features.external_drive_backup.webdebugger import ExternalBackupWebDebugger
+from dropbox.client.features.file_provider_migration.gating import mark_fp_opt_out, platform_supports_file_provider_migration, should_initialize_fp_migration_root_converter
+from dropbox.client.features.file_provider_migration.migration_notifications import FPMigrationAdminNotificationController
+from dropbox.client.features.flexible_filenames.manager import FlexibleFilenamesManager
+from dropbox.client.features.foundation.custom_url_scheme_handler.registrar import URLSchemeRegistrar
+from dropbox.client.features.harmony_gating import desktop_harmony_is_supported
+from dropbox.client.features.ignore_files.manager import IgnoreFilesManager
+from dropbox.client.features.legacy_ui_launcher import LegacyUILauncher
+from dropbox.client.features.link_copier.model.client_shmodel_wrapper import ClientShmodelWrapper
+from dropbox.client.features.move_to_trash.notification_controller import MoveToTrashNotificationController
+from dropbox.client.features.os_consent.fp_consent_flow_controller import FP_CONSENT_REVOKED_TIME, FPConsentFlowController
+from dropbox.client.features.quota_usage.manager import QuotaUsageManager
+from dropbox.client.features.quota_usage.modal_over_quota_controller import ModalOverQuotaController
+from dropbox.client.features.quota_usage.modal_over_quota_prevented_controller import ModalOverQuotaPreventedController
+from dropbox.client.features.smart_sync_removal_mitigation.notification_controller import SmartSyncRemovalMitigationNotifier
+from dropbox.client.features.smarter_smart_sync.dropbox_connection_accessor import DropboxConnectionAccessor
+from dropbox.client.features.snooze_sync.snooze_sync_controller_wrapper import SnoozeSyncControllerWrapper
+from dropbox.client.features.sprig.controller import SprigController
+from dropbox.client.features.sync_error.contants import LAST_PERMISSIONS_DIALOG_SHOWN_CONFIG_KEY, NEED_TO_FIX_PERMISSIONS_CONFIG_KEY, PERMISSION_DENIED_RESOLVER_ON_STARTUP, PERMISSION_ERROR_EXTENSIONS_CONFIG_KEY
+from dropbox.client.features.sync_error.controller.sync_error_resolver import SyncErrorResolver
+from dropbox.client.features.sync_everything.constants import SE_BLOCK_UNLINK_BLOCK_TIME
+from dropbox.client.features.sync_everything.gating import SyncEverythingFeature
+from dropbox.client.features.sync_everything.v3.sync_everything_logging import SyncEverythingUnlinkType
+from dropbox.client.features.tray_promotion_dialog.constants import TRAY_PROMOTION_PIN_DROPBOX_STORMCROW
+from dropbox.client.features.tray_promotion_dialog.controller import TrayPromotionController
+from dropbox.client.features.tray_promotion_dialog.utils import is_windows_10
+from dropbox.client.features.users.model.users_wrapper import UserCacheWrapper
+from dropbox.client.features.web_viewer.model.desktop_login_wrapper import DesktopLoginWrapper
+from dropbox.client.fenix.module import Fenix
+from dropbox.client.fenix.sqlite3.sqlite_constants import TYPESCRIPT_SQLITE_DATABASE_FILENAMES
+from dropbox.client.file_activation.constants import FileOpenStage
+from dropbox.client.file_activation.events import FileOpenInfo
+from dropbox.client.file_activation.handler import FileActivationHandler
+from dropbox.client.file_view_watcher import FileViewWatcher
+from dropbox.client.flow_tracker import FlowTracker, NonBlockingFlow
+from dropbox.client.flow_tracker.crashpad_annotation import TASK_PERIOD_IN_MIN, update_ui_annotation
+from dropbox.client.flow_tracker.ui_engagement_blocker import UIEngagementBlocker
+from dropbox.client.flush_and_terminate import FlushAndTerminateHandler
+from dropbox.client.flush_low_disk_notif import flush_low_disk_notif_if_eligible
+from dropbox.client.folder_sizer import start_folder_sizer
+from dropbox.client.fsw.fsw_nucleus_args import FSWManagerArgs
+from dropbox.client.fsw.migration import FSWSuppressionSettings
+from dropbox.client.gandalf import Gandalf, GandalfImpl, make_gandalf
+from dropbox.client.high_trace import add_raw_log_dir, add_trace_account, barrier as rtrace_barrier, force_flush, remove_trace_account, send_trace_log, send_traces_immediately, set_sync_engine_version as rtrace_set_sync_engine_version, start_trace_thread, start_upload_traces_loop
+from dropbox.client.hourly_refresh import HourlyRefreshController
+from dropbox.client.idlehands import IdleHandler
+from dropbox.client.installer_tag import InstallerTag
+from dropbox.client.lib.stormcrow.constants import VARIANT_OFF
+from dropbox.client.logging.dbxlog_logger import DbxLogger, logging_config
+from dropbox.client.message_queue import InstrumentedMessageQueue
+from dropbox.client.mount_notifications.common_event import CommonEvent, MountChangeKind
+from dropbox.client.mount_notifications.mount_notification_handler_base import MountNotificationHandler
+from dropbox.client.mount_notifications.mount_notification_handler_factory import MountNotificationHandlerFactory
+from dropbox.client.move_dropbox_folder import MoveDropboxController
+from dropbox.client.multiaccount.constants import PAIRED_STICKY_DISABLED_KEY, PAIRED_STICKY_DISABLED_TIMESTAMP_KEY, Role
+from dropbox.client.multiaccount.instance_database import InstanceConfig
+from dropbox.client.multiaccount.move_dropbox import move_dropbox_if_necessary
+from dropbox.client.multiaccount.multibox import MultiBoxServer
+from dropbox.client.multiaccount.role import Roles
+from dropbox.client.notifications.actions import UserNotificationActionFactory
+from dropbox.client.notifications.controller import UserNotificationController
+from dropbox.client.notifications.legacy_notifications import OSVersionDeprecatedStickyNotification, PromptReinstallStickyNotification, StickyNotification
+from dropbox.client.notifications.loud_notifications.bubble_context import BubbleContext
+from dropbox.client.notifications.loud_notifications.do_not_disturb.controller_wrapper import DoNotDisturbControllerWrapper
+from dropbox.client.notifications.loud_notifications.do_not_disturb.model import DoNotDisturbController
+from dropbox.client.notifications.loud_notifications.local_time_getter import LocalTimeGetter
+from dropbox.client.notifications.loud_notifications.loud_notification import LoudNotification, LoudNotificationType
+from dropbox.client.notifications.notification_adapter import UserNotificationControllerAdapter
+from dropbox.client.notifications.notifications_retrieval import NotificationRetriever
+from dropbox.client.panda import panda, sloth
+from dropbox.client.periodic import PeriodicScheduler
+from dropbox.client.proxy import MetaProxyInfo
+from dropbox.client.quit_handlers import QuitHandlerPriorities
+from dropbox.client.relocate_namespace_folders import DropboxArranger, report_cdm_skipping_update_account_info, report_mismatched_root_and_home_when_apply_changes, report_missing_config_root
+from dropbox.client.reporting.event import EventReporterManager
+from dropbox.client.rtrace_api import report_unsent_exceptions
+from dropbox.client.screenshots.controller import ScreenshotsCallbacks, ScreenshotsController
+from dropbox.client.server_time_controller import ServerTimeController
+from dropbox.client.session_metadata.interface import LegacySessionMetadata, update_successful_startup
+from dropbox.client.setup_wizard.account_link_state import LinkPreferences
+from dropbox.client.setup_wizard.setup_wizard_controller import SetupWizardController
+from dropbox.client.setup_wizard.setup_wizard_strings import SetupWizardStrings
+from dropbox.client.shell.base import ShellControllerBase
+from dropbox.client.shell.multiaccount_shell_adapter import MultiaccountShellAdapter
+from dropbox.client.shutdown_blocker import SequentialShutdownBlocker
+from dropbox.client.shutdown_marker import clear_crash_marker
+from dropbox.client.startup import continue_or_abort_startup, first_run, install_early_in_boot, limit_to_one_instance, post_link_startup, pre_appdata_use_startup, pre_network_startup, reroll_startup_items, setup_omaha4_crashpad_usage_stats_settings
+from dropbox.client.status.controller import StatusController
+from dropbox.client.status.interface import ClientStatusInterface, StatusControllerInterface
+from dropbox.client.status.label import APP_NOT_READY_LABELS, StatusLabel
+from dropbox.client.status.wrapper import StatusControllerWrapper
+from dropbox.client.sync_gold.sync_gold_reporter import MacOSSyncGoldReporter
+from dropbox.client.sync_ui_update_thread import SyncUIUpdateThread
+from dropbox.client.system_status.system_monitor_wrapper import SystemStatusMonitorWrapper
+from dropbox.client.tray.constants import TRAY_QUIT_CONFIRMATION_STORMCROW
+from dropbox.client.tray.events import report_tray_click, TrayEventName
+from dropbox.client.tray.logging.pap_logging_helpers import log_select_desktop_surface_action_tray_low_ui
+from dropbox.client.tray.tray_lifetime_adapter import TrayLifetimeAdapter
+from dropbox.client.tray.tray_metrics.common import TrayMetrics
+from dropbox.client.ui.common.admin_selsync import AdminSelsyncUIController
+from dropbox.client.ui.common.auth_error import show_dropbox_drive_missing_dialog, show_missing_dropbox_dialog, show_multiple_missing_dropbox_dialog, show_single_missing_additional_dropbox_dialog
+from dropbox.client.ui.common.boot_error import boot_error, get_extra_trace_info, help_page_by_exception, safe_report_boot_error
+from dropbox.client.ui.common.dialog_constants import DialogSourceTypes
+from dropbox.client.ui.common.dialogs import DialogController
+from dropbox.client.ui.common.dnd_notification_controller import DNDNotificationController
+from dropbox.client.ui.common.filesys_no_longer_supported import EndOfSupportFileSystemAlert
+from dropbox.client.ui.common.misc import MiscStrings
+from dropbox.client.ui.common.misc_error import show_fp_domain_name_conflict_dialog
+from dropbox.client.ui.common.pathways.folder_opener_controller import FolderOpenerController
+from dropbox.client.ui.common.post_cdm_archive_location import PostCdmArchiveLocationDialog
+from dropbox.client.ui.common.preferences_utils import PanelNames
+from dropbox.client.ui.common.quota_usage_notification_ui import QuotaUsageNotificationUI
+from dropbox.client.ui.common.ready_state_helper import ReadyStateHelper
+from dropbox.client.ui.common.selective_sync_v4 import show_selsync_mev
+from dropbox.client.ui.common.tray_menu_controller import TrayMenuController
+from dropbox.client.ui.common.tray_popup_constants import TrayUpdateOptionsReason
+from dropbox.client.ui.common.uikit import BaseUIKit, create_ui_kit, on_ui_thread_future, on_ui_thread_returns_none, should_create_headless_ui_kit
+from dropbox.client.ui.common.utils import is_low_ui_mode
+from dropbox.client.ui.icon_overlay import DummyStatusThread
+from dropbox.client.ui.infinite.infinite_ui_controller import InfiniteUIController
+from dropbox.client.ui.infinite.infinite_ui_dispatcher import InfiniteUIDispatcher
+from dropbox.client.ui.infinite.recall_event_listener import InfiniteRecallEventListener
+from dropbox.client.ui.sync_engine_ui.bubbler import SyncEngineBubbler
+from dropbox.client.unlink_cookie import ensure_unlink_cookie, get_host_secret_from_unlink_cookie, HOST_SECRET_KEYNAME, read_unlink_cookie, remove_unlink_cookie, unlink_cookie_is_valid, UNLINK_COOKIE_PREFS, write_dropbox_info, write_unlink_cookie, write_unlink_cookie_no_sync_engine
+from dropbox.client.unlink_handlers import report_unlink_event, UnlinkReason
+from dropbox.client.updatemanager import UpdateManager
+from dropbox.client.updatemanager.recovery import RecoveryManager
+from dropbox.client.updatemanager.update_notification_controller import UpdateNotificationController
+from dropbox.client.updatemanager.util import get_update_client_path, get_updater_path, is_omaha4_supported
+from dropbox.client.url_schemes.client_url_scheme_handler import DesktopClientURLSchemeHandler
+from dropbox.client.users import UserCache
+from dropbox.client.util import get_platform_info, get_sanitized_executable_path, get_user_agent_dict, hard_exit, kill_other_instances, launch_new_dropbox, on_exit, restart, start_killer_thread, start_unlink_and_quit
+from dropbox.client.watchdog import Watchdog2, WatchdogThread
+from dropbox.client_api.apiv2.generated.auth import Auth
+from dropbox.client_api.apiv2.generated.check import Check
+from dropbox.client_api.connection.interface import HostKeyAuth
+from dropbox.client_api.dropbox_connection import DropboxConnection
+from dropbox.client_api.exceptions import DropboxServerError, HTTP401Error, HTTP404Error, TransientNetworkError
+from dropbox.client_api.throttle import get_throttle_prefs
+from dropbox.client_api.thumbnailer import Thumbnailer
+from dropbox.components.desktop_components import DesktopComponent
+from dropbox.connection_backoff import get_jittered_seconds
+from dropbox.connectivity_watch.change_handler import ConnectivityChangeHandler, setup_engine_connectivity_watch
+from dropbox.connectivity_watch.watch import create_connectivity_watch
+from dropbox.connectivity_watch.watch_interface import ConnectivityWatchInterface
+from dropbox.db_thread import db_thread
+from dropbox.debugging import run_interactive_shell
+from dropbox.dirtraverse import Directory
+from dropbox.event import report
+from dropbox.exception.exception_context import get_import_cycle_attrs
+from dropbox.exception.exception_decorators import handle_exceptions
+from dropbox.exception.persistence import configure_exceptions_dir
+from dropbox.exception.reporting import assert_not_none, initialize_exception_reporting, report_bad_assumption, report_exception
+from dropbox.exception.sentry import initialize_sentry
+from dropbox.exception.severity import Severity
+from dropbox.fileevents import FileEvents
+from dropbox.foundation import initialize_foundation_runtime
+from dropbox.foundation.account_manager import AccountUpdate
+from dropbox.foundation.app_model.app_model import ApplicationModel
+from dropbox.foundation.debouncing import with_timed_debounce
+from dropbox.foundation.environment import is_integration_tests, is_playwright_tests, is_profiler_running, is_under_automation
+from dropbox.foundation.exception_info import ExcInfo
+from dropbox.foundation.futures import FailedFuture, Future, ResolvedFuture, sleep_async
+from dropbox.foundation.futures.basic import allow_blocking_on_main_thread
+from dropbox.foundation.futures.helpers import FutureHelpers
+from dropbox.foundation.html_views.common.debug import default_html_view_port, try_set_html_views_debug_port
+from dropbox.foundation.html_views.electron.ipc import create_socket_server, ElectronIpc
+from dropbox.foundation.html_views.electron.ipc.electron_rpc_reporter import ElectronRpcReporter
+from dropbox.foundation.html_views.metrics.html_view_metrics_reporter import HtmlViewMetricsReporter
+from dropbox.foundation.native_file_opener.bridge_gen.file_open_origin import FileOpenOrigin
+from dropbox.foundation.native_icon.thumbnailer_wrapper import ThumbnailerWrapper
+from dropbox.foundation.navigation_service import NavigationServiceInterface
+from dropbox.foundation.navigation_service.factory_impl import NavigationServiceFactoryImpl
+from dropbox.foundation.performance import PerfSession
+from dropbox.foundation.performance.perf_session_amp import PerfSessionAMPMetrics
+from dropbox.foundation.platform_version import PLATFORM_VERSION
+from dropbox.foundation.raii2 import Destroyable, destroying
+from dropbox.foundation.raii2.arc import Arc
+from dropbox.foundation.reporting import report_app_framework_event_restricted
+from dropbox.foundation.runtime import AutorestartRequestManager, install_interpreter_exception_hooks
+from dropbox.foundation.runtime.exit_codes import ExitCode
+from dropbox.foundation.signals import SignalConnection
+from dropbox.foundation.startup_flags import StartupFlags
+from dropbox.foundation.trace.trace_js_bridge import ElectronIpcEventTracing, JavaScriptBridgeEventTracing
+from dropbox.functions import make_str, make_unicode, python_version_string
+from dropbox.gui import enable_trace_warn_if_called_on_main_thread, message_sender, spawn_thread_with_name
+from dropbox.handler_registries import add_exception_handler
+from dropbox.harmony.session_management.harmony_owner import HarmonyOwner
+from dropbox.hostname import get_local_host_display_name
+from dropbox.i18n import activate_translation, get_country_code, get_current_code, get_system_languages, safe_activate_translation, trans, TranslationLanguageError
+from dropbox.infinite import infinite_download_ui_exposed, infinite_exposed, infinite_platform_supported, is_user_running_cloud_files
+from dropbox.infinite.blacklist import InfiniteRecallBlacklist
+from dropbox.infinite.download_ui import InfiniteUIMultiplexer
+from dropbox.infinite.infinite_disk_tracker import FlushNotificationCallback
+from dropbox.infinite.infinite_state_machine_accessor import InfiniteStateMachineAccessor
+from dropbox.infinite.kernel_component_manager import KernelComponentManager
+from dropbox.infinite.preferences import InfinitePolicy, InfinitePolicyController, set_infinite_optin
+from dropbox.infinite.state_machine import AccountToStateAndDiskUsage, InfiniteStateMachine
+from dropbox.install_type import get_dropbox_install_type, InstallType
+from dropbox.keystore import KeystoreRegKeyError
+from dropbox.list_legacy.controller import ListLegacyAdapter
+from dropbox.list_legacy.out_of_band_response import OutOfBandResponse, OutOfBandResponseSource
+from dropbox.lock_ordering import NonRecursiveLock
+from dropbox.metrics.combined_metrics_poller import CombinedMetricsPoller
+from dropbox.metrics.reporter import PeriodicMetricsReporter
+from dropbox.metrics.system_usage import SystemMetricsPoller
+from dropbox.metrics.thread_usage import ThreadUsageTracker
+from dropbox.model.types import FileId
+from dropbox.monotonic_time import get_monotonic_time_seconds
+from dropbox.nts import cert_pinning_disabled
+from dropbox.nts.event import report_nts_accounts_loaded_event
+from dropbox.nts.sec_enforcer import check_cert_pinning_and_unlink_account_if_needed
+from dropbox.nucleus.bolt_client import NucleusBoltClient
+from dropbox.nucleus.migration import SyncEngineMigration
+from dropbox.nucleus.migration_constants import SYNC_ENGINE_STATE_TO_STRING, SyncEngineState
+from dropbox.nucleus.migration_state import SyncEngineStateManager
+from dropbox.pap.events.display.start_app_pb2 import Start_App
+from dropbox.pap.events.enums.app_start_failure_reason_pb2 import AppStartFailureReason
+from dropbox.platform import IS_LINUX, IS_MAC, IS_WINDOWS, platform
+from dropbox.preferences import OPT_INSTALLER_TAG, OPT_LANG
+from dropbox.proto.growth_platform.rtt.triggers_pb2 import DesktopUserActionType
+from dropbox.proto.pap.event_state_pb2 import EventState
+from dropbox.shared.local_path import LocalPath
+from dropbox.shared.util import parse_quota_info_from_list
+from dropbox.sqlite3_exceptions import DatabaseOrDiskFullError, DiskIOError
+from dropbox.sqlite3_helpers import Cursor, set_tracing_sql
+from dropbox.stopwatch import global_sw, global_sw_init
+from dropbox.sync_engine_adapter.adapter import SyncEngineAdapter
+from dropbox.sync_engine_adapter.wrapper import NucleusWrapper
+from dropbox.sync_engine_boundary.factory import SyncEngineFactory
+from dropbox.sync_engine_boundary.file_system import AbstractFileSystem
+from dropbox.sync_engine_boundary.infinite.ui_types import InfiniteRecallType, InfiniteUIControllerInterface, InfiniteUIDispatcherInterface, InfiniteUIKextInstallFlowSource
+from dropbox.sync_engine_boundary.monitored_thread_pool import MonitoredThreadPoolExecutor
+from dropbox.sync_engine_boundary.nucleus_interface import NucleusInterface
+from dropbox.sync_engine_boundary.selsync import FileIdSet
+from dropbox.sync_engine_boundary.sync_engine_interface import SyncEngineClassicInterface
+from dropbox.sync_engine_boundary.sync_engine_util.interface import SyncEngineUtilInterface
+from dropbox.sync_engine_boundary.types import CallbackRemovalToken
+from dropbox.sync_root.accessor import RootManagerAccessor
+from dropbox.sync_root.check_merge_dropbox import check_merge_dropbox
+from dropbox.sync_root.constants import SyncRootConstants
+from dropbox.sync_root.events.reporter import report_stale_config_detected
+from dropbox.sync_root.fp_shadow_migration_constants import DEFAULT_FP_SHADOW_POST_CUTOVER_UNPAUSE_RETRIES, FP_SHADOW_POST_CUTOVER_UNPAUSE_RETRIES_GROWTHBOOK, FP_SHADOW_POST_CUTOVER_UNPAUSE_RETRY_INITIAL_SLEEP_SECS, FP_SHADOW_POST_CUTOVER_UNPAUSE_RETRY_MAX_SLEEP_SECS
+from dropbox.sync_root.fp_shadow_migration_interface import FPShadowMigrationControllerInterface, FPShadowMigrationDfcControllerInterface
+from dropbox.sync_root.gating import below_cloud_files_file_count_limit, below_fp_file_count_limit, desired_hydration_policy
+from dropbox.sync_root.helpers import _handle_incomplete_cdm_relocation_of_root_for_account, check_mounted_root_for_account, collect_missing_dropbox_roots, create_root_for_account, folder_conflicts_with_icloud, folder_is_multiroot_experiment, get_root_for_account
+from dropbox.sync_root.interface import SyncRootManagerInterface, SyncRootRepairAction, SyncRootType
+from dropbox.sync_root.manager import SyncRootManager
+from dropbox.sync_root.types import SyncRootCreationConflict, SyncRootDriveMissing, SyncRootInfo, SyncRootMountMissing, SyncRootTypeReason
+from dropbox.system_info import report_system_info
+from dropbox.threading import Lock
+from dropbox.threadutils import SafeValue, set_thread_cpu_counter_name
+from dropbox.trace import debugging_features_are_enabled, set_debugging, set_thread_profiling, TRACE
+from dropbox.traces.formatted_traces import FormattedTraceReporter
+from dropbox.url_info import dropbox_url_info
+from dropbox.webdebugger.server import WebDebugger
+if IS_MAC:
+    from dropbox.client.features.file_provider_migration.consistency_auditor import FileProviderMigrationConsistencyChecker
+    from dropbox.client.features.file_provider_migration.external_drive_notifications import UpdateExternalDriveNotifications
+    from dropbox.client.features.file_provider_migration.helpers import should_initialize_fp_migration_controller, take_fp_migration_preserved_hidden_set
+    from dropbox.client.features.file_provider_migration.implementation import FileProviderMigrationController, FileProviderMigrationRootConverter
+    from dropbox.client.features.file_provider_migration.migration_notifications import FPAutoMigrationNotifications, MigrationNotifications
+    from dropbox.client.features.file_provider_migration.ui.controllers.post_migration_ui_controller import FPPostMigrationFlowUiController
+    from dropbox.sync_engine.nucleus.remote_tree_proxy.listener import RemoteTreeProxyStartup
+if IS_WINDOWS:
+    from winffi.kernel32.api import get_all_x86_64_supported_instructions
+    from winverifysignature.api import verify_signature_and_subject
+    from dropbox.client.file_activation.installer import repair_file_type_associations_if_needed
+    from dropbox.client.file_activation.windows import WindowsFileActivationHelper
+    from dropbox.client.file_permissions.windows import show_dialog_to_fix_permissions_for_entire_dropbox
+    from dropbox.client.installer.win import launch_oos_packaged_app_if_exists, limit_to_one_dropbox_installation
+    from dropbox.client.installer.win_installer_restart import installer_should_not_restart_app, remove_installer_restart_flag, save_installer_restart_stormcrow_flag, set_installer_restart_flag
+    from dropbox.client.installer.win_installer_sparse_msix import add_sparse_package_as_current_user, get_num_packages_if_add_sparse_msix_as_current_user, MSIX_ROLLBACK_ARG, save_disable_sparse_msix_provision_stormcrow_flag
+    from dropbox.client.office.addinhelper import OfficeAddInHelper, OfficeAddInHelperFactory
+    from dropbox.client.rpcserver.rpcserver import RPCServerThread
+    from dropbox.client.shortcut.windows import is_allowed_create_desktop_shortcut_at_install
+    from dropbox.client.util.win import add_shortcut_to_desktop, get_executable_dir, is_desktop_shortcut_broken, remove_shortcut_from_desktop, update_desktop_shortcut
+    from dropbox.win32.version import get_file_version, WIN10, WIN10PREVIEW, WINDOWS_VERSION
+    from dropbox.win32.win_client_info import get_win_client_info
+else:
+    from dropbox.client.file_permissions.posix import fix_perm_on_directory, fix_whole_dropbox_permissions_in_a_thread
+# WARNING: Decompyle incomplete

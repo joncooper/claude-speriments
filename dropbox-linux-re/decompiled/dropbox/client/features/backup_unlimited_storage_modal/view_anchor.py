@@ -1,0 +1,15 @@
+# Source Generated with Decompyle++
+# File: view_anchor.pyc (Python 3.11)
+
+from dropbox.client.features.backup_app.view_model.bridge_gen.bridge_interface_backup_app_view_model import BackupAppViewModelBridgeInterface
+from dropbox.client.features.backup_app.view_model.view_model import BackupAppViewModel
+from dropbox.client.features.backup_unlimited_storage_modal.bridge_gen.bridge_interface_backup_unlimited_storage_modal_view_anchor import BackupUnlimitedStorageModalViewAnchorBridgeInterface
+from dropbox.client.features.sync_everything.view_model.sync_everything_manager_view_model import SyncEverythingManagerViewModel
+from dropbox.foundation.context.machine import MachineContext
+from dropbox.foundation.html_views.common.interface import ViewAnchorConfiguration
+from dropbox.foundation.html_views.common.view_anchor import ViewAnchorBase
+
+class BackupUnlimitedStorageModalViewAnchor(BackupUnlimitedStorageModalViewAnchorBridgeInterface, ViewAnchorBase):
+    pass
+# WARNING: Decompyle incomplete
+

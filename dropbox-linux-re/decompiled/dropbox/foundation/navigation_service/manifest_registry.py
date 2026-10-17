@@ -1,0 +1,55 @@
+# Source Generated with Decompyle++
+# File: manifest_registry.pyc (Python 3.11)
+
+from __future__ import absolute_import, division, print_function
+from client.features.inspector.bridge_gen.inspector_nav_params import InspectorNavParams
+from interface import MachineNavigationManifest, NavigationContentType, NavigationManifest, UserNavigationManifest
+from dropbox.client.features.account_switcher.bridge_gen.account_switcher_nav_params import AccountSwitcherNavParams
+from dropbox.client.features.backup_app.bridge_gen.backup_app_nav_params import BackupAppNavParams
+from dropbox.client.features.backup_quota_exempt_picker.bridge_gen.backup_quota_exempt_picker_nav_params import BackupQuotaExemptPickerNavParams
+from dropbox.client.features.backup_restorations_onboarding.bridge_gen.backup_restorations_onboarding_nav_params import BackupRestorationsOnboardingNavParams
+from dropbox.client.features.backup_sku_onboarding.bridge_gen.backup_sku_onboarding_nav_params import BackupSkuOnboardingNavParams
+from dropbox.client.features.backup_unlimited_storage_modal.view_model.bridge_gen.backup_unlimited_storage_modal_nav_params import BackupUnlimitedStorageModalNavParams
+from dropbox.client.features.computer_backup_custom_folder_picker.bridge_gen.computer_backup_custom_folder_picker_params import ComputerBackupCustomFolderPickerParams
+from dropbox.client.features.external_drive_backup_folder_picker.bridge_gen.external_drive_backup_folder_picker_params import ExternalDriveBackupFolderPickerParams
+from dropbox.client.features.external_drive_backup_permissions.bridge_gen.external_drive_backup_permissions_nav_params import ExternalDriveBackupPermissionsNavParams
+from dropbox.client.features.file_provider_migration.ui.pre_migration_carousel.bridge_gen.fp_migration_carousel_nav_params import FPMigrationCarouselNavParams
+from dropbox.client.features.local_view_basic_example.view_model.bridge_gen.local_view_basic_example_params import LocalViewBasicExampleParams
+from dropbox.client.features.sync_everything_carousel.bridge_gen.sync_everything_carousel_nav_params import SyncEverythingCarouselNavParams
+from dropbox.client.features.sync_everything_preferences.bridge_gen.sync_everything_preferences_nav_params import SyncEverythingPreferencesNavParams
+from dropbox.client.features.tour.ui.bridge_gen.tour_variant_nav_params import TourVariantNavParams
+from dropbox.components.desktop_components import DesktopComponent
+from dropbox.foundation.legacy_views.parameters.bridge_gen.preferences_pane_params import PreferencesPaneParams
+from dropbox.foundation.legacy_views.parameters.bridge_gen.sharing_dialog_params import SharingDialogParams
+
+def get_manifest_by_name(manifest_name = None):
+    manifest = globals().get(manifest_name)
+# WARNING: Decompyle incomplete
+
+LOCAL_VIEW_BASIC_EXAMPLE = UserNavigationManifest(NavigationContentType.LOCAL_VIEW, 'features/local_view_basic_example', LocalViewBasicExampleParams, component = DesktopComponent.HTML_VIEWS)
+DEBUG_BRIDGE_CALL_PROFILER_VIEW = MachineNavigationManifest(NavigationContentType.LOCAL_VIEW, 'features/debug_bridge_call_profiler', type(None), component = DesktopComponent.HTML_VIEWS)
+SHARE_DIALOG = UserNavigationManifest(NavigationContentType.LEGACY_VIEW, 'legacy_ui/share_dialog', SharingDialogParams, component = DesktopComponent.SHARING)
+SHOW_TRAY_POPUP = MachineNavigationManifest(NavigationContentType.LEGACY_VIEW, 'legacy_ui/show_tray_popup', type(None), component = DesktopComponent.TRAY)
+PREFERENCES_PANE = MachineNavigationManifest(NavigationContentType.LEGACY_VIEW, 'legacy_ui/preferences_pane', PreferencesPaneParams, component = DesktopComponent.PREFERENCES_UI)
+IMPORT_PROGRESS = MachineNavigationManifest(NavigationContentType.LEGACY_VIEW, 'legacy_ui/import_progress', type(None), component = DesktopComponent.CAMERA_UPLOAD)
+EVENT_LOGGER_DISPLAY = MachineNavigationManifest(NavigationContentType.LOCAL_VIEW, 'features/event_logger_display', type(None), component = DesktopComponent.HTML_VIEWS)
+DEBUG_MENU_OVERRIDE_STORMCROW = MachineNavigationManifest(NavigationContentType.LOCAL_VIEW, 'features/debug_menu_override_stormcrow', type(None), component = DesktopComponent.HTML_VIEWS)
+COMPUTER_BACKUP_SSB_MODAL = MachineNavigationManifest(NavigationContentType.LOCAL_VIEW, 'features/computer_backup_ssb_modal', type(None), component = DesktopComponent.SYNC_EVERYTHING)
+FP_MIGRATION_CAROUSEL = UserNavigationManifest(NavigationContentType.LOCAL_VIEW, 'features/file_provider_migration', FPMigrationCarouselNavParams, component = DesktopComponent.FILE_PROVIDER)
+FP_AUTO_MIGRATION_CAROUSEL = UserNavigationManifest(NavigationContentType.LOCAL_VIEW, 'features/fp_auto_migration', FPMigrationCarouselNavParams, component = DesktopComponent.FILE_PROVIDER)
+FP_MIGRATION_INTERIM_CAROUSEL = MachineNavigationManifest(NavigationContentType.LOCAL_VIEW, 'features/fp_migration_interim', type(None), component = DesktopComponent.FILE_PROVIDER)
+FP_MIGRATION_EDUCATION_CAROUSEL = MachineNavigationManifest(NavigationContentType.LOCAL_VIEW, 'features/fp_migration_education', type(None), component = DesktopComponent.FILE_PROVIDER)
+TOUR_CAROUSEL = MachineNavigationManifest(NavigationContentType.LOCAL_VIEW, 'features/tour_carousel', TourVariantNavParams, component = DesktopComponent.FILE_PROVIDER)
+BACKUP_SKU_ONBOARDING = UserNavigationManifest(NavigationContentType.LOCAL_VIEW, 'features/backup_sku_onboarding', BackupSkuOnboardingNavParams, component = DesktopComponent.SYNC_EVERYTHING)
+BACKUP_QUOTA_EXEMPT_PICKER = UserNavigationManifest(NavigationContentType.LOCAL_VIEW, 'features/backup_quota_exempt_picker', BackupQuotaExemptPickerNavParams, component = DesktopComponent.SYNC_EVERYTHING)
+SYNC_EVERYTHING_CAROUSEL = MachineNavigationManifest(NavigationContentType.LOCAL_VIEW, 'features/sync_everything_carousel', SyncEverythingCarouselNavParams, component = DesktopComponent.SYNC_EVERYTHING)
+SYNC_EVERYTHING_PREFERENCES = MachineNavigationManifest(NavigationContentType.LOCAL_VIEW, 'features/sync_everything_preferences', SyncEverythingPreferencesNavParams, component = DesktopComponent.SYNC_EVERYTHING)
+SETUP_WIZARD = MachineNavigationManifest(NavigationContentType.LEGACY_VIEW, 'legacy_ui/setup_wizard', AccountSwitcherNavParams, component = DesktopComponent.SETUP_WIZARD)
+INSPECTOR = MachineNavigationManifest(NavigationContentType.LOCAL_VIEW, 'features/inspector', InspectorNavParams, component = DesktopComponent.TRAY)
+EXTERNAL_DRIVE_BACKUP_PERMISSIONS = MachineNavigationManifest(NavigationContentType.LOCAL_VIEW, 'features/external_drive_backup_permissions', ExternalDriveBackupPermissionsNavParams, component = DesktopComponent.SYNC_EVERYTHING)
+EXTERNAL_DRIVE_BACKUP_FOLDER_PICKER = MachineNavigationManifest(NavigationContentType.LOCAL_VIEW, 'features/external_drive_backup_folder_picker', ExternalDriveBackupFolderPickerParams, component = DesktopComponent.SYNC_EVERYTHING)
+BACKUP_APP = MachineNavigationManifest(NavigationContentType.LOCAL_VIEW, 'features/backup_app', BackupAppNavParams, component = DesktopComponent.SYNC_EVERYTHING)
+BACKUP_RESTORATIONS_ONBOARDING = MachineNavigationManifest(NavigationContentType.LOCAL_VIEW, 'features/backup_restorations_onboarding', BackupRestorationsOnboardingNavParams, component = DesktopComponent.SYNC_EVERYTHING)
+BACKUP_UNLIMITED_STORAGE_MODAL = MachineNavigationManifest(NavigationContentType.LOCAL_VIEW, 'features/backup_unlimited_storage_modal', BackupUnlimitedStorageModalNavParams, component = DesktopComponent.SYNC_EVERYTHING)
+BACKUP_UNLIMITED_STORAGE_MODAL_LARGE = MachineNavigationManifest(NavigationContentType.LOCAL_VIEW, 'features/backup_unlimited_storage_modal_large', BackupUnlimitedStorageModalNavParams, component = DesktopComponent.SYNC_EVERYTHING)
+COMPUTER_BACKUP_CUSTOM_FOLDER_PICKER = MachineNavigationManifest(NavigationContentType.LOCAL_VIEW, 'features/computer_backup_custom_folder_picker', ComputerBackupCustomFolderPickerParams, component = DesktopComponent.SYNC_EVERYTHING)

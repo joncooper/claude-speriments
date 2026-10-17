@@ -1,0 +1,18 @@
+# Source Generated with Decompyle++
+# File: threading.pyc (Python 3.11)
+
+from __future__ import absolute_import, division, print_function
+from dropbox.client.message_queue import InstrumentedMessageQueueThread
+from dropbox.components.desktop_components import DesktopComponent
+from dropbox.db_thread import db_thread_with_task_timing
+from dropbox.foundation.transitional.on_thread_future import make_on_thread_future_decorator
+
+class _NavigationServiceWorkerThreadImpl(InstrumentedMessageQueueThread):
+    pass
+# WARNING: Decompyle incomplete
+
+NavigationServiceWorkerThread = db_thread_with_task_timing(_NavigationServiceWorkerThreadImpl, DesktopComponent.HTML_VIEWS, _NavigationServiceWorkerThreadImpl.instrumented_name())
+on_navigation_service_thread = NavigationServiceWorkerThread.on_queue
+on_navigation_service_thread_returns_none = NavigationServiceWorkerThread.on_queue_returns_none
+assert_on_navigation_service_thread = NavigationServiceWorkerThread.assert_on_queue
+on_navigation_service_thread_future = make_on_thread_future_decorator(on_navigation_service_thread, 'on_navigation_service_thread_future')

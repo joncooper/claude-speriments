@@ -1,0 +1,15 @@
+# Source Generated with Decompyle++
+# File: view_anchor.pyc (Python 3.11)
+
+from dropbox.client.features.file_provider_migration.ui.post_migration_carousel.bridge_gen.bridge_interface_fp_migration_education_carousel_view_anchor import FpMigrationEducationCarouselViewAnchorBridgeInterface
+from dropbox.client.features.file_provider_migration.ui.post_migration_carousel.bridge_gen.bridge_interface_fp_migration_education_carousel_view_model import FpMigrationEducationCarouselViewModelBridgeInterface
+from dropbox.client.features.file_provider_migration.ui.post_migration_carousel.view_model import FPMigrationEducationCarouselViewModel
+from dropbox.components.desktop_components import DesktopComponent
+from dropbox.foundation.actors2 import Actor
+from dropbox.foundation.html_views.common.interface import ViewAnchorConfiguration
+from dropbox.foundation.html_views.common.view_anchor import ViewAnchorBase
+
+class FPMigrationEducationCarouselViewAnchor(Actor, FpMigrationEducationCarouselViewAnchorBridgeInterface, ViewAnchorBase):
+    pass
+# WARNING: Decompyle incomplete
+

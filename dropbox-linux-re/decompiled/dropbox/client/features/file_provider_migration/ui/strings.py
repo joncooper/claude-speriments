@@ -1,0 +1,45 @@
+# Source Generated with Decompyle++
+# File: strings.pyc (Python 3.11)
+
+from dropbox.client.ui.common.strings import UI, UIStrings
+
+class FileProviderStrings(UIStrings):
+    MIGRATION_GA_TITLE = UI('Update available')
+    MIGRATION_GA_TITLE_TEAM_USER = UI('Update enabled by admin')
+    MIGRATION_GA_MESSAGE = UI('Get the latest version of Dropbox to sync files using File Provider.')
+    UPDATE_BUTTON = UI('Update now')
+    LEARN_MORE_BUTTON = UI('Learn more')
+    MIGRATION_GA_ADMIN_TITLE = UI('Update available for your team')
+    MIGRATION_GA_ADMIN_MESSAGE = UI('Give your team access to the latest version of Dropbox to sync files using File Provider.')
+    ENABLE_UPDATE_BUTTON = UI('Enable update')
+    NOT_NOW_BUTTON = UI('Not now')
+    UPDATE_EXTERNAL_DRIVE_TITLE = UI('Update available')
+    UPDATE_EXTERNAL_DRIVE_BODY = UI('Update your external drive to use it on File Provider')
+    UPDATE_EXTERNAL_DRIVE_BUTTON = UI('Learn how')
+    pre_carousel_alert_title = UI('Close without starting update?')
+    pre_carousel_alert_body = UI('You’ll need to update Dropbox to use File Provider.')
+    alert_cancel_button = UI('Cancel')
+    alert_close_anyway_button = UI('Close anyway')
+    interim_carousel_alert_title = UI('Update will continue in the background')
+    interim_carousel_alert_body = UI('Dropbox will continue to update after closing this window. You can check on your progress from the Dropbox app.')
+    alert_close_button = UI('Close')
+    archive_alert_caption = UI("We've saved your unsynced changes")
+    archive_alert_message = UI("You'll find files with unsynced\nchanges safely archived in a folder\n at ~/Library/CloudStorage.")
+    archive_alert_show_button = UI('Show me')
+    archive_alert_ok_button = UI('OK')
+    AUTO_MIGRATION_MODAL_TITLE = UI('Dropbox scheduled to update with File Provider')
+    AUTO_MIGRATION_MODAL_MESSAGE = UI('Your Dropbox is scheduled to update on %(deadline_date)s at %(deadline_time)s. You can reschedule if needed.\n\nEstimated time to update: %(time_estimate)s')
+    AUTO_MIGRATION_MODAL_MANAGE_UPDATE_BUTTON = UI('Manage update')
+    AUTO_MIGRATION_MODAL_ACK_BUTTON = UI('Got it')
+    AUTO_MIGRATION_MODAL_SNOOZE_BUTTON = UI('Snooze 1 day')
+    AUTO_MIGRATION_DAY_REMINDER_CAPTION = UI('Update scheduled')
+    AUTO_MIGRATION_DAY_REMINDER_MESSAGE = UI('An update for Dropbox with File Provider is scheduled to install %(day)s at %(deadline_time)s.')
+    AUTO_MIGRATION_DAY_REMINDER_TODAY = UI('today')
+    AUTO_MIGRATION_DAY_REMINDER_TOMORROW = UI('tomorrow')
+    AUTO_MIGRATION_HOUR_REMINDER_CAPTION = UI('Update installing soon')
+    AUTO_MIGRATION_HOUR_REMINDER_MESSAGE = UI('An update for Dropbox with File Provider is scheduled to install at %(deadline_time)s. Save your work to avoid interruptions.')
+    AUTO_MIGRATION_TEN_MINUTE_REMINDER_CAPTION = AUTO_MIGRATION_HOUR_REMINDER_CAPTION
+    AUTO_MIGRATION_TEN_MINUTE_REMINDER_MESSAGE = AUTO_MIGRATION_HOUR_REMINDER_MESSAGE
+    AUTO_MIGRATION_STICKY_TITLE = UI('Dropbox scheduled to update with File Provider')
+    AUTO_MIGRATION_STICKY_MESSAGE = UI('Your Dropbox is scheduled to update on %(deadline_date)s at %(deadline_time)s. You can reschedule if needed.')
+

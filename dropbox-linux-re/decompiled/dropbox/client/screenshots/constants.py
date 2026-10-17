@@ -1,0 +1,8 @@
+# Source Generated with Decompyle++
+# File: constants.pyc (Python 3.11)
+
+SCREENSHOTS_FOLDER_CONFIG_KEY = 'screenshots_folder'
+SCREENSHOTS_SE_FOLDER_CONFIG_KEY = 'se_screenshots_folder'
+SCREENSHOTS_FOLDER_SERVER_KEY = 'screenshots'
+SCREENSHOTS_PREFERENCE_SETTING_COPY_IMAGE_VALUE = 0
+SCREENSHOTS_PREFERENCE_SETTING_COPY_LINK_VALUE = 1

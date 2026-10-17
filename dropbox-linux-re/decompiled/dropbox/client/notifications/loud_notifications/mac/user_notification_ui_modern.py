@@ -1,0 +1,36 @@
+# Source Generated with Decompyle++
+# File: user_notification_ui_modern.pyc (Python 3.11)
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+import datetime
+import os
+from typing import Callable, List, Optional, Text
+import objc
+from AppKit import NSImage, NSUserNotificationCenter
+from Foundation import NSError
+from UserNotifications import UNAuthorizationOptionAlert, UNAuthorizationOptionBadge, UNAuthorizationOptionSound, UNNotification, UNNotificationDefaultActionIdentifier, UNNotificationDismissActionIdentifier, UNNotificationPresentationOptionAlert, UNNotificationPresentationOptionBadge, UNNotificationPresentationOptionSound, UNNotificationRequest, UNNotificationResponse, UNNotificationSettings, UNTextInputNotificationResponse, UNUserNotificationCenter
+from dropbox.client.configuration.interface import LocalConfigurationInterface
+from dropbox.client.notifications.loud_notifications.constants import LoudNotificationActivationType
+from dropbox.client.notifications.loud_notifications.events import NoInteractionWhenPoppedReason, report_notclicked_bubble
+from dropbox.client.notifications.loud_notifications.loud_notification import LoudNotification, LoudNotificationId, LoudNotificationType
+from dropbox.client.notifications.loud_notifications.mac.unusernotification_builder import UNUserNotificationBuilder
+from dropbox.client.notifications.loud_notifications.mac.user_notification_ui_base import ClickCallback, EFUserNotificationUIBase, GetDisplayedNotificationsCallback
+from dropbox.client.notifications.loud_notifications.types import BubbleContextRef
+from dropbox.client.tray.constants import CONFIG_KEY_MAC_NOTIFICATIONS_AUTHORIZATION_CONSENT_SHOWN, CONFIG_KEY_MAC_NOTIFICATIONS_AUTHORIZATION_MODERN_CONSENT_SHOWN
+from dropbox.client.tray.tray_metrics.tray_loud_notifications_metrics import log_tray_metrics_loud_notifications_mac_modern_consent_shown
+from dropbox.client.ui.common.uikit import ensure_on_ui_thread, on_ui_thread_future, on_ui_thread_returns_none
+from dropbox.components.desktop_components import DesktopComponent
+from dropbox.exception.exception_decorators import handle_exceptions
+from dropbox.exception.reporting import report_bad_assumption, report_exception
+from dropbox.exception.severity import Severity
+from dropbox.foundation.futures import sleep_async
+from dropbox.gui import assert_message_queue
+from dropbox.mac.internal import autoreleasepool
+from dropbox.mac.typed_objc import typed_python_method
+from dropbox.mac.version import BIG_SUR, CATALINA, MAC_VERSION, MOJAVE
+from dropbox.trace import TRACE
+
+class EFModernUserNotificationUI(EFUserNotificationUIBase):
+    pass
+# WARNING: Decompyle incomplete
+

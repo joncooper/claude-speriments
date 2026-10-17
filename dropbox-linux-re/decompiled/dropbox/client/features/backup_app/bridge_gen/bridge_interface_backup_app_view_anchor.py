@@ -1,0 +1,18 @@
+# Source Generated with Decompyle++
+# File: bridge_interface_backup_app_view_anchor.pyc (Python 3.11)
+
+from abc import ABC, abstractmethod
+from typing import Dict, List, Optional
+from dropbox.foundation.futures import Future
+from dropbox.client.features.api_v2.bridge_gen.bridge_interface_api_v2_client_untyped import ApiV2ClientUntypedBridgeInterface
+from dropbox.client.features.backup_app.view_model.bridge_gen.bridge_interface_backup_app_view_model import BackupAppViewModelBridgeInterface
+from dropbox.client.features.client_status.bridge_gen.bridge_interface_client_status_vm import ClientStatusVMBridgeInterface
+from dropbox.client.features.external_drive_backup.view_model.bridge_gen.bridge_interface_external_drive_backup_manager_view_model import ExternalDriveBackupManagerViewModelBridgeInterface
+from dropbox.client.features.sync_everything.view_model.bridge_gen.bridge_interface_sync_everything_manager_view_model import SyncEverythingManagerViewModelBridgeInterface
+from dropbox.client.features.sync_everything.view_model.bridge_gen.platform_type import PlatformType
+from dropbox.client.features.sync_everything.view_model.bridge_gen.stormcrow_values import StormcrowValues
+
+class BackupAppViewAnchorBridgeInterface(ABC):
+    pass
+# WARNING: Decompyle incomplete
+

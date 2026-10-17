@@ -1,0 +1,17 @@
+# Source Generated with Decompyle++
+# File: constants.pyc (Python 3.11)
+
+CONFIG_KEY_LAST_PUBLISHED_FEED_REVISION_ID = 'assistant_last_published_feed_revision_id'
+CONFIG_KEY_TRAY_LAST_ACTIVE_ACCOUNT = 'tray_last_active_account'
+CONFIG_KEY_ASSISTANT_USER_LAST_ACTIVE_TIMES = 'assistant_features_last_active_times'
+CONFIG_KEY_MAC_NOTIFICATIONS_AUTHORIZATION_STICKY_DISMISSED = 'mac_notifications_authorization_sticky_dismissed'
+CONFIG_KEY_MAC_NOTIFICATIONS_AUTHORIZATION_CONSENT_SHOWN = 'mac_notifications_authorization_consent_shown'
+CONFIG_KEY_MAC_NOTIFICATIONS_AUTHORIZATION_MODERN_CONSENT_SHOWN = 'mac_notifications_authorization_modern_consent_shown'
+CONFIG_KEY_TRAY_MERGED_TABS_EDUCATION_SEEN = 'desktop_tray_merged_tabs_education_seen'
+CONFIG_KEY_TRAY_ICON_RICH_TOOL_TIP_SEEN = 'desktop_tray_icon_rich_tool_tip_seen'
+CONFIG_KEY_DASH_ICON_RICH_TOOL_TIP_SEEN = 'desktop_dash_icon_rich_tool_tip_seen'
+STORMCROW_DASH_ESV = 'desktop-dash-esv'
+CONFIG_KEY_LOW_UI_OFFBOARDING_SEEN = 'desktop_low_ui_offboarding_seen'
+CONFIG_KEY_THEME_SETTING = 'desktop_theme_setting'
+CONFIG_KEY_USE_MEV_TRAY = 'tray_classic_fallback_toggled_by_user'
+TRAY_QUIT_CONFIRMATION_STORMCROW = 'desktop-tray-quit-confirmation'

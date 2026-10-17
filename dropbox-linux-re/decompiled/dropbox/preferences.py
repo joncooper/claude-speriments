@@ -1,0 +1,80 @@
+# Source Generated with Decompyle++
+# File: preferences.pyc (Python 3.11)
+
+from __future__ import absolute_import, division, print_function
+(NO_PROXY, AUTO_PROXY, MANUAL_PROXY) = range(3)
+(HTTP, SOCKS4, SOCKS5) = ('HTTP', 'SOCKS4', 'SOCKS5')
+OPT_CAMERA_UPLOAD_WINDOWS = 'camera_upload_window_prefs_level'
+OPT_LANG = 'language'
+INFINITE_DOWNGRADE = 'infinite_downgrade'
+SHOW_INFINITE_HARD_DOWNGRADE_MSG_DURING_LINK = 'show_infinite_hard_downgrade_msg_during_link'
+FP_DOWNGRADE = 'fp_did_downgrade'
+OPT_NOTIFS_BLUENOTE_LEGACY = 'collab_notifications'
+OPT_NOTIFS_SYNC_LEGACY = 'sync_notifications'
+OPT_NOTIFS_BLUENOTE_MENTIONS = 'notifs_bluenote_mentions'
+OPT_NOTIFS_BLUENOTE_FOLLOWED_COMMENTS = 'notifs_bluenote_followed_comments'
+OPT_NOTIFS_BLUENOTE_ASSIGNED_TASKS = 'notifs_bluenote_assigned_tasks'
+OPT_NOTIFS_BLUENOTE_SHARED_CONTENT = 'notifs_bluenote_shared_content'
+OPT_NOTIFS_BLUENOTE_VIEWS = 'notifs_bluenote_views'
+OPT_NOTIFS_SYNC_EDIT_DELETE = 'notifs_sync_edit_delete'
+OPT_NOTIFS_SYNC_ADD = 'notifs_sync_add'
+OPT_DND_END_TIME = 'dnd_end_time'
+OPT_DND_TIME_INTERVAL = 'dnd_time_interval'
+OPT_DROPBOX_FOLDER_OPENER_APP = 'preferred_folder_app'
+OPT_TRAY_WINDOW_POSITION_X = 'tray_window_position_x'
+OPT_TRAY_WINDOW_POSITION_Y = 'tray_window_position_y'
+OPT_TRAY_WINDOW_POSITION_DISPLAY_ID = 'tray_window_position_display_id'
+OPT_DESKTOP_MIRAGE_ACCOUNT_ID = 'desktop_mirage_account_id'
+OPT_NOTIFS_PREF_VERSION = 'notifs_pref_version'
+NOTIF_HAS_MODIFIED_SUFFIX = '_has_modified'
+OPT_P2P = 'p2p_enabled'
+OPT_LOCAL_BLOCK_CACHE_ENABLED = 'local_block_cache_enabled'
+OPT_LOCAL_BLOCK_CACHE_SIZE_GB = 'local_block_cache_size_gb'
+OPT_STARTUP = 'startupitem'
+
+def get_local_block_cache_preferences(config_dict):
+    enabled_value = config_dict.get(OPT_LOCAL_BLOCK_CACHE_ENABLED)
+# WARNING: Decompyle incomplete
+
+OPT_CB_STARTUP = 'startupcbitem'
+OPT_CB_STARTUP_FALSE = 0
+OPT_CB_STARTUP_TRUE = 1
+OPT_PHOTO = 'photo_import'
+OPT_SCREENSHOTS = 'save_screenshots'
+OPT_SCREENSHOTS_PREV_DAILY_LOG_TIMESTAMP = 'screenshots_prev_daily_log_timestamp'
+OPT_INSTALLER_TAG = 'tag_str'
+OPT_VIDEO = 'video_import'
+OPT_OPT_VIDEO_UNSYNCED = 'opt_video_import_unsynced'
+OPT_SHOW_QUICK_ACTIONS = 'show_quick_actions'
+COPY_IMAGE_OR_LINK = 'copy_image_or_link'
+COPY_LINK_WINDOWS = 'copy_link_windows'
+OPT_HARMONY = 'harmony'
+OPT_HARMONY_VISIBILITY = 'harmony_visibility'
+OPT_HARMONY_DISMISSED = 'badge_hidden'
+OPT_HARMONY_OUTSIDE_DROPBOX = 'harmony_outside'
+OPT_OFFICE_ADDIN = 'office_addin'
+NOTIFICATIONS_PREFERENCE_ON = 1
+NOTIFICATIONS_PREFERENCE_OFF = 0
+NOTIFICATIONS_PREFERENCE_URL = 'account/notifications'
+DROPBOX_PATH_LOCAL_CONFIG_KEY = 'dropbox_path'
+LAST_FAILED_KEXT_LOAD = 'last_failed_kext_load'
+LAST_FAILED_APPROVED_KEXT_LOAD = 'last_failed_approved_kext_load'
+KEXT_LOAD_SUCCEEDED = 'kext_load_succeeded'
+INFINITE_OPTIN_TS = 'infinite_optin_ts'
+EVER_FINISHED_INITIAL_LIST = 'ever_finished_initial_list'
+CONTEXT_MENU_SHOW_COPY_LINK = 'context_menu_show_copy_link'
+CONTEXT_MENU_SHOW_TEAM_FOLDER_SETTINGS_SHARE = 'context_menu_show_team_folder_settings_share'
+CONTEXT_MENU_SHOW_RENAME_TEAM_FOLDER = 'context_menu_show_rename_team_folder'
+CONTEXT_MENU_SHOW_LOCK_UNLOCK_EDITING_REQUEST_TO_UNLOCK = 'context_menu_show_lock_unlock_editing_request_to_unlock'
+CONTEXT_MENU_SHOW_TRANSFER_A_COPY = 'context_menu_show_transfer_a_copy'
+CONTEXT_MENU_SHOW_GET_SIGNATURES = 'context_menu_show_get_signatures'
+CONTEXT_MENU_SHOW_SIGN_YOURSELF = 'context_menu_show_sign_yourself'
+CONTEXT_MENU_SHOW_SEND_AND_TRACK = 'context_menu_show_send_and_track'
+CONTEXT_MENU_SHOW_MAKE_ONLINE_ONLY_MAKE_OFFLINE_ONLY = 'context_menu_show_make_online_only_make_offline_only'
+CONTEXT_MENU_SHOW_VERSION_HISTORY = 'context_menu_show_version_history'
+CONTEXT_MENU_SHOW_IGNORE_DONT_SYNC_TO_DROPBOX_COM = 'context_menu_show_ignore_dont_sync_to_dropbox_com'
+CONTEXT_MENU_SHOW_PREVIEW_WITH_DROPBOX = 'context_menu_show_preview_with_dropbox'
+CONTEXT_MENU_SHOW_VIEW_ON_DROPBOX = 'context_menu_show_view_on_dropbox_com'
+CONTEXT_MENU_SHOW_REVIEW_IN_REPLAY = 'context_menu_show_review_in_replay'
+CONTEXT_MENU_SHOW_FILE_INFO = 'context_menu_show_file_info'
+DESKTOP_CUSTOMIZABLE_CONTEXT_MENU_STORMCROW_ENABLED = 'desktop-customizable-context-menu'

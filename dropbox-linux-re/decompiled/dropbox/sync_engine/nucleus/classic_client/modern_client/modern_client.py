@@ -1,0 +1,115 @@
+# Source Generated with Decompyle++
+# File: modern_client.pyc (Python 3.11)
+
+import json
+import os
+import time
+from contextlib import contextmanager, ExitStack
+from typing import Callable, Collection, ContextManager, Dict, Generator, Iterable, List, Optional, Text, Tuple, Union
+from apex.context import ApexContext
+from apex.metrics import Metric
+from cffi_transport.exceptions import ServiceError, ServiceNotAvailableException
+from google.protobuf.empty_pb2 import Empty as EmptyPb
+from google.protobuf.service import RpcController
+from tprt import TransportError
+from transitional_utils.futures import parasitic_future
+from thin_client.exceptions import NucleusClientError, NucleusUnavailableError
+from metrics.transfer_status import SyncEstimateGrader
+from transfer_status import TransferStatusMonitor
+from base import NucleusModernClientBase
+from device_anchor import NucleusDeviceAnchorClient
+from device_folder import NucleusDeviceFolderClient
+from file_locking_client import NucleusFileLockingClient
+from helpers.selective_sync_helpers import ModernSelectiveSyncManager
+from infinite import NucleusInfiniteClient
+from link_container import NucleusLinkContainerClient
+from modern_thin_client import ModernThinClientResult
+from nucleus_decorators import boundary_api
+from nucleus_file_props_client import NucleusFilePropsClient
+from selective_sync_client import NucleusSelectiveSyncClient
+from temp_volume import TempVolumeClient
+from util import wrap_modern_thin_client_call_for_reactive_api
+from dropbox.client.authentication.account_interface import AccountInterface
+from dropbox.client.background_worker import on_background_thread_returns_none
+from dropbox.client.configuration.interface import LocalConfigurationInterface
+from dropbox.client.context_menu.wrapper import ContextMenuConfigWrapper
+from dropbox.client.features.file_provider_migration.gating import platform_supports_file_provider_migration
+from dropbox.client.fenix.eligibility_cache import FenixEligibilityCache
+from dropbox.client.fenix.journeys.app_shell.utils import is_open_in_dropbox_foreground_eligible
+from dropbox.client.folder_tagger.constants import FolderTag
+from dropbox.client.fsw.fsw_nucleus_args import FSWManagerArgs
+from dropbox.client.gandalf import Gandalf, GandalfFeatureValue
+from dropbox.client.periodic import PeriodicScheduler
+from dropbox.client_api.dropbox_connection import DropboxConnection
+from dropbox.components.desktop_components import DesktopComponent
+from dropbox.exception.reporting import report_bad_assumption, report_exception
+from dropbox.exception.severity import Severity
+from dropbox.fileevents import FileEvents
+from dropbox.foundation.exception_info import ExcInfo
+from dropbox.foundation.futures import FailedFuture, Future, FutureHelpers, ResolvedFuture
+from dropbox.fs_api.fs_api_thin_client import FsApiThinClientResult
+from dropbox.infinite.pager import PageFileRequest, PageRequest, PageResponse
+from dropbox.metrics.constants import SYNC_ENGINE_GENERATION_TAG
+from dropbox.metrics.function_usage import logged_method
+from dropbox.metrics.reporter import PeriodicMetricsReporter
+from dropbox.model.types import FileId, NsId
+from dropbox.native_event import AutoResetEvent
+from dropbox.nucleus.bolt_client import NucleusBoltClient
+from dropbox.nucleus.migration_constants import NucleusMigrationArgs
+from dropbox.nucleus.nucleus_server_configs import get_server_configs
+from dropbox.platform import IS_MAC
+from dropbox.preferences import DESKTOP_CUSTOMIZABLE_CONTEXT_MENU_STORMCROW_ENABLED, get_local_block_cache_preferences, OPT_LOCAL_BLOCK_CACHE_ENABLED, OPT_LOCAL_BLOCK_CACHE_SIZE_GB
+from dropbox.proto.fs_api.fs_api_service_pb2 import RenameIntoDropboxRequest as FsApiRenameIntoDropboxRequest
+from dropbox.proto.nucleus.app_service_pb2 import BugReporterStatsReply, CheckFPEligibilityReply, EchoMessage, EstimateFPMigrationDurationReply, FPCutoverDryRunExtraData, FPCutoverGoNoGoReq, GetConflictedPathReply, GetConflictedPathReq, GetDebugInfoReply, GetFilesystemInfoReq, GetSyncEngineStatusReply, HydratePlaceholderReply, HydratePlaceholderReq, ListDirByFileTypeReply, ListDirByFileTypeReq, LookupFileIdByMRServerPathReq, LookupFileIdByRRServerPathReq, LookupFileIdReply, LookupMountPointUnderFileIdReply, LookupMountPointUnderFileIdReq, NotifyShadowDomainCreatedReq, PrepareForFPMigrationReply, RecordUpcomingFolderDeleteReq, RegisterCameraUploadsTagReq, RenameIntoDropboxRequest, RetrySyncRequest, SetPathIgnoredStateReq, StartFPCutoverDryRunReply, StartFPCutoverDryRunReq, StartFPCutoverReply, StartFPCutoverReq, UnpackFPPackageReply, UnpackFPPackageReq, UpdateConfigReply, UpdateConfigReq, UpdateFeatureConfigRequest, UpdateP2PKeysReply, UpdateP2PKeysReq
+from dropbox.proto.nucleus.common_api_types_pb2 import GetRemoteMountPointsInfoReply, GetRemoteMountPointsInfoReq, LookupByLocalPathReply, LookupByLocalPathReq, LookupSyncIconReply, LookupSyncIconReq, UpdatePriorityHintReq
+from dropbox.proto.nucleus.network_state_pb2 import NetworkState
+from dropbox.proto.nucleus.published_event_pb2 import EncryptionErrorEvent, FPShadowCutoverCompleted
+from dropbox.proto.nucleus.reactive_api_pb2 import MovedToTrash, MovedToTrashSummary, ReactiveEvent, ReactiveRequest, SyncProgressForFileRequest
+from dropbox.proto.nucleus.sync_engine_pb2 import BackupModeArgs, FPContextMenuPreferences, UpdatableAppConfig, UserConfig
+from dropbox.proto.nucleus.sync_failures_pb2 import GetSyncFailuresSummaryReply, GetSyncFailuresSummaryReq
+from dropbox.proto.nucleus.types_pb2 import FileId as FileIdProto, FileType as FileTypeProto, LocalPath as LocalPathProto, SyncPriority as SyncPriorityProto
+from dropbox.proto.sync.xattr_pb2 import RawExtendedAttribute
+from dropbox.shared.local_path import LocalPath
+from dropbox.shared.server_path import MRCasedServerPath, RRCasedServerPath, ServerPath
+from dropbox.shared.util import identity
+from dropbox.sync_engine_boundary.constants import NamespaceProperty, SYNC_ICON_MIN_REFRESH_MS, SYNC_ICON_REFRESH_TIMEOUT_MS, SyncOperationFailureReason
+from dropbox.sync_engine_boundary.exceptions import InvalidRRServerPathNotInRootNs, NamespaceNotMountedError, NucleusProtoException, SyncEngineStoppedError, UnknownServerPathError
+from dropbox.sync_engine_boundary.file_locking.file_locking_interface import FileLockingInterface
+from dropbox.sync_engine_boundary.infinite.linux.xattr_placeholder_context import XattrPlaceholderContext as LinuxXattrPlaceholderContext
+from dropbox.sync_engine_boundary.infinite.mac.xattr_placeholder_context import XattrPlaceholderContext as MacXattrPlaceholderContext
+from dropbox.sync_engine_boundary.infinite.recall_events import InfiniteRecallEvent, InfiniteRecallStatus, InfiniteRecallType
+from dropbox.sync_engine_boundary.infinite.ui_types import InfiniteUIEvent, InfiniteUIEventType, InfiniteUIRequest
+from dropbox.sync_engine_boundary.infinite.win.reparse_point_placeholder_context import ReparsePointPlaceholderContext
+from dropbox.sync_engine_boundary.monitored_thread_pool import MonitoredThreadPoolExecutor
+from dropbox.sync_engine_boundary.nucleus_interface import NucleusInterface
+from dropbox.sync_engine_boundary.nucleus_p2p import OPT_P2P, P2PMetaDownloader
+from dropbox.sync_engine_boundary.nucleus_types import make_nucleus_account, make_nucleus_network_config
+from dropbox.sync_engine_boundary.selective_sync_by_path_interface import SelectiveSyncByPathInterface
+from dropbox.sync_engine_boundary.transfer_status import TransferStatusSnapshot
+from dropbox.sync_engine_boundary.types import AdditionalAttributes, CallbackRemovalToken, ConflictResolutionAttempt, DropboxFolderDiskInfo, FilesystemInfo, FileType, FileTypeFilter, MountChangeOperation, MoveToDeletedCache, SetPathIgnoredStateErrorReason, SyncIconValidationException, TypedDirectoryEntry
+from dropbox.sync_engine_boundary.types.debug_info import DebugInfo
+from dropbox.sync_engine_boundary.types.engine_waits import ActiveEngineWaits
+from dropbox.sync_engine_boundary.types.local_path import LocalPathProperties
+from dropbox.sync_engine_boundary.types.local_props import FileSyncStatus
+from dropbox.sync_engine_boundary.types.location_props import LocationProperties
+from dropbox.sync_engine_boundary.types.remote_props import FolderPolicyStatus, MountProperties, RemoteLocationProperties
+from dropbox.sync_engine_boundary.types.sync_completion import SyncCompletedSummary
+from dropbox.sync_engine_boundary.types.sync_engine_status import SyncEngineStatus
+from dropbox.sync_engine_boundary.types.sync_failures import SyncFailuresSummary, SyncOpFailed
+from dropbox.sync_engine_boundary.types.sync_icon import SyncIcon
+from dropbox.sync_engine_boundary.types.sync_progress import SyncPhase, SyncProgress, SyncProgressForFile
+from dropbox.sync_engine_boundary.types.sync_queue import SyncPriority, SyncQueueSnapshot
+from dropbox.sync_engine_boundary.utils import backup_mode_args_to_engine_generation
+from dropbox.sync_root.gating import file_provider_supported, is_file_provider_root_type
+from dropbox.sync_root.interface import SyncRootType
+from dropbox.trace import TRACE
+from dropbox.url_info import dropbox_url_info
+if IS_MAC:
+    from Foundation import NSDistributedNotificationCenter
+NUCLEUS_PERIODIC_UPDATE_JOB = 'nucleus_periodic_update_job'
+NUCLEUS_PERIODIC_UPDATE_MINS = 60
+
+class NucleusModernClient(NucleusModernClientBase, TempVolumeClient, NucleusSelectiveSyncClient, NucleusDeviceAnchorClient, NucleusDeviceFolderClient, NucleusFileLockingClient, NucleusLinkContainerClient, NucleusFilePropsClient, NucleusInfiniteClient, NucleusInterface):
+    pass
+# WARNING: Decompyle incomplete
+

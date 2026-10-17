@@ -1,0 +1,10 @@
+# Source Generated with Decompyle++
+# File: sync_progress_common.pyc (Python 3.11)
+
+SYNC_PROGRESS_NUCLEUS_FEATURE = 'sync-progress-nucleus-time-estimation'
+SYNC_FINAL_UPDATE_DELAY_SEC = 2
+SYNC_FINAL_OFFSET = SYNC_FINAL_UPDATE_DELAY_SEC * 0.01
+NO_SYNC_PROGRESS = -1
+MIN_SYNC_PROGRESS = 5
+FULL_SYNC_PROGRESS = 100
+SMOOTHING_FACTOR_ALPHA = 0.5

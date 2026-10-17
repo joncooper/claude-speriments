@@ -1,0 +1,41 @@
+# Source Generated with Decompyle++
+# File: misc.pyc (Python 3.11)
+
+from __future__ import absolute_import, division, print_function
+from dropbox.client.ui.common.strings import UI, UIStrings
+
+class MiscStrings(UIStrings):
+    cancel_button = UI('Cancel')
+    back_button = UI('Back')
+    dropbox_error = UI('Dropbox Error')
+    get_help = UI('Get Help')
+    ok_button = UI('OK')
+    continue_button = UI('Continue')
+    hide_button = UI('Hide')
+    unlink_button = UI('Unlink anyway')
+    whats_this = UI('<a href="%s">(what\'s this?)</a>')
+    apply_button = UI('Apply')
+    close_button = UI('Close')
+    yes_button = UI('Yes')
+    no_button = UI('No')
+    exit_dropbox_button = UI('Exit Dropbox')
+    sign_in_button = UI('Sign In', windows = UI('Sign in'))
+    update_button = UI('Update')
+    invite_button = UI('Invite')
+    learn_more_button = UI('Learn More')
+    report_button = UI('Report')
+    remove_button = UI('Remove')
+    desktop_login_noscript = UI("Dropbox can't log you in automatically because your browser has scripts disabled.")
+    desktop_login_signin = UI('Sign in manually')
+    error_caption = UI('Error')
+    error_generic = UI('Sorry, an error occurred. Please try again later...')
+    see_owner_button = UI('See owner')
+    active = UI('Active')
+    sign_out_button = UI('Sign out')
+    continue_anyway_button = UI('Continue anyway')
+    disable_backup_button = UI('Disable backup')
+    try_again = UI('Try Again')
+    open_recycle_bin = UI('Open Recycle Bin')
+    quit_dialog_caption = UI('Quit Dropbox?')
+    quit_dialog_message = UI('Are you sure you want to quit Dropbox? This will stop syncing your files.')
+
