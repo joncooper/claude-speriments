@@ -1,3 +1,22 @@
 {
-  "enabledMcpjsonServers": ["rea"]
+  "enabledMcpjsonServers": ["rea"],
+  "permissions": {
+    "allow": [
+      "Bash(npx -y rea-agents@6.5.0:*)",
+      "mcp__rea"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/install-ghidra.sh",
+            "timeout": 600
+          }
+        ]
+      }
+    ]
+  }
 }
